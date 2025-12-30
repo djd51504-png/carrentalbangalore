@@ -1,6 +1,29 @@
 import { useState } from "react";
 import CarCard from "./CarCard";
 
+// Import all car images
+import swiftImg from "@/assets/cars/swift.png";
+import balenoImg from "@/assets/cars/baleno.png";
+import glanzaImg from "@/assets/cars/glanza.png";
+import punchImg from "@/assets/cars/punch.png";
+import i20Img from "@/assets/cars/i20.png";
+import poloImg from "@/assets/cars/polo.png";
+import brezzaImg from "@/assets/cars/brezza.png";
+import fronxImg from "@/assets/cars/fronx.png";
+import sonetImg from "@/assets/cars/sonet.png";
+import cretaImg from "@/assets/cars/creta.png";
+import seltosImg from "@/assets/cars/seltos.png";
+import tharImg from "@/assets/cars/thar.png";
+import triberImg from "@/assets/cars/triber.png";
+import ertigaImg from "@/assets/cars/ertiga.png";
+import innovaImg from "@/assets/cars/innova.png";
+import xuv500Img from "@/assets/cars/xuv500.png";
+import rumionImg from "@/assets/cars/rumion.png";
+import innovaCrystaImg from "@/assets/cars/innova-crysta.png";
+import xuv700Img from "@/assets/cars/xuv700.png";
+import hycrossImg from "@/assets/cars/hycross.png";
+import fortunerImg from "@/assets/cars/fortuner.png";
+
 type Category = "all" | "5-seater" | "7-seater";
 
 interface Car {
@@ -13,28 +36,28 @@ interface Car {
 
 const cars: Car[] = [
   // 5-Seaters
-  { name: "Swift", price: 2500, image: "https://imgd.aeplcdn.com/664x374/n/cw/ec/54399/swift-exterior-right-front-three-quarter-64.jpeg?isig=0&q=80", category: "5-seater", categoryLabel: "Hatchback" },
-  { name: "Baleno", price: 3000, image: "https://imgd.aeplcdn.com/664x374/n/cw/ec/159099/baleno-exterior-right-front-three-quarter-9.jpeg?isig=0&q=80", category: "5-seater", categoryLabel: "Hatchback" },
-  { name: "Glanza", price: 3000, image: "https://imgd.aeplcdn.com/664x374/n/cw/ec/143865/glanza-exterior-right-front-three-quarter-5.jpeg?isig=0&q=80", category: "5-seater", categoryLabel: "Hatchback" },
-  { name: "Punch", price: 3000, image: "https://imgd.aeplcdn.com/664x374/n/cw/ec/138895/punch-exterior-right-front-three-quarter-39.jpeg?isig=0&q=80", category: "5-seater", categoryLabel: "SUV" },
-  { name: "i20", price: 3000, image: "https://imgd.aeplcdn.com/664x374/n/cw/ec/150587/i20-exterior-right-front-three-quarter-3.jpeg?isig=0&q=80", category: "5-seater", categoryLabel: "Hatchback" },
-  { name: "Polo", price: 3000, image: "https://imgd.aeplcdn.com/664x374/n/cw/ec/36498/polo-exterior-right-front-three-quarter.jpeg?isig=0&q=80", category: "5-seater", categoryLabel: "Hatchback" },
-  { name: "Brezza", price: 3500, image: "https://imgd.aeplcdn.com/664x374/n/cw/ec/145973/brezza-exterior-right-front-three-quarter-3.jpeg?isig=0&q=80", category: "5-seater", categoryLabel: "SUV" },
-  { name: "Fronx", price: 3500, image: "https://imgd.aeplcdn.com/664x374/n/cw/ec/143153/fronx-exterior-right-front-three-quarter-5.jpeg?isig=0&q=80", category: "5-seater", categoryLabel: "SUV" },
-  { name: "Sonet", price: 3500, image: "https://imgd.aeplcdn.com/664x374/n/cw/ec/141113/sonet-exterior-right-front-three-quarter-4.jpeg?isig=0&q=80", category: "5-seater", categoryLabel: "SUV" },
-  { name: "Creta", price: 4000, image: "https://imgd.aeplcdn.com/664x374/n/cw/ec/106815/creta-exterior-right-front-three-quarter-4.jpeg?isig=0&q=80", category: "5-seater", categoryLabel: "SUV" },
-  { name: "Seltos", price: 4500, image: "https://imgd.aeplcdn.com/664x374/n/cw/ec/174323/seltos-exterior-right-front-three-quarter-2.jpeg?isig=0&q=80", category: "5-seater", categoryLabel: "SUV" },
-  { name: "Thar", price: 6500, image: "https://imgd.aeplcdn.com/664x374/n/cw/ec/163651/thar-exterior-right-front-three-quarter-61.jpeg?isig=0&q=80", category: "5-seater", categoryLabel: "SUV" },
+  { name: "Swift", price: 2500, image: swiftImg, category: "5-seater", categoryLabel: "Hatchback" },
+  { name: "Baleno", price: 3000, image: balenoImg, category: "5-seater", categoryLabel: "Hatchback" },
+  { name: "Glanza", price: 3000, image: glanzaImg, category: "5-seater", categoryLabel: "Hatchback" },
+  { name: "Punch", price: 3000, image: punchImg, category: "5-seater", categoryLabel: "SUV" },
+  { name: "i20", price: 3000, image: i20Img, category: "5-seater", categoryLabel: "Hatchback" },
+  { name: "Polo", price: 3000, image: poloImg, category: "5-seater", categoryLabel: "Hatchback" },
+  { name: "Brezza", price: 3500, image: brezzaImg, category: "5-seater", categoryLabel: "SUV" },
+  { name: "Fronx", price: 3500, image: fronxImg, category: "5-seater", categoryLabel: "SUV" },
+  { name: "Sonet", price: 3500, image: sonetImg, category: "5-seater", categoryLabel: "SUV" },
+  { name: "Creta", price: 4000, image: cretaImg, category: "5-seater", categoryLabel: "SUV" },
+  { name: "Seltos", price: 4500, image: seltosImg, category: "5-seater", categoryLabel: "SUV" },
+  { name: "Thar", price: 6500, image: tharImg, category: "5-seater", categoryLabel: "SUV" },
   // 7-Seaters
-  { name: "Triber", price: 3500, image: "https://imgd.aeplcdn.com/664x374/n/cw/ec/141875/triber-exterior-right-front-three-quarter-3.jpeg?isig=0&q=80", category: "7-seater", categoryLabel: "MUV" },
-  { name: "Ertiga", price: 4000, image: "https://imgd.aeplcdn.com/664x374/n/cw/ec/115777/ertiga-exterior-right-front-three-quarter-2.jpeg?isig=0&q=80", category: "7-seater", categoryLabel: "MUV" },
-  { name: "Innova", price: 4000, image: "https://imgd.aeplcdn.com/664x374/n/cw/ec/140809/innova-crysta-exterior-right-front-three-quarter-2.jpeg?isig=0&q=80", category: "7-seater", categoryLabel: "MUV" },
-  { name: "XUV500", price: 4000, image: "https://imgd.aeplcdn.com/664x374/n/cw/ec/40087/xuv500-exterior-right-front-three-quarter-4.jpeg?isig=0&q=80", category: "7-seater", categoryLabel: "SUV" },
-  { name: "Rumion", price: 4500, image: "https://imgd.aeplcdn.com/664x374/n/cw/ec/148263/rumion-exterior-right-front-three-quarter-2.jpeg?isig=0&q=80", category: "7-seater", categoryLabel: "MUV" },
-  { name: "Innova Crysta", price: 6500, image: "https://imgd.aeplcdn.com/664x374/n/cw/ec/140809/innova-crysta-exterior-right-front-three-quarter-3.jpeg?isig=0&q=80", category: "7-seater", categoryLabel: "MUV" },
-  { name: "XUV700", price: 6500, image: "https://imgd.aeplcdn.com/664x374/n/cw/ec/133383/xuv700-exterior-right-front-three-quarter-60.jpeg?isig=0&q=80", category: "7-seater", categoryLabel: "SUV" },
-  { name: "Hycross", price: 7500, image: "https://imgd.aeplcdn.com/664x374/n/cw/ec/145553/innova-hycross-exterior-right-front-three-quarter-63.jpeg?isig=0&q=80", category: "7-seater", categoryLabel: "MUV" },
-  { name: "Fortuner", price: 9000, image: "https://imgd.aeplcdn.com/664x374/n/cw/ec/44709/fortuner-exterior-right-front-three-quarter-16.jpeg?isig=0&q=80", category: "7-seater", categoryLabel: "SUV" },
+  { name: "Triber", price: 3500, image: triberImg, category: "7-seater", categoryLabel: "MUV" },
+  { name: "Ertiga", price: 4000, image: ertigaImg, category: "7-seater", categoryLabel: "MUV" },
+  { name: "Innova", price: 4000, image: innovaImg, category: "7-seater", categoryLabel: "MUV" },
+  { name: "XUV500", price: 4000, image: xuv500Img, category: "7-seater", categoryLabel: "SUV" },
+  { name: "Rumion", price: 4500, image: rumionImg, category: "7-seater", categoryLabel: "MUV" },
+  { name: "Innova Crysta", price: 6500, image: innovaCrystaImg, category: "7-seater", categoryLabel: "MUV" },
+  { name: "XUV700", price: 6500, image: xuv700Img, category: "7-seater", categoryLabel: "SUV" },
+  { name: "Hycross", price: 7500, image: hycrossImg, category: "7-seater", categoryLabel: "MUV" },
+  { name: "Fortuner", price: 9000, image: fortunerImg, category: "7-seater", categoryLabel: "SUV" },
 ];
 
 const FleetSection = () => {
