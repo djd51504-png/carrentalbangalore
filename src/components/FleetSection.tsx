@@ -14,7 +14,7 @@ import sonetImg from "@/assets/cars/sonet.png";
 import cretaImg from "@/assets/cars/creta.png";
 import seltosImg from "@/assets/cars/seltos.png";
 import tharImg from "@/assets/cars/thar.png";
-import triberImg from "@/assets/cars/triber.png";
+import tharRoxxImg from "@/assets/cars/thar-roxx.png";
 import ertigaImg from "@/assets/cars/ertiga.png";
 import innovaImg from "@/assets/cars/innova.png";
 import xuv500Img from "@/assets/cars/xuv500.png";
@@ -32,32 +32,34 @@ interface Car {
   image: string;
   category: "5-seater" | "7-seater";
   categoryLabel: string;
+  transmission: "Manual" | "Automatic" | "Manual & Automatic";
+  fuel: "Petrol" | "Diesel";
 }
 
 const cars: Car[] = [
   // 5-Seaters
-  { name: "Swift", price: 2500, image: swiftImg, category: "5-seater", categoryLabel: "Hatchback" },
-  { name: "Baleno", price: 3000, image: balenoImg, category: "5-seater", categoryLabel: "Hatchback" },
-  { name: "Glanza", price: 3000, image: glanzaImg, category: "5-seater", categoryLabel: "Hatchback" },
-  { name: "Punch", price: 3000, image: punchImg, category: "5-seater", categoryLabel: "SUV" },
-  { name: "i20", price: 3000, image: i20Img, category: "5-seater", categoryLabel: "Hatchback" },
-  { name: "Polo", price: 3000, image: poloImg, category: "5-seater", categoryLabel: "Hatchback" },
-  { name: "Brezza", price: 3500, image: brezzaImg, category: "5-seater", categoryLabel: "SUV" },
-  { name: "Fronx", price: 3500, image: fronxImg, category: "5-seater", categoryLabel: "SUV" },
-  { name: "Sonet", price: 3500, image: sonetImg, category: "5-seater", categoryLabel: "SUV" },
-  { name: "Creta", price: 4000, image: cretaImg, category: "5-seater", categoryLabel: "SUV" },
-  { name: "Seltos", price: 4500, image: seltosImg, category: "5-seater", categoryLabel: "SUV" },
-  { name: "Thar", price: 6500, image: tharImg, category: "5-seater", categoryLabel: "SUV" },
+  { name: "Swift", price: 2500, image: swiftImg, category: "5-seater", categoryLabel: "Hatchback", transmission: "Manual & Automatic", fuel: "Petrol" },
+  { name: "Baleno", price: 3000, image: balenoImg, category: "5-seater", categoryLabel: "Hatchback", transmission: "Manual & Automatic", fuel: "Petrol" },
+  { name: "Glanza", price: 3000, image: glanzaImg, category: "5-seater", categoryLabel: "Hatchback", transmission: "Manual", fuel: "Petrol" },
+  { name: "Punch", price: 3000, image: punchImg, category: "5-seater", categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
+  { name: "i20", price: 3000, image: i20Img, category: "5-seater", categoryLabel: "Hatchback", transmission: "Manual & Automatic", fuel: "Petrol" },
+  { name: "Polo", price: 3000, image: poloImg, category: "5-seater", categoryLabel: "Hatchback", transmission: "Manual", fuel: "Petrol" },
+  { name: "Brezza", price: 3500, image: brezzaImg, category: "5-seater", categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
+  { name: "Fronx", price: 3500, image: fronxImg, category: "5-seater", categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
+  { name: "Sonet", price: 3500, image: sonetImg, category: "5-seater", categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
+  { name: "Creta", price: 4000, image: cretaImg, category: "5-seater", categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
+  { name: "Seltos", price: 4500, image: seltosImg, category: "5-seater", categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
+  { name: "Thar", price: 6500, image: tharImg, category: "5-seater", categoryLabel: "SUV", transmission: "Manual & Automatic", fuel: "Diesel" },
+  { name: "Thar Roxx", price: 8000, image: tharRoxxImg, category: "5-seater", categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
   // 7-Seaters
-  { name: "Triber", price: 3500, image: triberImg, category: "7-seater", categoryLabel: "MUV" },
-  { name: "Ertiga", price: 4000, image: ertigaImg, category: "7-seater", categoryLabel: "MUV" },
-  { name: "Innova", price: 4000, image: innovaImg, category: "7-seater", categoryLabel: "MUV" },
-  { name: "XUV500", price: 4000, image: xuv500Img, category: "7-seater", categoryLabel: "SUV" },
-  { name: "Rumion", price: 4500, image: rumionImg, category: "7-seater", categoryLabel: "MUV" },
-  { name: "Innova Crysta", price: 6500, image: innovaCrystaImg, category: "7-seater", categoryLabel: "MUV" },
-  { name: "XUV700", price: 6500, image: xuv700Img, category: "7-seater", categoryLabel: "SUV" },
-  { name: "Hycross", price: 7500, image: hycrossImg, category: "7-seater", categoryLabel: "MUV" },
-  { name: "Fortuner", price: 9000, image: fortunerImg, category: "7-seater", categoryLabel: "SUV" },
+  { name: "Ertiga", price: 4000, image: ertigaImg, category: "7-seater", categoryLabel: "MUV", transmission: "Manual", fuel: "Petrol" },
+  { name: "Innova", price: 4000, image: innovaImg, category: "7-seater", categoryLabel: "MUV", transmission: "Manual", fuel: "Diesel" },
+  { name: "XUV500", price: 4000, image: xuv500Img, category: "7-seater", categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
+  { name: "Rumion", price: 4500, image: rumionImg, category: "7-seater", categoryLabel: "MUV", transmission: "Manual", fuel: "Petrol" },
+  { name: "Innova Crysta", price: 6500, image: innovaCrystaImg, category: "7-seater", categoryLabel: "MUV", transmission: "Manual & Automatic", fuel: "Diesel" },
+  { name: "XUV700", price: 6500, image: xuv700Img, category: "7-seater", categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
+  { name: "Hycross", price: 7500, image: hycrossImg, category: "7-seater", categoryLabel: "MUV", transmission: "Automatic", fuel: "Petrol" },
+  { name: "Fortuner", price: 9000, image: fortunerImg, category: "7-seater", categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
 ];
 
 const FleetSection = () => {
@@ -115,6 +117,8 @@ const FleetSection = () => {
               price={car.price}
               image={car.image}
               category={car.categoryLabel}
+              transmission={car.transmission}
+              fuel={car.fuel}
             />
           ))}
         </div>
