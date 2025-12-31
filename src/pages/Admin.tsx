@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Plus, Trash2, Car, AlertTriangle, ArrowLeft } from "lucide-react";
+import { useState, useCallback } from "react";
+import { Plus, Trash2, Car, AlertTriangle, ArrowLeft, Upload, X, ImageIcon, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,8 +19,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
-interface Car {
+interface CarData {
   id: string;
   name: string;
   brand: string;
@@ -35,7 +36,7 @@ interface Car {
 
 const Admin = () => {
   const { toast } = useToast();
-  const [cars, setCars] = useState<Car[]>([
+  const [cars, setCars] = useState<CarData[]>([
     { id: "1", name: "Swift", brand: "Maruti Suzuki", price: 2500, kmLimit: 300, extraKmCharge: 10, fuel: "Petrol", transmission: "Manual", category: "5-Seater" },
     { id: "2", name: "Baleno", brand: "Maruti Suzuki", price: 3000, kmLimit: 300, extraKmCharge: 10, fuel: "Petrol", transmission: "Manual & Automatic", category: "5-Seater" },
     { id: "3", name: "Thar", brand: "Mahindra", price: 6500, kmLimit: 300, extraKmCharge: 15, fuel: "Diesel", transmission: "Manual & Automatic", category: "5-Seater" },
@@ -52,6 +53,71 @@ const Admin = () => {
     transmission: "Manual",
     category: "5-Seater",
   });
+
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith("image/")) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      toast({
+        title: "Invalid file",
+        description: "Please upload an image file (JPG, PNG, WebP)",
+        variant: "destructive",
+      });
+    }
+  }, [toast]);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
+  const uploadImage = async (file: File): Promise<string | null> => {
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+    const filePath = `cars/${fileName}`;
+
+    const { error } = await supabase.storage
+      .from("car-images")
+      .upload(filePath, file);
+
+    if (error) {
+      console.error("Upload error:", error);
+      return null;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from("car-images")
+      .getPublicUrl(filePath);
+
+    return publicUrl;
+  };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -88,9 +154,25 @@ const Admin = () => {
     });
   };
 
-  const handleAddCar = (e: React.FormEvent) => {
+  const handleAddCar = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newCar: Car = {
+    setIsUploading(true);
+
+    let imageUrl: string | undefined;
+    if (imageFile) {
+      const uploadedUrl = await uploadImage(imageFile);
+      if (uploadedUrl) {
+        imageUrl = uploadedUrl;
+      } else {
+        toast({
+          title: "Upload Failed",
+          description: "Failed to upload image. Car added without image.",
+          variant: "destructive",
+        });
+      }
+    }
+
+    const newCar: CarData = {
       id: Date.now().toString(),
       name: formData.name,
       brand: formData.brand,
@@ -100,6 +182,7 @@ const Admin = () => {
       fuel: formData.fuel,
       transmission: formData.transmission,
       category: formData.category,
+      image: imageUrl,
     };
     setCars([...cars, newCar]);
     setFormData({
@@ -112,6 +195,9 @@ const Admin = () => {
       transmission: "Manual",
       category: "5-Seater",
     });
+    setImageFile(null);
+    setImagePreview(null);
+    setIsUploading(false);
     toast({
       title: "Car Added",
       description: `${newCar.brand} ${newCar.name} has been added to inventory.`,
@@ -150,8 +236,62 @@ const Admin = () => {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleAddCar} className="space-y-4">
-                {/* Basic Info */}
+                {/* Image Upload */}
                 <div className="space-y-3">
+                  <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Photo</h3>
+                  {imagePreview ? (
+                    <div className="relative">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-full h-40 object-contain rounded-lg border border-border bg-muted"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-2 right-2 h-8 w-8"
+                        onClick={removeImage}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
+                        isDragging
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:border-primary/50 hover:bg-muted/50"
+                      }`}
+                    >
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileSelect}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Upload className="h-6 w-6 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-foreground">
+                            Drag & drop or click to upload
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            JPG, PNG, WebP up to 5MB
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Basic Info */}
+                <div className="space-y-3 pt-2 border-t border-border">
                   <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Basic Info</h3>
                   <div className="space-y-2">
                     <Label htmlFor="brand">Brand</Label>
@@ -257,9 +397,18 @@ const Admin = () => {
                   </div>
                 </div>
 
-                <Button type="submit" className="w-full mt-4">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Vehicle
+                <Button type="submit" className="w-full mt-4" disabled={isUploading}>
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Vehicle
+                    </>
+                  )}
                 </Button>
               </form>
             </CardContent>
@@ -364,8 +513,12 @@ const Admin = () => {
                           checked={selectedCars.includes(car.id)}
                           onCheckedChange={(checked) => handleSelectCar(car.id, checked as boolean)}
                         />
-                        <div className="h-16 w-24 rounded-lg bg-muted flex items-center justify-center">
-                          <Car className="h-8 w-8 text-muted-foreground" />
+                        <div className="h-16 w-24 rounded-lg bg-muted flex items-center justify-center overflow-hidden">
+                          {car.image ? (
+                            <img src={car.image} alt={car.name} className="h-full w-full object-contain" />
+                          ) : (
+                            <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                          )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-foreground">{car.brand} {car.name}</h3>
