@@ -10,22 +10,22 @@ interface CarLocation {
 }
 
 const locations: CarLocation[] = [
-  { id: "1", x: 25, y: 35, label: "Whitefield", testimonial: "Swift just picked up!" },
-  { id: "2", x: 45, y: 25, label: "Nandi Hills", testimonial: "Fortuner reached Nandi Hills!" },
-  { id: "3", x: 15, y: 55, label: "Electronic City", testimonial: "i20 headed to Coorg" },
+  { id: "1", x: 25, y: 35, label: "Whitefield", testimonial: "Swift picked up at Whitefield!" },
+  { id: "2", x: 45, y: 25, label: "Mysore", testimonial: "Innova reached Mysore – 5/5 Service!" },
+  { id: "3", x: 15, y: 55, label: "Electronic City", testimonial: "i20 headed to Ooty" },
   { id: "4", x: 70, y: 40, label: "Hebbal" },
-  { id: "5", x: 55, y: 60, label: "Koramangala", testimonial: "Innova – 5/5 Service!" },
-  { id: "6", x: 30, y: 70, label: "Mysore Road" },
-  { id: "7", x: 80, y: 20, label: "Chikmagalur", testimonial: "Thar adventure begins!" },
+  { id: "5", x: 55, y: 60, label: "Koramangala", testimonial: "Creta on the way to Coorg!" },
+  { id: "6", x: 30, y: 70, label: "Rameshwaram", testimonial: "Fortuner reached Rameshwaram!" },
+  { id: "7", x: 80, y: 20, label: "Chikmagalur", testimonial: "Thar exploring Chikmagalur!" },
   { id: "8", x: 65, y: 75, label: "Coorg" },
-  { id: "9", x: 40, y: 45, label: "Indiranagar" },
-  { id: "10", x: 20, y: 20, label: "Yelahanka" },
+  { id: "9", x: 40, y: 45, label: "Indiranagar", testimonial: "XUV700 picked up for Pondicherry trip!" },
+  { id: "10", x: 20, y: 20, label: "Ooty", testimonial: "Baleno just reached Ooty!" },
 ];
 
 const SocialProofMap = () => {
   const [activePopups, setActivePopups] = useState<string[]>([]);
-  const [carsOnTrip, setCarsOnTrip] = useState(18);
-  const [carsAvailable, setCarsAvailable] = useState(4);
+  const [carsOnTrip, setCarsOnTrip] = useState(22);
+  const [carsAvailable, setCarsAvailable] = useState(6);
 
   // Rotate testimonial popups
   useEffect(() => {
@@ -50,8 +50,8 @@ const SocialProofMap = () => {
   // Simulate real-time counter updates
   useEffect(() => {
     const interval = setInterval(() => {
-      setCarsOnTrip(prev => Math.max(15, Math.min(22, prev + (Math.random() > 0.5 ? 1 : -1))));
-      setCarsAvailable(prev => Math.max(2, Math.min(6, prev + (Math.random() > 0.5 ? 1 : -1))));
+      setCarsOnTrip(prev => Math.max(18, Math.min(26, prev + (Math.random() > 0.5 ? 1 : -1))));
+      setCarsAvailable(prev => Math.max(5, Math.min(7, prev + (Math.random() > 0.5 ? 1 : -1))));
     }, 8000);
 
     return () => clearInterval(interval);
