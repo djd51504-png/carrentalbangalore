@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Plus, Trash2, Car, AlertTriangle, ArrowLeft, Upload, X, ImageIcon, Loader2 } from "lucide-react";
+import { Plus, Trash2, Car, AlertTriangle, ArrowLeft, Upload, X, ImageIcon, Loader2, Pencil } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -58,6 +64,23 @@ const Admin = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+
+  // Edit mode state
+  const [editingCar, setEditingCar] = useState<CarData | null>(null);
+  const [editFormData, setEditFormData] = useState({
+    name: "",
+    brand: "",
+    price: "",
+    kmLimit: "",
+    extraKmCharge: "",
+    fuel: "Petrol",
+    transmission: "Manual",
+    category: "5-Seater",
+  });
+  const [editImageFile, setEditImageFile] = useState<File | null>(null);
+  const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
+  const [isEditUploading, setIsEditUploading] = useState(false);
+  const [isEditDragging, setIsEditDragging] = useState(false);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -201,6 +224,122 @@ const Admin = () => {
     toast({
       title: "Car Added",
       description: `${newCar.brand} ${newCar.name} has been added to inventory.`,
+    });
+  };
+
+  // Edit handlers
+  const openEditDialog = (car: CarData) => {
+    setEditingCar(car);
+    setEditFormData({
+      name: car.name,
+      brand: car.brand,
+      price: car.price.toString(),
+      kmLimit: car.kmLimit.toString(),
+      extraKmCharge: car.extraKmCharge.toString(),
+      fuel: car.fuel,
+      transmission: car.transmission,
+      category: car.category,
+    });
+    setEditImagePreview(car.image || null);
+    setEditImageFile(null);
+  };
+
+  const closeEditDialog = () => {
+    setEditingCar(null);
+    setEditFormData({
+      name: "",
+      brand: "",
+      price: "",
+      kmLimit: "",
+      extraKmCharge: "",
+      fuel: "Petrol",
+      transmission: "Manual",
+      category: "5-Seater",
+    });
+    setEditImageFile(null);
+    setEditImagePreview(null);
+  };
+
+  const handleEditDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsEditDragging(true);
+  }, []);
+
+  const handleEditDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsEditDragging(false);
+  }, []);
+
+  const handleEditDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsEditDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith("image/")) {
+      setEditImageFile(file);
+      setEditImagePreview(URL.createObjectURL(file));
+    } else {
+      toast({
+        title: "Invalid file",
+        description: "Please upload an image file (JPG, PNG, WebP)",
+        variant: "destructive",
+      });
+    }
+  }, [toast]);
+
+  const handleEditFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      setEditImageFile(file);
+      setEditImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const removeEditImage = () => {
+    setEditImageFile(null);
+    setEditImagePreview(null);
+  };
+
+  const handleUpdateCar = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCar) return;
+
+    setIsEditUploading(true);
+
+    let imageUrl = editingCar.image;
+    if (editImageFile) {
+      const uploadedUrl = await uploadImage(editImageFile);
+      if (uploadedUrl) {
+        imageUrl = uploadedUrl;
+      } else {
+        toast({
+          title: "Upload Failed",
+          description: "Failed to upload image. Keeping existing image.",
+          variant: "destructive",
+        });
+      }
+    } else if (!editImagePreview) {
+      imageUrl = undefined;
+    }
+
+    const updatedCar: CarData = {
+      id: editingCar.id,
+      name: editFormData.name,
+      brand: editFormData.brand,
+      price: Number(editFormData.price),
+      kmLimit: Number(editFormData.kmLimit),
+      extraKmCharge: Number(editFormData.extraKmCharge),
+      fuel: editFormData.fuel,
+      transmission: editFormData.transmission,
+      category: editFormData.category,
+      image: imageUrl,
+    };
+
+    setCars(cars.map((car) => (car.id === editingCar.id ? updatedCar : car)));
+    setIsEditUploading(false);
+    closeEditDialog();
+    toast({
+      title: "Car Updated",
+      description: `${updatedCar.brand} ${updatedCar.name} has been updated.`,
     });
   };
 
@@ -528,16 +667,212 @@ const Admin = () => {
                             <span className="text-xs px-2 py-0.5 bg-muted text-muted-foreground rounded-full">{car.transmission}</span>
                           </div>
                         </div>
-                        <div className="text-right">
+                        <div className="text-right mr-2">
                           <p className="text-lg font-bold text-primary">₹{car.price.toLocaleString()}</p>
                           <p className="text-xs text-muted-foreground">{car.kmLimit}km limit</p>
                         </div>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="shrink-0"
+                          onClick={() => openEditDialog(car)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
                 ))}
               </div>
             )}
+
+            {/* Edit Vehicle Dialog */}
+            <Dialog open={!!editingCar} onOpenChange={(open) => !open && closeEditDialog()}>
+              <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Pencil className="h-5 w-5 text-primary" />
+                    Edit Vehicle
+                  </DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleUpdateCar} className="space-y-4">
+                  {/* Image Upload */}
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Photo</h3>
+                    {editImagePreview ? (
+                      <div className="relative">
+                        <img
+                          src={editImagePreview}
+                          alt="Preview"
+                          className="w-full h-40 object-contain rounded-lg border border-border bg-muted"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute top-2 right-2 h-8 w-8"
+                          onClick={removeEditImage}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div
+                        onDragOver={handleEditDragOver}
+                        onDragLeave={handleEditDragLeave}
+                        onDrop={handleEditDrop}
+                        className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
+                          isEditDragging
+                            ? "border-primary bg-primary/5"
+                            : "border-border hover:border-primary/50 hover:bg-muted/50"
+                        }`}
+                      >
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleEditFileSelect}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        />
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                            <Upload className="h-6 w-6 text-primary" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-foreground">
+                              Drag & drop or click to upload
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              JPG, PNG, WebP up to 5MB
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Basic Info */}
+                  <div className="space-y-3 pt-2 border-t border-border">
+                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Basic Info</h3>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-brand">Brand</Label>
+                      <Input
+                        id="edit-brand"
+                        placeholder="e.g., Maruti Suzuki"
+                        value={editFormData.brand}
+                        onChange={(e) => setEditFormData({ ...editFormData, brand: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-name">Model Name</Label>
+                      <Input
+                        id="edit-name"
+                        placeholder="e.g., Swift"
+                        value={editFormData.name}
+                        onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-category">Category</Label>
+                      <Select value={editFormData.category} onValueChange={(v) => setEditFormData({ ...editFormData, category: v })}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="5-Seater">5-Seater Hatchbacks/SUVs</SelectItem>
+                          <SelectItem value="7-Seater">7-Seater MUVs</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Pricing */}
+                  <div className="space-y-3 pt-2 border-t border-border">
+                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Pricing & Limits</h3>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-price">Price per Day (₹)</Label>
+                      <Input
+                        id="edit-price"
+                        type="number"
+                        placeholder="e.g., 2500"
+                        value={editFormData.price}
+                        onChange={(e) => setEditFormData({ ...editFormData, price: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-kmLimit">KM Limit</Label>
+                        <Input
+                          id="edit-kmLimit"
+                          type="number"
+                          value={editFormData.kmLimit}
+                          onChange={(e) => setEditFormData({ ...editFormData, kmLimit: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-extraKmCharge">Extra KM (₹)</Label>
+                        <Input
+                          id="edit-extraKmCharge"
+                          type="number"
+                          value={editFormData.extraKmCharge}
+                          onChange={(e) => setEditFormData({ ...editFormData, extraKmCharge: e.target.value })}
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Specifications */}
+                  <div className="space-y-3 pt-2 border-t border-border">
+                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Specifications</h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <Label>Fuel Type</Label>
+                        <Select value={editFormData.fuel} onValueChange={(v) => setEditFormData({ ...editFormData, fuel: v })}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Petrol">Petrol</SelectItem>
+                            <SelectItem value="Diesel">Diesel</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Transmission</Label>
+                        <Select value={editFormData.transmission} onValueChange={(v) => setEditFormData({ ...editFormData, transmission: v })}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Manual">Manual</SelectItem>
+                            <SelectItem value="Automatic">Automatic</SelectItem>
+                            <SelectItem value="Manual & Automatic">Both</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button type="submit" className="w-full mt-4" disabled={isEditUploading}>
+                    {isEditUploading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Updating...
+                      </>
+                    ) : (
+                      <>
+                        <Pencil className="h-4 w-4 mr-2" />
+                        Update Vehicle
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>
