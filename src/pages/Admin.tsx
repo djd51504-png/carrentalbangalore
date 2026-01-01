@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react";
-import { Plus, Trash2, Car, AlertTriangle, ArrowLeft, Upload, X, ImageIcon, Loader2, Pencil } from "lucide-react";
+import { useState, useCallback, useEffect } from "react";
+import { Plus, Trash2, Car, AlertTriangle, ArrowLeft, Upload, X, ImageIcon, Loader2, Pencil, Lock, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,13 +40,60 @@ interface CarData {
   image?: string;
 }
 
+// Admin password - in production, this should be stored securely in the database
+const ADMIN_PASSWORD = "active@2024";
+
 const Admin = () => {
   const { toast } = useToast();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
   const [cars, setCars] = useState<CarData[]>([
     { id: "1", name: "Swift", brand: "Maruti Suzuki", price: 2500, kmLimit: 300, extraKmCharge: 10, fuel: "Petrol", transmission: "Manual", category: "5-Seater" },
     { id: "2", name: "Baleno", brand: "Maruti Suzuki", price: 3000, kmLimit: 300, extraKmCharge: 10, fuel: "Petrol", transmission: "Manual & Automatic", category: "5-Seater" },
     { id: "3", name: "Thar", brand: "Mahindra", price: 6500, kmLimit: 300, extraKmCharge: 15, fuel: "Diesel", transmission: "Manual & Automatic", category: "5-Seater" },
   ]);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoggingIn(true);
+    
+    // Simulate a brief delay for UX
+    setTimeout(() => {
+      if (password === ADMIN_PASSWORD) {
+        setIsAuthenticated(true);
+        sessionStorage.setItem("adminAuth", "true");
+        toast({
+          title: "Welcome!",
+          description: "You have successfully logged in to the admin dashboard.",
+        });
+      } else {
+        toast({
+          title: "Invalid Password",
+          description: "The password you entered is incorrect.",
+          variant: "destructive",
+        });
+      }
+      setIsLoggingIn(false);
+      setPassword("");
+    }, 500);
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    sessionStorage.removeItem("adminAuth");
+    toast({
+      title: "Logged Out",
+      description: "You have been logged out of the admin dashboard.",
+    });
+  };
+
+  // Check for existing session on mount
+  useEffect(() => {
+    const isAuth = sessionStorage.getItem("adminAuth") === "true";
+    if (isAuth) setIsAuthenticated(true);
+  }, []);
 
   const [selectedCars, setSelectedCars] = useState<string[]>([]);
   const [formData, setFormData] = useState({
@@ -343,6 +390,56 @@ const Admin = () => {
     });
   };
 
+  // Login Screen
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-muted/30 flex items-center justify-center px-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mx-auto h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+              <Lock className="h-8 w-8 text-primary" />
+            </div>
+            <CardTitle className="text-2xl">Admin Access</CardTitle>
+            <p className="text-muted-foreground text-sm mt-2">
+              Enter the admin password to access the dashboard
+            </p>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Enter admin password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoFocus
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={isLoggingIn}>
+                {isLoggingIn ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Logging in...
+                  </>
+                ) : (
+                  "Login"
+                )}
+              </Button>
+              <div className="text-center">
+                <Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  ← Back to website
+                </Link>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-muted/30">
       {/* Header */}
@@ -356,9 +453,15 @@ const Admin = () => {
             <div className="h-6 w-px bg-border" />
             <h1 className="text-xl font-bold text-foreground">Admin Dashboard</h1>
           </div>
-          <div className="flex items-center gap-2">
-            <Car className="h-5 w-5 text-primary" />
-            <span className="font-semibold">{cars.length} Vehicles</span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Car className="h-5 w-5 text-primary" />
+              <span className="font-semibold">{cars.length} Vehicles</span>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleLogout}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
           </div>
         </div>
       </header>
