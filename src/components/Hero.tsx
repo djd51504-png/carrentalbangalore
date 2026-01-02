@@ -1,64 +1,89 @@
-import { ChevronDown, Shield, MapPin, Clock } from "lucide-react";
+import { ChevronDown, Shield, MapPin, Clock, Sparkles } from "lucide-react";
 
 const Hero = () => {
   const scrollToFleet = () => {
     document.getElementById("fleet")?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const scrollToCalculator = () => {
+    document.getElementById("calculator")?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
-    <section className="relative min-h-screen bg-hero flex items-center pt-20 overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-electric rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-electric-light rounded-full blur-3xl" />
-      </div>
+    <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
+      {/* Video Background */}
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+      >
+        <source src="/hero-video.mp4" type="video/mp4" />
+      </video>
+      
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 bg-charcoal/70 backdrop-blur-[2px]" />
+      
+      {/* Gradient Overlay for depth */}
+      <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-transparent to-charcoal/30" />
 
       <div className="container relative z-10 py-12 md:py-20">
-        <div className="max-w-4xl mx-auto text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-electric/20 border border-electric/30 rounded-full px-4 py-2 mb-6 animate-fade-in">
-            <MapPin className="w-4 h-4 text-electric-light" />
-            <span className="text-sm text-electric-light font-medium">Serving All of Bengaluru</span>
+        <div className="max-w-5xl mx-auto text-center">
+          {/* Premium Badge */}
+          <div className="inline-flex items-center gap-2 bg-primary/20 border border-primary/40 backdrop-blur-md rounded-full px-5 py-2.5 mb-8 animate-fade-in">
+            <Sparkles className="w-4 h-4 text-electric-light" />
+            <span className="text-sm text-electric-light font-semibold tracking-wide uppercase">Premium Self-Drive Rentals</span>
           </div>
 
           {/* Main Headline */}
           <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-primary-foreground mb-6 leading-tight animate-slide-up">
-            Your Journey,{" "}
-            <span className="text-gradient">Your Drive.</span>
+            Luxury on Demand.
             <br />
-            <span className="text-electric-light">Key2Go.</span>
+            <span className="text-gradient">Keys to Bangalore's</span>
+            <br />
+            <span className="text-electric-light">Finest Fleet.</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: "0.1s" }}>
-            Premium self-drive cars in Bangalore starting at{" "}
-            <span className="text-electric-light font-bold">₹2500/day</span>.{" "}
-            <span className="text-electric-light font-semibold">300km limit</span>. No hidden charges.
+          <p className="text-lg md:text-xl text-primary-foreground/80 mb-10 max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: "0.1s" }}>
+            Experience freedom with our premium self-drive cars. Starting at{" "}
+            <span className="text-electric-light font-bold">₹2500/day</span> with{" "}
+            <span className="text-electric-light font-semibold">300km included</span>. 
+            <br className="hidden sm:block" />
+            Transparent pricing. No hidden charges.
           </p>
 
-          {/* CTA Button */}
-          <button
-            onClick={scrollToFleet}
-            className="group bg-gradient-button text-primary-foreground px-8 py-4 rounded-xl text-lg font-bold shadow-button hover:scale-105 transition-all duration-300 animate-slide-up"
-            style={{ animationDelay: "0.2s" }}
-          >
-            Explore Fleet
-            <ChevronDown className="inline-block ml-2 w-5 h-5 group-hover:translate-y-1 transition-transform" />
-          </button>
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: "0.2s" }}>
+            <button
+              onClick={scrollToCalculator}
+              className="group bg-gradient-button text-primary-foreground px-8 py-4 rounded-xl text-lg font-bold shadow-button hover:scale-105 transition-all duration-300"
+            >
+              Check Availability
+              <ChevronDown className="inline-block ml-2 w-5 h-5 group-hover:translate-y-1 transition-transform" />
+            </button>
+            <button
+              onClick={scrollToFleet}
+              className="group bg-primary-foreground/10 backdrop-blur-md border border-primary-foreground/30 text-primary-foreground px-8 py-4 rounded-xl text-lg font-semibold hover:bg-primary-foreground/20 transition-all duration-300"
+            >
+              Explore Fleet
+            </button>
+          </div>
 
           {/* Trust Badges */}
-          <div className="flex flex-wrap justify-center gap-6 mt-12 animate-fade-in" style={{ animationDelay: "0.4s" }}>
-            <div className="flex items-center gap-2 text-primary-foreground/70">
+          <div className="flex flex-wrap justify-center gap-8 mt-14 animate-fade-in" style={{ animationDelay: "0.4s" }}>
+            <div className="flex items-center gap-2.5 text-primary-foreground/80 backdrop-blur-md bg-primary-foreground/5 px-4 py-2 rounded-full">
               <Shield className="w-5 h-5 text-electric-light" />
               <span className="text-sm font-medium">Fully Insured</span>
             </div>
-            <div className="flex items-center gap-2 text-primary-foreground/70">
+            <div className="flex items-center gap-2.5 text-primary-foreground/80 backdrop-blur-md bg-primary-foreground/5 px-4 py-2 rounded-full">
               <Clock className="w-5 h-5 text-electric-light" />
               <span className="text-sm font-medium">24/7 Support</span>
             </div>
-            <div className="flex items-center gap-2 text-primary-foreground/70">
+            <div className="flex items-center gap-2.5 text-primary-foreground/80 backdrop-blur-md bg-primary-foreground/5 px-4 py-2 rounded-full">
               <MapPin className="w-5 h-5 text-electric-light" />
-              <span className="text-sm font-medium">Pickup & Drop</span>
+              <span className="text-sm font-medium">9 Locations</span>
             </div>
           </div>
         </div>
