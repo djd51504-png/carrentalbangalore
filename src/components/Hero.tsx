@@ -1,14 +1,16 @@
 import { ChevronDown, Shield, MapPin, Clock, Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Hero = () => {
-  const scrollToFleet = () => {
-    document.getElementById("fleet")?.scrollIntoView({ behavior: "smooth" });
-  };
+  const navigate = useNavigate();
 
   const scrollToCalculator = () => {
     document.getElementById("calculator")?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const goToCars = () => {
+    navigate("/cars");
+  };
   return (
     <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
       {/* Video Background */}
@@ -64,10 +66,10 @@ const Hero = () => {
               <ChevronDown className="inline-block ml-2 w-5 h-5 group-hover:translate-y-1 transition-transform" />
             </button>
             <button
-              onClick={scrollToFleet}
+              onClick={goToCars}
               className="group bg-primary-foreground/10 backdrop-blur-md border border-primary-foreground/30 text-primary-foreground px-8 py-4 rounded-xl text-lg font-semibold hover:bg-primary-foreground/20 transition-all duration-300"
             >
-              Explore Fleet
+              Explore Our Cars
             </button>
           </div>
 
