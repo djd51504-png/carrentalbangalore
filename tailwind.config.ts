@@ -36,6 +36,11 @@ export default {
           light: "hsl(var(--electric-blue-light))",
           dark: "hsl(var(--electric-blue-dark))",
         },
+        gold: {
+          DEFAULT: "hsl(var(--gold))",
+          light: "hsl(var(--gold-light))",
+          dark: "hsl(var(--gold-dark))",
+        },
         whatsapp: "hsl(var(--whatsapp))",
         primary: {
           DEFAULT: "hsl(var(--primary))",

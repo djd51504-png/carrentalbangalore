@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import CarCard from "./CarCard";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import WhatsAppButton from "@/components/WhatsAppButton";
+import CarCard from "@/components/CarCard";
 
 // Import all car images
 import swiftImg from "@/assets/cars/swift.png";
@@ -38,7 +41,6 @@ interface Car {
 }
 
 const cars: Car[] = [
-  // 5-Seaters
   { name: "Swift", price: 2500, image: swiftImg, category: "5-seater", categoryLabel: "Hatchback", transmission: "Manual & Automatic", fuel: "Petrol" },
   { name: "Baleno", price: 3000, image: balenoImg, category: "5-seater", categoryLabel: "Hatchback", transmission: "Manual & Automatic", fuel: "Petrol" },
   { name: "Glanza", price: 3000, image: glanzaImg, category: "5-seater", categoryLabel: "Hatchback", transmission: "Manual", fuel: "Petrol" },
@@ -52,7 +54,6 @@ const cars: Car[] = [
   { name: "Seltos", price: 4500, image: seltosImg, category: "5-seater", categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
   { name: "Thar", price: 6500, image: tharImg, category: "5-seater", categoryLabel: "SUV", transmission: "Manual & Automatic", fuel: "Diesel" },
   { name: "Thar Roxx", price: 8000, image: tharRoxxImg, category: "5-seater", categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
-  // 7-Seaters
   { name: "Ertiga", price: 4000, image: ertigaImg, category: "7-seater", categoryLabel: "MUV", transmission: "Manual", fuel: "Petrol" },
   { name: "Innova", price: 4000, image: innovaImg, category: "7-seater", categoryLabel: "MUV", transmission: "Manual", fuel: "Diesel" },
   { name: "XUV500", price: 4000, image: xuv500Img, category: "7-seater", categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
@@ -63,7 +64,7 @@ const cars: Car[] = [
   { name: "Fortuner", price: 9000, image: fortunerImg, category: "7-seater", categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
 ];
 
-const FleetSection = () => {
+const Cars = () => {
   const [activeCategory, setActiveCategory] = useState<Category>("all");
 
   const filteredCars = activeCategory === "all" 
@@ -77,68 +78,75 @@ const FleetSection = () => {
   ];
 
   return (
-    <section id="fleet" className="py-16 md:py-24 bg-background">
-      <div className="container">
-        {/* Section Header */}
-        <div className="text-center mb-10 md:mb-14">
-          <span className="inline-block text-sm font-semibold text-gold uppercase tracking-wider mb-2">
-            Our Cars
-          </span>
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            Choose Your Perfect Ride
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto mb-2">
-            From budget-friendly hatchbacks to premium SUVs – we've got the perfect car for every journey.
-          </p>
-          <p className="text-gold font-semibold">
-            Price is negotiable for long-term rentals. Call us for the best quote.
-          </p>
-        </div>
+    <div className="min-h-screen bg-background">
+      <Header />
+      
+      <main className="pt-24 md:pt-28 pb-16 md:pb-24">
+        <div className="container">
+          {/* Page Header */}
+          <div className="text-center mb-10 md:mb-14">
+            <span className="inline-block text-sm font-semibold text-gold uppercase tracking-wider mb-2">
+              Our Cars
+            </span>
+            <h1 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+              Choose Your Perfect Ride
+            </h1>
+            <p className="text-muted-foreground max-w-2xl mx-auto mb-4">
+              From budget-friendly hatchbacks to premium SUVs – we've got the perfect car for every journey.
+            </p>
+            <p className="text-gold font-semibold">
+              Price is negotiable for long-term rentals. Call us for the best quote.
+            </p>
+          </div>
 
-        {/* Category Filters */}
-        <div className="flex flex-wrap justify-center gap-3 mb-10">
-          {categories.map(({ key, label }) => (
-            <button
-              key={key}
-              onClick={() => setActiveCategory(key)}
-              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
-                activeCategory === key
-                  ? "bg-primary text-primary-foreground shadow-button"
-                  : "bg-secondary text-secondary-foreground hover:bg-primary/10"
-              }`}
+          {/* Category Filters */}
+          <div className="flex flex-wrap justify-center gap-3 mb-10">
+            {categories.map(({ key, label }) => (
+              <button
+                key={key}
+                onClick={() => setActiveCategory(key)}
+                className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
+                  activeCategory === key
+                    ? "bg-primary text-primary-foreground shadow-button"
+                    : "bg-secondary text-secondary-foreground hover:bg-primary/10"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Cars Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
+            {filteredCars.map((car) => (
+              <CarCard
+                key={car.name}
+                name={car.name}
+                price={car.price}
+                image={car.image}
+                category={car.categoryLabel}
+                transmission={car.transmission}
+                fuel={car.fuel}
+              />
+            ))}
+          </div>
+
+          {/* View Full Pricing Link */}
+          <div className="text-center mt-12">
+            <Link
+              to="/pricing"
+              className="inline-flex items-center gap-2 px-8 py-4 border-2 border-gold text-gold hover:bg-gold hover:text-charcoal font-semibold rounded-xl transition-all duration-300"
             >
-              {label}
-            </button>
-          ))}
+              View All Cars & Full Price List
+            </Link>
+          </div>
         </div>
+      </main>
 
-        {/* Cars Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
-          {filteredCars.slice(0, 8).map((car) => (
-            <CarCard
-              key={car.name}
-              name={car.name}
-              price={car.price}
-              image={car.image}
-              category={car.categoryLabel}
-              transmission={car.transmission}
-              fuel={car.fuel}
-            />
-          ))}
-        </div>
-
-        {/* View All Cars Link */}
-        <div className="text-center mt-10">
-          <Link
-            to="/cars"
-            className="inline-flex items-center gap-2 px-8 py-4 border-2 border-gold text-gold hover:bg-gold hover:text-charcoal font-semibold rounded-xl transition-all duration-300"
-          >
-            View All Cars
-          </Link>
-        </div>
-      </div>
-    </section>
+      <Footer />
+      <WhatsAppButton />
+    </div>
   );
 };
 
-export default FleetSection;
+export default Cars;
