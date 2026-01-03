@@ -5,7 +5,7 @@ const Footer = () => {
   return (
     <footer className="bg-charcoal text-primary-foreground py-12 md:py-16">
       <div className="container">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-10" data-aos="fade-up">
           {/* Brand */}
           <div>
             <div className="flex items-center gap-3 mb-4">

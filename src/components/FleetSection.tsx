@@ -80,7 +80,7 @@ const FleetSection = () => {
     <section id="fleet" className="py-16 md:py-24 bg-background">
       <div className="container">
         {/* Section Header */}
-        <div className="text-center mb-10 md:mb-14">
+        <div className="text-center mb-10 md:mb-14" data-aos="fade-down">
           <span className="inline-block text-sm font-semibold text-gold uppercase tracking-wider mb-2">
             Our Cars
           </span>
@@ -114,16 +114,17 @@ const FleetSection = () => {
 
         {/* Cars Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
-          {filteredCars.slice(0, 8).map((car) => (
-            <CarCard
-              key={car.name}
-              name={car.name}
-              price={car.price}
-              image={car.image}
-              category={car.categoryLabel}
-              transmission={car.transmission}
-              fuel={car.fuel}
-            />
+          {filteredCars.slice(0, 8).map((car, index) => (
+            <div key={car.name} data-aos="fade-up" data-aos-delay={index * 50}>
+              <CarCard
+                name={car.name}
+                price={car.price}
+                image={car.image}
+                category={car.categoryLabel}
+                transmission={car.transmission}
+                fuel={car.fuel}
+              />
+            </div>
           ))}
         </div>
 

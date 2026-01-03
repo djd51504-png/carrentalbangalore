@@ -76,7 +76,7 @@ const SocialProofMap = () => {
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-12" data-aos="fade-down">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground mb-4 font-[Montserrat]">
             Bangalore is Driving with{" "}
             <span className="text-gradient">Active!</span>
@@ -101,7 +101,7 @@ const SocialProofMap = () => {
         </div>
 
         {/* Map Container */}
-        <div className="relative max-w-4xl mx-auto aspect-[16/10] bg-[hsl(220,20%,10%)] rounded-2xl border border-primary/20 overflow-hidden">
+        <div data-aos="zoom-in" data-aos-delay="200" className="relative max-w-4xl mx-auto aspect-[16/10] bg-[hsl(220,20%,10%)] rounded-2xl border border-primary/20 overflow-hidden">
           {/* Stylized map lines */}
           <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
             {/* Road network - stylized lines */}

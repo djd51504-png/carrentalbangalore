@@ -32,7 +32,7 @@ const TermsSection = () => {
     <section id="terms" className="py-16 md:py-24 bg-secondary/30">
       <div className="container">
         {/* Section Header */}
-        <div className="text-center mb-10 md:mb-14">
+        <div className="text-center mb-10 md:mb-14" data-aos="fade-down">
           <span className="inline-block text-sm font-semibold text-primary uppercase tracking-wider mb-2">
             Good to Know
           </span>
@@ -46,10 +46,12 @@ const TermsSection = () => {
 
         {/* Terms Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
-          {terms.map((term) => (
+          {terms.map((term, index) => (
             <div
               key={term.title}
               className="bg-card rounded-2xl p-6 shadow-card hover:shadow-card-hover transition-all duration-300 border border-border"
+              data-aos="fade-up"
+              data-aos-delay={index * 100}
             >
               <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-5 ${term.color}`}>
                 <term.icon className="w-7 h-7" />

@@ -33,13 +33,13 @@ const Hero = () => {
       <div className="container relative z-10 py-12 md:py-20">
         <div className="max-w-5xl mx-auto text-center">
           {/* Premium Badge */}
-          <div className="inline-flex items-center gap-2 bg-primary/20 border border-primary/40 backdrop-blur-md rounded-full px-5 py-2.5 mb-8 animate-fade-in">
+          <div data-aos="fade-down" data-aos-delay="100" className="inline-flex items-center gap-2 bg-primary/20 border border-primary/40 backdrop-blur-md rounded-full px-5 py-2.5 mb-8">
             <Sparkles className="w-4 h-4 text-electric-light" />
             <span className="text-sm text-electric-light font-semibold tracking-wide uppercase">Premium Self-Drive Rentals</span>
           </div>
 
           {/* Main Headline */}
-          <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-primary-foreground mb-6 leading-tight animate-slide-up">
+          <h1 data-aos="fade-up" data-aos-delay="200" className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-primary-foreground mb-6 leading-tight">
             Luxury on Demand.
             <br />
             <span className="text-gradient">Keys to Bangalore's</span>
@@ -48,7 +48,7 @@ const Hero = () => {
           </h1>
 
           {/* Subheadline */}
-          <p className="text-lg md:text-xl text-primary-foreground/80 mb-10 max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: "0.1s" }}>
+          <p data-aos="fade-up" data-aos-delay="300" className="text-lg md:text-xl text-primary-foreground/80 mb-10 max-w-2xl mx-auto">
             Experience freedom with our premium self-drive cars. Starting at{" "}
             <span className="text-electric-light font-bold">₹2500/day</span> with{" "}
             <span className="text-electric-light font-semibold">300km included</span>. 
@@ -57,7 +57,7 @@ const Hero = () => {
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: "0.2s" }}>
+          <div data-aos="fade-up" data-aos-delay="400" className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
               onClick={scrollToCalculator}
               className="group bg-gradient-button text-primary-foreground px-8 py-4 rounded-xl text-lg font-bold shadow-button hover:scale-105 transition-all duration-300"
@@ -74,7 +74,7 @@ const Hero = () => {
           </div>
 
           {/* Trust Badges */}
-          <div className="flex flex-wrap justify-center gap-8 mt-14 animate-fade-in" style={{ animationDelay: "0.4s" }}>
+          <div data-aos="fade-up" data-aos-delay="500" className="flex flex-wrap justify-center gap-8 mt-14">
             <div className="flex items-center gap-2.5 text-primary-foreground/80 backdrop-blur-md bg-primary-foreground/5 px-4 py-2 rounded-full">
               <Shield className="w-5 h-5 text-electric-light" />
               <span className="text-sm font-medium">Fully Insured</span>

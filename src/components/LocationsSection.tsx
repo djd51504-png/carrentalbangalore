@@ -17,7 +17,7 @@ const LocationsSection = () => {
     <section className="py-16 md:py-20 bg-secondary/50">
       <div className="container">
         {/* Section Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-12" data-aos="fade-down">
           <span className="inline-block text-sm font-semibold text-primary uppercase tracking-wider mb-3">
             Convenient Pickup Points
           </span>
@@ -35,8 +35,9 @@ const LocationsSection = () => {
           {locations.map((location, index) => (
             <div
               key={location.name}
-              className="group relative bg-card border border-border rounded-xl p-4 hover:border-primary/50 hover:shadow-card-hover transition-all duration-300 cursor-pointer animate-fade-in"
-              style={{ animationDelay: `${index * 0.05}s` }}
+              className="group relative bg-card border border-border rounded-xl p-4 hover:border-primary/50 hover:shadow-card-hover transition-all duration-300 cursor-pointer"
+              data-aos="fade-up"
+              data-aos-delay={index * 50}
             >
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
