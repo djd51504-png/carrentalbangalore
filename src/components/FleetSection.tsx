@@ -77,7 +77,7 @@ const FleetSection = () => {
   ];
 
   return (
-    <section id="fleet" className="py-16 md:py-24 bg-background">
+    <section id="cars" className="py-16 md:py-24 bg-background">
       <div className="container">
         {/* Section Header */}
         <div className="text-center mb-10 md:mb-14" data-aos="fade-down">

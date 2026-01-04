@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { Menu, X } from "lucide-react";
 import logo from "@/assets/logo.png";
 
 const Header = () => {
   const location = useLocation();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   
   const navLinks = [
     { href: "/", label: "Home" },
@@ -15,8 +18,18 @@ const Header = () => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
       <div className="container flex items-center justify-between h-16 md:h-20">
+        {/* Hamburger Menu Button - Mobile */}
+        <button
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="md:hidden p-2 text-foreground hover:text-primary transition-colors"
+          aria-label="Toggle menu"
+        >
+          {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
+
+        {/* Logo - Center on mobile */}
         <Link to="/" className="flex items-center gap-3">
-          <img src={logo} alt="Key2Go Logo" className="h-12 md:h-14 w-auto" />
+          <img src={logo} alt="Key2Go Logo" className="h-10 md:h-14 w-auto" />
           <div className="hidden sm:block">
             <h1 className="font-heading font-bold text-lg md:text-xl text-foreground leading-tight">
               Key2Go
@@ -25,12 +38,13 @@ const Header = () => {
           </div>
         </Link>
         
-        <nav className="flex items-center gap-3 md:gap-5">
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center gap-5">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               to={link.href}
-              className={`text-sm font-medium transition-colors hidden sm:block ${
+              className={`text-sm font-medium transition-colors ${
                 location.pathname === link.href
                   ? "text-primary"
                   : "text-muted-foreground hover:text-primary"
@@ -48,7 +62,49 @@ const Header = () => {
             Contact Us
           </a>
         </nav>
+
+        {/* Mobile WhatsApp Button */}
+        <a
+          href="https://wa.me/919448277091?text=Hi%20Vikas,%20I%20want%20to%20know%20more%20about%20Key2Go%20car%20rentals."
+          target="_blank"
+          rel="noopener noreferrer"
+          className="md:hidden bg-gradient-button text-primary-foreground px-3 py-2 rounded-lg text-xs font-semibold shadow-button"
+        >
+          Contact
+        </a>
       </div>
+
+      {/* Mobile Menu Overlay */}
+      {isMenuOpen && (
+        <div className="md:hidden fixed inset-0 top-16 bg-background/98 backdrop-blur-lg z-40">
+          <nav className="container flex flex-col py-6 space-y-1">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                to={link.href}
+                onClick={() => setIsMenuOpen(false)}
+                className={`text-lg font-medium py-4 px-4 rounded-xl transition-all ${
+                  location.pathname === link.href
+                    ? "text-primary bg-primary/10"
+                    : "text-foreground hover:text-primary hover:bg-muted"
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <div className="pt-4 px-4">
+              <a
+                href="https://wa.me/919448277091?text=Hi%20Vikas,%20I%20want%20to%20know%20more%20about%20Key2Go%20car%20rentals."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center w-full bg-gradient-button text-primary-foreground py-4 rounded-xl text-lg font-semibold shadow-button"
+              >
+                Contact Us on WhatsApp
+              </a>
+            </div>
+          </nav>
+        </div>
+      )}
     </header>
   );
 };
