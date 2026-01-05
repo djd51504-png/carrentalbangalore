@@ -1,11 +1,12 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Calendar, Clock, MapPin, Search, MessageCircle, AlertCircle, Loader2, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
 
-// Import all car images
+// Import fallback car images
 import swiftImg from "@/assets/cars/swift.png";
 import balenoImg from "@/assets/cars/baleno.png";
 import glanzaImg from "@/assets/cars/glanza.png";
@@ -28,38 +29,41 @@ import xuv700Img from "@/assets/cars/xuv700.png";
 import hycrossImg from "@/assets/cars/hycross.png";
 import fortunerImg from "@/assets/cars/fortuner.png";
 
+// Fallback image mapping
+const fallbackImages: Record<string, string> = {
+  "Swift": swiftImg,
+  "Baleno": balenoImg,
+  "Glanza": glanzaImg,
+  "Punch": punchImg,
+  "i20": i20Img,
+  "Polo": poloImg,
+  "Brezza": brezzaImg,
+  "Fronx": fronxImg,
+  "Sonet": sonetImg,
+  "Creta": cretaImg,
+  "Seltos": seltosImg,
+  "Thar": tharImg,
+  "Thar Roxx": tharRoxxImg,
+  "Ertiga": ertigaImg,
+  "Innova": innovaImg,
+  "XUV500": xuv500Img,
+  "Rumion": rumionImg,
+  "Innova Crysta": innovaCrystaImg,
+  "XUV700": xuv700Img,
+  "Hycross": hycrossImg,
+  "Fortuner": fortunerImg,
+};
+
 interface Car {
+  id: string;
   name: string;
   price: number;
   image: string;
   categoryLabel: string;
-  transmission: "Manual" | "Automatic" | "Manual & Automatic";
-  fuel: "Petrol" | "Diesel";
+  transmission: string;
+  fuel: string;
+  kmLimit: number;
 }
-
-const cars: Car[] = [
-  { name: "Swift", price: 2500, image: swiftImg, categoryLabel: "Hatchback", transmission: "Manual & Automatic", fuel: "Petrol" },
-  { name: "Baleno", price: 3000, image: balenoImg, categoryLabel: "Hatchback", transmission: "Manual & Automatic", fuel: "Petrol" },
-  { name: "Glanza", price: 3000, image: glanzaImg, categoryLabel: "Hatchback", transmission: "Manual", fuel: "Petrol" },
-  { name: "Punch", price: 3000, image: punchImg, categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
-  { name: "i20", price: 3000, image: i20Img, categoryLabel: "Hatchback", transmission: "Manual & Automatic", fuel: "Petrol" },
-  { name: "Polo", price: 3000, image: poloImg, categoryLabel: "Hatchback", transmission: "Manual", fuel: "Petrol" },
-  { name: "Brezza", price: 3500, image: brezzaImg, categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
-  { name: "Fronx", price: 3500, image: fronxImg, categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
-  { name: "Sonet", price: 3500, image: sonetImg, categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
-  { name: "Creta", price: 4000, image: cretaImg, categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
-  { name: "Seltos", price: 4500, image: seltosImg, categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
-  { name: "Thar", price: 6500, image: tharImg, categoryLabel: "SUV", transmission: "Manual & Automatic", fuel: "Diesel" },
-  { name: "Thar Roxx", price: 8000, image: tharRoxxImg, categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
-  { name: "Ertiga", price: 4000, image: ertigaImg, categoryLabel: "MUV", transmission: "Manual", fuel: "Petrol" },
-  { name: "Innova", price: 4000, image: innovaImg, categoryLabel: "MUV", transmission: "Manual", fuel: "Diesel" },
-  { name: "XUV500", price: 4000, image: xuv500Img, categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
-  { name: "Rumion", price: 4500, image: rumionImg, categoryLabel: "MUV", transmission: "Manual", fuel: "Petrol" },
-  { name: "Innova Crysta", price: 6500, image: innovaCrystaImg, categoryLabel: "MUV", transmission: "Manual & Automatic", fuel: "Diesel" },
-  { name: "XUV700", price: 6500, image: xuv700Img, categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
-  { name: "Hycross", price: 7500, image: hycrossImg, categoryLabel: "MUV", transmission: "Automatic", fuel: "Petrol" },
-  { name: "Fortuner", price: 9000, image: fortunerImg, categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
-];
 
 const locations = [
   "Hebbal", "Thanisandra", "KR Puram", "Bellandur", "Haralur", 
@@ -97,6 +101,41 @@ const PriceCalculator = ({
   const [showCars, setShowCars] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [transmissionFilter, setTransmissionFilter] = useState<TransmissionFilter>("all");
+  
+  const [cars, setCars] = useState<Car[]>([]);
+  const [isLoadingCars, setIsLoadingCars] = useState(true);
+
+  // Fetch cars from database
+  useEffect(() => {
+    const fetchCars = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('cars')
+          .select('*')
+          .order('price', { ascending: true });
+        
+        if (error) throw error;
+        
+        setCars(data.map(car => ({
+          id: car.id,
+          name: car.name,
+          price: car.price,
+          image: car.image || fallbackImages[car.name] || swiftImg,
+          categoryLabel: car.category_label || 'Hatchback',
+          transmission: car.transmission,
+          fuel: car.fuel,
+          kmLimit: car.km_limit,
+        })));
+      } catch (error) {
+        console.error('Error fetching cars:', error);
+        // Use empty array on error - will show no cars available
+      } finally {
+        setIsLoadingCars(false);
+      }
+    };
+
+    fetchCars();
+  }, []);
 
   const calculation = useMemo(() => {
     if (!pickupDate || !dropDate) {
@@ -148,7 +187,7 @@ const PriceCalculator = ({
         extraHours: calculation.extraHours,
       };
     });
-  }, [calculation, transmissionFilter]);
+  }, [calculation, transmissionFilter, cars]);
 
   const generateWhatsAppMessage = (car: CarWithCalculatedPrice) => {
     const formatDate = (date: string) => {
@@ -302,7 +341,7 @@ Please confirm availability.`;
               <div className="mt-6 md:mt-8 text-center">
                 <Button
                   onClick={handleCheckAvailability}
-                  disabled={isLoading}
+                  disabled={isLoading || isLoadingCars}
                   className="w-full md:w-auto bg-gradient-button text-primary-foreground px-8 md:px-10 py-5 md:py-6 text-base md:text-lg font-bold shadow-button hover:scale-105 transition-all duration-300"
                 >
                   {isLoading ? (
@@ -351,7 +390,7 @@ Please confirm availability.`;
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
               {carsWithPrices.map((car, index) => (
                 <div 
-                  key={car.name} 
+                  key={car.id} 
                   className="group bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 md:hover:-translate-y-2 border border-border"
                   data-aos="fade-up"
                   data-aos-delay={index * 50}
@@ -359,7 +398,7 @@ Please confirm availability.`;
                   {/* Image Container */}
                   <div className="relative bg-secondary/50 p-3 md:p-6">
                     <div className="absolute top-2 right-2 md:top-3 md:right-3 bg-electric text-primary-foreground text-[10px] md:text-xs font-bold px-2 md:px-3 py-1 rounded-full">
-                      300KM Limit
+                      {car.kmLimit}KM Limit
                     </div>
                     <img
                       src={car.image}
@@ -377,41 +416,50 @@ Please confirm availability.`;
                       </div>
                       <div className="text-right">
                         <p className="font-heading font-bold text-lg md:text-xl text-primary">₹{car.totalPrice.toLocaleString()}</p>
-                        <p className="text-[10px] md:text-xs text-muted-foreground">Total</p>
+                        <p className="text-[10px] md:text-xs text-muted-foreground">
+                          {car.fullDays}d{car.extraHours > 0 ? ` + ${car.extraHours}h` : ""}
+                        </p>
                       </div>
                     </div>
-
-                    {/* Per day price */}
-                    <p className="text-xs md:text-sm text-muted-foreground mb-2 md:mb-3">
-                      ₹{car.price}/day × {car.fullDays} days{car.extraHours > 0 ? ` + ${car.extraHours}hrs` : ""}
-                    </p>
-
-                    {/* Badges */}
-                    <div className="flex flex-wrap gap-1 md:gap-2 mb-2 md:mb-3">
-                      <span className={`inline-flex items-center gap-1 text-[10px] md:text-xs font-medium px-2 py-0.5 md:py-1 rounded-full ${
-                        car.fuel === "Diesel" 
-                          ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400" 
-                          : "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                      }`}>
+                    
+                    {/* Features */}
+                    <div className="flex flex-wrap gap-1.5 md:gap-2 mb-3 md:mb-4">
+                      <span className="text-[10px] md:text-xs px-2 py-0.5 bg-muted rounded-full text-muted-foreground">
                         {car.fuel}
                       </span>
-                      <span className="inline-flex items-center gap-1 text-[10px] md:text-xs font-medium px-2 py-0.5 md:py-1 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                      <span className="text-[10px] md:text-xs px-2 py-0.5 bg-muted rounded-full text-muted-foreground">
                         {car.transmission}
                       </span>
                     </div>
 
+                    {/* Book Now Button */}
                     <a
                       href={`https://wa.me/919448277091?text=${generateWhatsAppMessage(car)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full bg-whatsapp hover:bg-whatsapp/90 text-primary-foreground py-2.5 md:py-3 rounded-xl font-semibold transition-colors text-sm"
+                      className="flex items-center justify-center gap-2 w-full bg-whatsapp hover:bg-whatsapp/90 text-primary-foreground py-2.5 md:py-3 rounded-xl font-semibold transition-all hover:scale-[1.02] text-sm md:text-base"
                     >
-                      <MessageCircle className="w-4 md:w-5 h-4 md:h-5" />
+                      <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
                       Book Now
                     </a>
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* No cars found */}
+        {showCars && carsWithPrices.length === 0 && (
+          <div className="mt-8 md:mt-12 text-center" data-aos="fade-up">
+            <div className="bg-card rounded-2xl p-8 md:p-12 max-w-md mx-auto">
+              <AlertCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="font-heading text-xl font-bold text-foreground mb-2">
+                No Cars Available
+              </h3>
+              <p className="text-muted-foreground text-sm">
+                No cars match your transmission preference. Try selecting "All" to see all available cars.
+              </p>
             </div>
           </div>
         )}
