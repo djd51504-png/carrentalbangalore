@@ -66,8 +66,8 @@ const Header = () => {
 
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
-        <div className="md:hidden fixed inset-0 top-16 bg-background/98 backdrop-blur-lg z-40">
-          <nav className="container flex flex-col py-6 space-y-1">
+        <div className="md:hidden fixed inset-0 top-16 bg-background z-40">
+          <nav className="container flex flex-col py-6 space-y-1 bg-background">
             {navLinks.map((link) => (
               <Link
                 key={link.href}

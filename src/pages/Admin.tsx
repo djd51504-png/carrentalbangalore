@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { Plus, Trash2, Car, AlertTriangle, ArrowLeft, Upload, X, ImageIcon, Loader2, Pencil, Lock, LogOut } from "lucide-react";
+import { Plus, Trash2, Car, AlertTriangle, ArrowLeft, Upload, X, ImageIcon, Loader2, Pencil, Lock, LogOut, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import type { User, Session } from "@supabase/supabase-js";
 
 interface CarData {
   id: string;
@@ -37,63 +38,163 @@ interface CarData {
   fuel: string;
   transmission: string;
   category: string;
+  categoryLabel: string;
   image?: string;
 }
 
-// Admin password - in production, this should be stored securely in the database
-const ADMIN_PASSWORD = "active@2024";
-
 const Admin = () => {
   const { toast } = useToast();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  const [cars, setCars] = useState<CarData[]>([
-    { id: "1", name: "Swift", brand: "Maruti Suzuki", price: 2500, kmLimit: 300, extraKmCharge: 10, fuel: "Petrol", transmission: "Manual", category: "5-Seater" },
-    { id: "2", name: "Baleno", brand: "Maruti Suzuki", price: 3000, kmLimit: 300, extraKmCharge: 10, fuel: "Petrol", transmission: "Manual & Automatic", category: "5-Seater" },
-    { id: "3", name: "Thar", brand: "Mahindra", price: 6500, kmLimit: 300, extraKmCharge: 15, fuel: "Diesel", transmission: "Manual & Automatic", category: "5-Seater" },
-  ]);
+  const [cars, setCars] = useState<CarData[]>([]);
+  const [isLoadingCars, setIsLoadingCars] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  // Check auth status and admin role
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        // Defer the admin check
+        setTimeout(() => {
+          checkAdminRole(session.user.id);
+        }, 0);
+      } else {
+        setIsAdmin(false);
+        setIsCheckingAuth(false);
+      }
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        checkAdminRole(session.user.id);
+      } else {
+        setIsCheckingAuth(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const checkAdminRole = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .eq('role', 'admin')
+        .maybeSingle();
+      
+      if (error) {
+        console.error('Error checking admin role:', error);
+        setIsAdmin(false);
+      } else {
+        setIsAdmin(!!data);
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      setIsAdmin(false);
+    } finally {
+      setIsCheckingAuth(false);
+    }
+  };
+
+  // Fetch cars when authenticated as admin
+  useEffect(() => {
+    if (isAdmin) {
+      fetchCars();
+    }
+  }, [isAdmin]);
+
+  const fetchCars = async () => {
+    setIsLoadingCars(true);
+    try {
+      const { data, error } = await supabase
+        .from('cars')
+        .select('*')
+        .order('price', { ascending: true });
+      
+      if (error) throw error;
+      
+      setCars(data.map(car => ({
+        id: car.id,
+        name: car.name,
+        brand: car.brand,
+        price: car.price,
+        kmLimit: car.km_limit,
+        extraKmCharge: car.extra_km_charge,
+        fuel: car.fuel,
+        transmission: car.transmission,
+        category: car.category,
+        categoryLabel: car.category_label || 'Hatchback',
+        image: car.image || undefined,
+      })));
+    } catch (error) {
+      console.error('Error fetching cars:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load cars from database.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingCars(false);
+    }
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggingIn(true);
     
-    // Simulate a brief delay for UX
-    setTimeout(() => {
-      if (password === ADMIN_PASSWORD) {
-        setIsAuthenticated(true);
-        sessionStorage.setItem("adminAuth", "true");
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (error) {
         toast({
-          title: "Welcome!",
-          description: "You have successfully logged in to the admin dashboard.",
-        });
-      } else {
-        toast({
-          title: "Invalid Password",
-          description: "The password you entered is incorrect.",
+          title: "Login Failed",
+          description: error.message,
           variant: "destructive",
         });
+      } else if (data.user) {
+        toast({
+          title: "Welcome!",
+          description: "Checking admin access...",
+        });
       }
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoggingIn(false);
       setPassword("");
-    }, 500);
+    }
   };
 
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    sessionStorage.removeItem("adminAuth");
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setIsAdmin(false);
+    setCars([]);
     toast({
       title: "Logged Out",
       description: "You have been logged out of the admin dashboard.",
     });
   };
-
-  // Check for existing session on mount
-  useEffect(() => {
-    const isAuth = sessionStorage.getItem("adminAuth") === "true";
-    if (isAuth) setIsAuthenticated(true);
-  }, []);
 
   const [selectedCars, setSelectedCars] = useState<string[]>([]);
   const [formData, setFormData] = useState({
@@ -105,6 +206,7 @@ const Admin = () => {
     fuel: "Petrol",
     transmission: "Manual",
     category: "5-Seater",
+    categoryLabel: "Hatchback",
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -123,6 +225,7 @@ const Admin = () => {
     fuel: "Petrol",
     transmission: "Manual",
     category: "5-Seater",
+    categoryLabel: "Hatchback",
   });
   const [editImageFile, setEditImageFile] = useState<File | null>(null);
   const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
@@ -205,23 +308,55 @@ const Admin = () => {
     }
   };
 
-  const handleDeleteSelected = () => {
-    setCars(cars.filter((car) => !selectedCars.includes(car.id)));
-    setSelectedCars([]);
-    toast({
-      title: "Cars Deleted",
-      description: `${selectedCars.length} car(s) have been removed from inventory.`,
-    });
+  const handleDeleteSelected = async () => {
+    try {
+      const { error } = await supabase
+        .from('cars')
+        .delete()
+        .in('id', selectedCars);
+      
+      if (error) throw error;
+      
+      setCars(cars.filter((car) => !selectedCars.includes(car.id)));
+      setSelectedCars([]);
+      toast({
+        title: "Cars Deleted",
+        description: `${selectedCars.length} car(s) have been removed from inventory.`,
+      });
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast({
+        title: "Delete Failed",
+        description: "Failed to delete cars. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleDeleteAll = () => {
-    setCars([]);
-    setSelectedCars([]);
-    toast({
-      title: "Inventory Cleared",
-      description: "All cars have been removed from inventory.",
-      variant: "destructive",
-    });
+  const handleDeleteAll = async () => {
+    try {
+      const { error } = await supabase
+        .from('cars')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
+      
+      if (error) throw error;
+      
+      setCars([]);
+      setSelectedCars([]);
+      toast({
+        title: "Inventory Cleared",
+        description: "All cars have been removed from inventory.",
+        variant: "destructive",
+      });
+    } catch (error) {
+      console.error('Delete all error:', error);
+      toast({
+        title: "Delete Failed",
+        description: "Failed to clear inventory. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleAddCar = async (e: React.FormEvent) => {
@@ -242,36 +377,68 @@ const Admin = () => {
       }
     }
 
-    const newCar: CarData = {
-      id: Date.now().toString(),
-      name: formData.name,
-      brand: formData.brand,
-      price: Number(formData.price),
-      kmLimit: Number(formData.kmLimit),
-      extraKmCharge: Number(formData.extraKmCharge),
-      fuel: formData.fuel,
-      transmission: formData.transmission,
-      category: formData.category,
-      image: imageUrl,
-    };
-    setCars([...cars, newCar]);
-    setFormData({
-      name: "",
-      brand: "",
-      price: "",
-      kmLimit: "300",
-      extraKmCharge: "10",
-      fuel: "Petrol",
-      transmission: "Manual",
-      category: "5-Seater",
-    });
-    setImageFile(null);
-    setImagePreview(null);
-    setIsUploading(false);
-    toast({
-      title: "Car Added",
-      description: `${newCar.brand} ${newCar.name} has been added to inventory.`,
-    });
+    try {
+      const { data, error } = await supabase
+        .from('cars')
+        .insert({
+          name: formData.name,
+          brand: formData.brand,
+          price: Number(formData.price),
+          km_limit: Number(formData.kmLimit),
+          extra_km_charge: Number(formData.extraKmCharge),
+          fuel: formData.fuel,
+          transmission: formData.transmission,
+          category: formData.category,
+          category_label: formData.categoryLabel,
+          image: imageUrl,
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      const newCar: CarData = {
+        id: data.id,
+        name: data.name,
+        brand: data.brand,
+        price: data.price,
+        kmLimit: data.km_limit,
+        extraKmCharge: data.extra_km_charge,
+        fuel: data.fuel,
+        transmission: data.transmission,
+        category: data.category,
+        categoryLabel: data.category_label || 'Hatchback',
+        image: data.image || undefined,
+      };
+      
+      setCars([...cars, newCar]);
+      setFormData({
+        name: "",
+        brand: "",
+        price: "",
+        kmLimit: "300",
+        extraKmCharge: "10",
+        fuel: "Petrol",
+        transmission: "Manual",
+        category: "5-Seater",
+        categoryLabel: "Hatchback",
+      });
+      setImageFile(null);
+      setImagePreview(null);
+      toast({
+        title: "Car Added",
+        description: `${newCar.brand} ${newCar.name} has been added to inventory.`,
+      });
+    } catch (error) {
+      console.error('Add car error:', error);
+      toast({
+        title: "Add Failed",
+        description: "Failed to add car. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   // Edit handlers
@@ -286,6 +453,7 @@ const Admin = () => {
       fuel: car.fuel,
       transmission: car.transmission,
       category: car.category,
+      categoryLabel: car.categoryLabel,
     });
     setEditImagePreview(car.image || null);
     setEditImageFile(null);
@@ -302,6 +470,7 @@ const Admin = () => {
       fuel: "Petrol",
       transmission: "Manual",
       category: "5-Seater",
+      categoryLabel: "Hatchback",
     });
     setEditImageFile(null);
     setEditImagePreview(null);
@@ -368,30 +537,71 @@ const Admin = () => {
       imageUrl = undefined;
     }
 
-    const updatedCar: CarData = {
-      id: editingCar.id,
-      name: editFormData.name,
-      brand: editFormData.brand,
-      price: Number(editFormData.price),
-      kmLimit: Number(editFormData.kmLimit),
-      extraKmCharge: Number(editFormData.extraKmCharge),
-      fuel: editFormData.fuel,
-      transmission: editFormData.transmission,
-      category: editFormData.category,
-      image: imageUrl,
-    };
+    try {
+      const { error } = await supabase
+        .from('cars')
+        .update({
+          name: editFormData.name,
+          brand: editFormData.brand,
+          price: Number(editFormData.price),
+          km_limit: Number(editFormData.kmLimit),
+          extra_km_charge: Number(editFormData.extraKmCharge),
+          fuel: editFormData.fuel,
+          transmission: editFormData.transmission,
+          category: editFormData.category,
+          category_label: editFormData.categoryLabel,
+          image: imageUrl,
+        })
+        .eq('id', editingCar.id);
+      
+      if (error) throw error;
 
-    setCars(cars.map((car) => (car.id === editingCar.id ? updatedCar : car)));
-    setIsEditUploading(false);
-    closeEditDialog();
-    toast({
-      title: "Car Updated",
-      description: `${updatedCar.brand} ${updatedCar.name} has been updated.`,
-    });
+      const updatedCar: CarData = {
+        id: editingCar.id,
+        name: editFormData.name,
+        brand: editFormData.brand,
+        price: Number(editFormData.price),
+        kmLimit: Number(editFormData.kmLimit),
+        extraKmCharge: Number(editFormData.extraKmCharge),
+        fuel: editFormData.fuel,
+        transmission: editFormData.transmission,
+        category: editFormData.category,
+        categoryLabel: editFormData.categoryLabel,
+        image: imageUrl,
+      };
+
+      setCars(cars.map((car) => (car.id === editingCar.id ? updatedCar : car)));
+      closeEditDialog();
+      toast({
+        title: "Car Updated",
+        description: `${updatedCar.brand} ${updatedCar.name} has been updated.`,
+      });
+    } catch (error) {
+      console.error('Update error:', error);
+      toast({
+        title: "Update Failed",
+        description: "Failed to update car. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsEditUploading(false);
+    }
   };
 
+  // Loading state
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen bg-muted/30 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-muted-foreground">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Login Screen
-  if (!isAuthenticated) {
+  if (!user) {
     return (
       <div className="min-h-screen bg-muted/30 flex items-center justify-center px-4">
         <Card className="w-full max-w-md">
@@ -399,24 +609,43 @@ const Admin = () => {
             <div className="mx-auto h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
               <Lock className="h-8 w-8 text-primary" />
             </div>
-            <CardTitle className="text-2xl">Admin Access</CardTitle>
+            <CardTitle className="text-2xl">Admin Panel</CardTitle>
             <p className="text-muted-foreground text-sm mt-2">
-              Enter the admin password to access the dashboard
+              Login with your admin credentials
             </p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="admin@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="pl-10"
+                    autoFocus
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Enter admin password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  autoFocus
-                />
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="pl-10"
+                  />
+                </div>
               </div>
               <Button type="submit" className="w-full" disabled={isLoggingIn}>
                 {isLoggingIn ? (
@@ -425,7 +654,7 @@ const Admin = () => {
                     Logging in...
                   </>
                 ) : (
-                  "Login"
+                  "Login to Admin Panel"
                 )}
               </Button>
               <div className="text-center">
@@ -434,6 +663,41 @@ const Admin = () => {
                 </Link>
               </div>
             </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Not admin but logged in
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-muted/30 flex items-center justify-center px-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mx-auto h-16 w-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+              <AlertTriangle className="h-8 w-8 text-destructive" />
+            </div>
+            <CardTitle className="text-2xl">Access Denied</CardTitle>
+            <p className="text-muted-foreground text-sm mt-2">
+              You don't have admin privileges to access this dashboard.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-center text-muted-foreground">
+              Logged in as: <span className="font-medium text-foreground">{user.email}</span>
+            </p>
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1" onClick={handleLogout}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+              <Link to="/" className="flex-1">
+                <Button variant="default" className="w-full">
+                  Go to Home
+                </Button>
+              </Link>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -454,6 +718,9 @@ const Admin = () => {
             <h1 className="text-xl font-bold text-foreground">Admin Dashboard</h1>
           </div>
           <div className="flex items-center gap-4">
+            <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground">
+              <span>{user.email}</span>
+            </div>
             <div className="flex items-center gap-2">
               <Car className="h-5 w-5 text-primary" />
               <span className="font-semibold">{cars.length} Vehicles</span>
@@ -467,345 +734,30 @@ const Admin = () => {
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Add New Vehicle Form */}
-          <Card className="lg:col-span-1 h-fit">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Plus className="h-5 w-5 text-primary" />
-                Add New Vehicle
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleAddCar} className="space-y-4">
-                {/* Image Upload */}
-                <div className="space-y-3">
-                  <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Photo</h3>
-                  {imagePreview ? (
-                    <div className="relative">
-                      <img
-                        src={imagePreview}
-                        alt="Preview"
-                        className="w-full h-40 object-contain rounded-lg border border-border bg-muted"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="icon"
-                        className="absolute top-2 right-2 h-8 w-8"
-                        onClick={removeImage}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <div
-                      onDragOver={handleDragOver}
-                      onDragLeave={handleDragLeave}
-                      onDrop={handleDrop}
-                      className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
-                        isDragging
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:border-primary/50 hover:bg-muted/50"
-                      }`}
-                    >
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleFileSelect}
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                      />
-                      <div className="flex flex-col items-center gap-2">
-                        <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                          <Upload className="h-6 w-6 text-primary" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-foreground">
-                            Drag & drop or click to upload
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            JPG, PNG, WebP up to 5MB
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Basic Info */}
-                <div className="space-y-3 pt-2 border-t border-border">
-                  <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Basic Info</h3>
-                  <div className="space-y-2">
-                    <Label htmlFor="brand">Brand</Label>
-                    <Input
-                      id="brand"
-                      placeholder="e.g., Maruti Suzuki"
-                      value={formData.brand}
-                      onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Model Name</Label>
-                    <Input
-                      id="name"
-                      placeholder="e.g., Swift"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="category">Category</Label>
-                    <Select value={formData.category} onValueChange={(v) => setFormData({ ...formData, category: v })}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="5-Seater">5-Seater Hatchbacks/SUVs</SelectItem>
-                        <SelectItem value="7-Seater">7-Seater MUVs</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                {/* Pricing */}
-                <div className="space-y-3 pt-2 border-t border-border">
-                  <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Pricing & Limits</h3>
-                  <div className="space-y-2">
-                    <Label htmlFor="price">Price per Day (₹)</Label>
-                    <Input
-                      id="price"
-                      type="number"
-                      placeholder="e.g., 2500"
-                      value={formData.price}
-                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-2">
-                      <Label htmlFor="kmLimit">KM Limit</Label>
-                      <Input
-                        id="kmLimit"
-                        type="number"
-                        value={formData.kmLimit}
-                        onChange={(e) => setFormData({ ...formData, kmLimit: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="extraKmCharge">Extra KM (₹)</Label>
-                      <Input
-                        id="extraKmCharge"
-                        type="number"
-                        value={formData.extraKmCharge}
-                        onChange={(e) => setFormData({ ...formData, extraKmCharge: e.target.value })}
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Specifications */}
-                <div className="space-y-3 pt-2 border-t border-border">
-                  <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Specifications</h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-2">
-                      <Label>Fuel Type</Label>
-                      <Select value={formData.fuel} onValueChange={(v) => setFormData({ ...formData, fuel: v })}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Petrol">Petrol</SelectItem>
-                          <SelectItem value="Diesel">Diesel</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Transmission</Label>
-                      <Select value={formData.transmission} onValueChange={(v) => setFormData({ ...formData, transmission: v })}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Manual">Manual</SelectItem>
-                          <SelectItem value="Automatic">Automatic</SelectItem>
-                          <SelectItem value="Manual & Automatic">Both</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-
-                <Button type="submit" className="w-full mt-4" disabled={isUploading}>
-                  {isUploading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Uploading...
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Vehicle
-                    </>
-                  )}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-
-          {/* Inventory List */}
-          <div className="lg:col-span-2 space-y-4">
-            {/* Bulk Actions */}
-            <Card>
-              <CardContent className="py-4">
-                <div className="flex items-center justify-between flex-wrap gap-4">
-                  <div className="flex items-center gap-3">
-                    <Checkbox
-                      id="selectAll"
-                      checked={cars.length > 0 && selectedCars.length === cars.length}
-                      onCheckedChange={handleSelectAll}
-                      disabled={cars.length === 0}
-                    />
-                    <Label htmlFor="selectAll" className="text-sm font-medium">
-                      Select All ({selectedCars.length}/{cars.length})
-                    </Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {selectedCars.length > 0 && (
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="outline" size="sm" className="text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground">
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete Selected ({selectedCars.length})
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Selected Cars?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This will remove {selectedCars.length} car(s) from your inventory. This action cannot be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={handleDeleteSelected} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    )}
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="destructive" size="sm" disabled={cars.length === 0}>
-                          <AlertTriangle className="h-4 w-4 mr-2" />
-                          Clear All
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle className="flex items-center gap-2 text-destructive">
-                            <AlertTriangle className="h-5 w-5" />
-                            Clear Entire Inventory?
-                          </AlertDialogTitle>
-                          <AlertDialogDescription className="text-base">
-                            Are you sure you want to clear your <strong>entire inventory</strong>? This will remove all {cars.length} vehicles and <strong>cannot be undone</strong>.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={handleDeleteAll} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                            Yes, Clear Everything
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Car List or Empty State */}
-            {cars.length === 0 ? (
-              <Card className="py-16">
-                <CardContent className="flex flex-col items-center justify-center text-center">
-                  <div className="h-20 w-20 rounded-full bg-muted flex items-center justify-center mb-4">
-                    <Car className="h-10 w-10 text-muted-foreground" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-2">No Cars Found</h3>
-                  <p className="text-muted-foreground mb-6 max-w-md">
-                    Your inventory is empty. Add your first vehicle using the form to get started.
-                  </p>
-                  <Button onClick={() => document.getElementById("brand")?.focus()}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Your First Car
-                  </Button>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-3">
-                {cars.map((car) => (
-                  <Card key={car.id} className={`transition-colors ${selectedCars.includes(car.id) ? "border-primary bg-primary/5" : ""}`}>
-                    <CardContent className="py-4">
-                      <div className="flex items-center gap-4">
-                        <Checkbox
-                          checked={selectedCars.includes(car.id)}
-                          onCheckedChange={(checked) => handleSelectCar(car.id, checked as boolean)}
-                        />
-                        <div className="h-16 w-24 rounded-lg bg-muted flex items-center justify-center overflow-hidden">
-                          {car.image ? (
-                            <img src={car.image} alt={car.name} className="h-full w-full object-contain" />
-                          ) : (
-                            <ImageIcon className="h-8 w-8 text-muted-foreground" />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-foreground">{car.brand} {car.name}</h3>
-                          <div className="flex flex-wrap gap-2 mt-1">
-                            <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">{car.category}</span>
-                            <span className="text-xs px-2 py-0.5 bg-muted text-muted-foreground rounded-full">{car.fuel}</span>
-                            <span className="text-xs px-2 py-0.5 bg-muted text-muted-foreground rounded-full">{car.transmission}</span>
-                          </div>
-                        </div>
-                        <div className="text-right mr-2">
-                          <p className="text-lg font-bold text-primary">₹{car.price.toLocaleString()}</p>
-                          <p className="text-xs text-muted-foreground">{car.kmLimit}km limit</p>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="shrink-0"
-                          onClick={() => openEditDialog(car)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-
-            {/* Edit Vehicle Dialog */}
-            <Dialog open={!!editingCar} onOpenChange={(open) => !open && closeEditDialog()}>
-              <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle className="flex items-center gap-2">
-                    <Pencil className="h-5 w-5 text-primary" />
-                    Edit Vehicle
-                  </DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleUpdateCar} className="space-y-4">
+        {isLoadingCars ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-3 text-muted-foreground">Loading cars...</span>
+          </div>
+        ) : (
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Add New Vehicle Form */}
+            <Card className="lg:col-span-1 h-fit">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Plus className="h-5 w-5 text-primary" />
+                  Add New Vehicle
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleAddCar} className="space-y-4">
                   {/* Image Upload */}
                   <div className="space-y-3">
                     <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Photo</h3>
-                    {editImagePreview ? (
+                    {imagePreview ? (
                       <div className="relative">
                         <img
-                          src={editImagePreview}
+                          src={imagePreview}
                           alt="Preview"
                           className="w-full h-40 object-contain rounded-lg border border-border bg-muted"
                         />
@@ -814,18 +766,18 @@ const Admin = () => {
                           variant="destructive"
                           size="icon"
                           className="absolute top-2 right-2 h-8 w-8"
-                          onClick={removeEditImage}
+                          onClick={removeImage}
                         >
                           <X className="h-4 w-4" />
                         </Button>
                       </div>
                     ) : (
                       <div
-                        onDragOver={handleEditDragOver}
-                        onDragLeave={handleEditDragLeave}
-                        onDrop={handleEditDrop}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
                         className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
-                          isEditDragging
+                          isDragging
                             ? "border-primary bg-primary/5"
                             : "border-border hover:border-primary/50 hover:bg-muted/50"
                         }`}
@@ -833,7 +785,7 @@ const Admin = () => {
                         <input
                           type="file"
                           accept="image/*"
-                          onChange={handleEditFileSelect}
+                          onChange={handleFileSelect}
                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                         />
                         <div className="flex flex-col items-center gap-2">
@@ -857,36 +809,52 @@ const Admin = () => {
                   <div className="space-y-3 pt-2 border-t border-border">
                     <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Basic Info</h3>
                     <div className="space-y-2">
-                      <Label htmlFor="edit-brand">Brand</Label>
+                      <Label htmlFor="brand">Brand</Label>
                       <Input
-                        id="edit-brand"
+                        id="brand"
                         placeholder="e.g., Maruti Suzuki"
-                        value={editFormData.brand}
-                        onChange={(e) => setEditFormData({ ...editFormData, brand: e.target.value })}
+                        value={formData.brand}
+                        onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
                         required
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="edit-name">Model Name</Label>
+                      <Label htmlFor="name">Model Name</Label>
                       <Input
-                        id="edit-name"
+                        id="name"
                         placeholder="e.g., Swift"
-                        value={editFormData.name}
-                        onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         required
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="edit-category">Category</Label>
-                      <Select value={editFormData.category} onValueChange={(v) => setEditFormData({ ...editFormData, category: v })}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="5-Seater">5-Seater Hatchbacks/SUVs</SelectItem>
-                          <SelectItem value="7-Seater">7-Seater MUVs</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <Label htmlFor="category">Seating</Label>
+                        <Select value={formData.category} onValueChange={(v) => setFormData({ ...formData, category: v })}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="5-Seater">5-Seater</SelectItem>
+                            <SelectItem value="7-Seater">7-Seater</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="categoryLabel">Type</Label>
+                        <Select value={formData.categoryLabel} onValueChange={(v) => setFormData({ ...formData, categoryLabel: v })}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Hatchback">Hatchback</SelectItem>
+                            <SelectItem value="SUV">SUV</SelectItem>
+                            <SelectItem value="MUV">MUV</SelectItem>
+                            <SelectItem value="Sedan">Sedan</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                   </div>
 
@@ -894,34 +862,34 @@ const Admin = () => {
                   <div className="space-y-3 pt-2 border-t border-border">
                     <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Pricing & Limits</h3>
                     <div className="space-y-2">
-                      <Label htmlFor="edit-price">Price per Day (₹)</Label>
+                      <Label htmlFor="price">Price per Day (₹)</Label>
                       <Input
-                        id="edit-price"
+                        id="price"
                         type="number"
                         placeholder="e.g., 2500"
-                        value={editFormData.price}
-                        onChange={(e) => setEditFormData({ ...editFormData, price: e.target.value })}
+                        value={formData.price}
+                        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                         required
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-2">
-                        <Label htmlFor="edit-kmLimit">KM Limit</Label>
+                        <Label htmlFor="kmLimit">KM Limit</Label>
                         <Input
-                          id="edit-kmLimit"
+                          id="kmLimit"
                           type="number"
-                          value={editFormData.kmLimit}
-                          onChange={(e) => setEditFormData({ ...editFormData, kmLimit: e.target.value })}
+                          value={formData.kmLimit}
+                          onChange={(e) => setFormData({ ...formData, kmLimit: e.target.value })}
                           required
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="edit-extraKmCharge">Extra KM (₹)</Label>
+                        <Label htmlFor="extraKmCharge">Extra KM (₹)</Label>
                         <Input
-                          id="edit-extraKmCharge"
+                          id="extraKmCharge"
                           type="number"
-                          value={editFormData.extraKmCharge}
-                          onChange={(e) => setEditFormData({ ...editFormData, extraKmCharge: e.target.value })}
+                          value={formData.extraKmCharge}
+                          onChange={(e) => setFormData({ ...formData, extraKmCharge: e.target.value })}
                           required
                         />
                       </div>
@@ -934,7 +902,7 @@ const Admin = () => {
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-2">
                         <Label>Fuel Type</Label>
-                        <Select value={editFormData.fuel} onValueChange={(v) => setEditFormData({ ...editFormData, fuel: v })}>
+                        <Select value={formData.fuel} onValueChange={(v) => setFormData({ ...formData, fuel: v })}>
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
@@ -946,7 +914,7 @@ const Admin = () => {
                       </div>
                       <div className="space-y-2">
                         <Label>Transmission</Label>
-                        <Select value={editFormData.transmission} onValueChange={(v) => setEditFormData({ ...editFormData, transmission: v })}>
+                        <Select value={formData.transmission} onValueChange={(v) => setFormData({ ...formData, transmission: v })}>
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
@@ -960,24 +928,365 @@ const Admin = () => {
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full mt-4" disabled={isEditUploading}>
-                    {isEditUploading ? (
+                  <Button type="submit" className="w-full mt-4" disabled={isUploading}>
+                    {isUploading ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Updating...
+                        Uploading...
                       </>
                     ) : (
                       <>
-                        <Pencil className="h-4 w-4 mr-2" />
-                        Update Vehicle
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Vehicle
                       </>
                     )}
                   </Button>
                 </form>
-              </DialogContent>
-            </Dialog>
+              </CardContent>
+            </Card>
+
+            {/* Inventory List */}
+            <div className="lg:col-span-2 space-y-4">
+              {/* Bulk Actions */}
+              <Card>
+                <CardContent className="py-4">
+                  <div className="flex items-center justify-between flex-wrap gap-4">
+                    <div className="flex items-center gap-3">
+                      <Checkbox
+                        id="selectAll"
+                        checked={cars.length > 0 && selectedCars.length === cars.length}
+                        onCheckedChange={handleSelectAll}
+                        disabled={cars.length === 0}
+                      />
+                      <Label htmlFor="selectAll" className="text-sm font-medium">
+                        Select All ({selectedCars.length}/{cars.length})
+                      </Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {selectedCars.length > 0 && (
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="outline" size="sm" className="text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground">
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete Selected ({selectedCars.length})
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Selected Cars?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This will remove {selectedCars.length} car(s) from your inventory. This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={handleDeleteSelected} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      )}
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="destructive" size="sm" disabled={cars.length === 0}>
+                            <AlertTriangle className="h-4 w-4 mr-2" />
+                            Clear All
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+                              <AlertTriangle className="h-5 w-5" />
+                              Clear Entire Inventory?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription className="text-base">
+                              Are you sure you want to clear your <strong>entire inventory</strong>? This will remove all {cars.length} vehicles and <strong>cannot be undone</strong>.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleDeleteAll} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                              Yes, Clear Everything
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Car List or Empty State */}
+              {cars.length === 0 ? (
+                <Card className="py-16">
+                  <CardContent className="flex flex-col items-center justify-center text-center">
+                    <div className="h-20 w-20 rounded-full bg-muted flex items-center justify-center mb-4">
+                      <Car className="h-10 w-10 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-foreground mb-2">No Cars Found</h3>
+                    <p className="text-muted-foreground mb-6 max-w-md">
+                      Your inventory is empty. Add your first vehicle using the form to get started.
+                    </p>
+                    <Button onClick={() => document.getElementById("brand")?.focus()}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Your First Car
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-3">
+                  {cars.map((car) => (
+                    <Card key={car.id} className={`transition-colors ${selectedCars.includes(car.id) ? "border-primary bg-primary/5" : ""}`}>
+                      <CardContent className="py-4">
+                        <div className="flex items-center gap-4">
+                          <Checkbox
+                            checked={selectedCars.includes(car.id)}
+                            onCheckedChange={(checked) => handleSelectCar(car.id, checked as boolean)}
+                          />
+                          <div className="h-16 w-24 rounded-lg bg-muted flex items-center justify-center overflow-hidden">
+                            {car.image ? (
+                              <img src={car.image} alt={car.name} className="h-full w-full object-contain" />
+                            ) : (
+                              <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-foreground">{car.brand} {car.name}</h3>
+                            <div className="flex flex-wrap gap-2 mt-1">
+                              <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">{car.category}</span>
+                              <span className="text-xs px-2 py-0.5 bg-muted text-muted-foreground rounded-full">{car.fuel}</span>
+                              <span className="text-xs px-2 py-0.5 bg-muted text-muted-foreground rounded-full">{car.transmission}</span>
+                              <span className="text-xs px-2 py-0.5 bg-muted text-muted-foreground rounded-full">{car.categoryLabel}</span>
+                            </div>
+                          </div>
+                          <div className="text-right mr-2">
+                            <p className="text-lg font-bold text-primary">₹{car.price.toLocaleString()}</p>
+                            <p className="text-xs text-muted-foreground">{car.kmLimit}km limit</p>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="shrink-0"
+                            onClick={() => openEditDialog(car)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+
+              {/* Edit Vehicle Dialog */}
+              <Dialog open={!!editingCar} onOpenChange={(open) => !open && closeEditDialog()}>
+                <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                      <Pencil className="h-5 w-5 text-primary" />
+                      Edit Vehicle
+                    </DialogTitle>
+                  </DialogHeader>
+                  <form onSubmit={handleUpdateCar} className="space-y-4">
+                    {/* Image Upload */}
+                    <div className="space-y-3">
+                      <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Photo</h3>
+                      {editImagePreview ? (
+                        <div className="relative">
+                          <img
+                            src={editImagePreview}
+                            alt="Preview"
+                            className="w-full h-40 object-contain rounded-lg border border-border bg-muted"
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="absolute top-2 right-2 h-8 w-8"
+                            onClick={removeEditImage}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div
+                          onDragOver={handleEditDragOver}
+                          onDragLeave={handleEditDragLeave}
+                          onDrop={handleEditDrop}
+                          className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
+                            isEditDragging
+                              ? "border-primary bg-primary/5"
+                              : "border-border hover:border-primary/50 hover:bg-muted/50"
+                          }`}
+                        >
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleEditFileSelect}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          />
+                          <div className="flex flex-col items-center gap-2">
+                            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                              <Upload className="h-6 w-6 text-primary" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-foreground">
+                                Drag & drop or click to upload
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                JPG, PNG, WebP up to 5MB
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Basic Info */}
+                    <div className="space-y-3 pt-2 border-t border-border">
+                      <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Basic Info</h3>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-brand">Brand</Label>
+                        <Input
+                          id="edit-brand"
+                          placeholder="e.g., Maruti Suzuki"
+                          value={editFormData.brand}
+                          onChange={(e) => setEditFormData({ ...editFormData, brand: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-name">Model Name</Label>
+                        <Input
+                          id="edit-name"
+                          placeholder="e.g., Swift"
+                          value={editFormData.name}
+                          onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                          <Label>Seating</Label>
+                          <Select value={editFormData.category} onValueChange={(v) => setEditFormData({ ...editFormData, category: v })}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="5-Seater">5-Seater</SelectItem>
+                              <SelectItem value="7-Seater">7-Seater</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Type</Label>
+                          <Select value={editFormData.categoryLabel} onValueChange={(v) => setEditFormData({ ...editFormData, categoryLabel: v })}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Hatchback">Hatchback</SelectItem>
+                              <SelectItem value="SUV">SUV</SelectItem>
+                              <SelectItem value="MUV">MUV</SelectItem>
+                              <SelectItem value="Sedan">Sedan</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Pricing */}
+                    <div className="space-y-3 pt-2 border-t border-border">
+                      <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Pricing & Limits</h3>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-price">Price per Day (₹)</Label>
+                        <Input
+                          id="edit-price"
+                          type="number"
+                          placeholder="e.g., 2500"
+                          value={editFormData.price}
+                          onChange={(e) => setEditFormData({ ...editFormData, price: e.target.value })}
+                          required
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-kmLimit">KM Limit</Label>
+                          <Input
+                            id="edit-kmLimit"
+                            type="number"
+                            value={editFormData.kmLimit}
+                            onChange={(e) => setEditFormData({ ...editFormData, kmLimit: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-extraKmCharge">Extra KM (₹)</Label>
+                          <Input
+                            id="edit-extraKmCharge"
+                            type="number"
+                            value={editFormData.extraKmCharge}
+                            onChange={(e) => setEditFormData({ ...editFormData, extraKmCharge: e.target.value })}
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Specifications */}
+                    <div className="space-y-3 pt-2 border-t border-border">
+                      <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Specifications</h3>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                          <Label>Fuel Type</Label>
+                          <Select value={editFormData.fuel} onValueChange={(v) => setEditFormData({ ...editFormData, fuel: v })}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Petrol">Petrol</SelectItem>
+                              <SelectItem value="Diesel">Diesel</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Transmission</Label>
+                          <Select value={editFormData.transmission} onValueChange={(v) => setEditFormData({ ...editFormData, transmission: v })}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Manual">Manual</SelectItem>
+                              <SelectItem value="Automatic">Automatic</SelectItem>
+                              <SelectItem value="Manual & Automatic">Both</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 pt-4">
+                      <Button type="button" variant="outline" className="flex-1" onClick={closeEditDialog}>
+                        Cancel
+                      </Button>
+                      <Button type="submit" className="flex-1" disabled={isEditUploading}>
+                        {isEditUploading ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Saving...
+                          </>
+                        ) : (
+                          "Save Changes"
+                        )}
+                      </Button>
+                    </div>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
