@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 import CarCard from "./CarCard";
+import { supabase } from "@/integrations/supabase/client";
 
-// Import all car images
+// Import all fallback car images
 import swiftImg from "@/assets/cars/swift.png";
 import balenoImg from "@/assets/cars/baleno.png";
 import glanzaImg from "@/assets/cars/glanza.png";
@@ -25,46 +27,78 @@ import xuv700Img from "@/assets/cars/xuv700.png";
 import hycrossImg from "@/assets/cars/hycross.png";
 import fortunerImg from "@/assets/cars/fortuner.png";
 
-type Category = "all" | "5-seater" | "7-seater";
+// Fallback image mapping
+const fallbackImages: Record<string, string> = {
+  "Swift": swiftImg,
+  "Baleno": balenoImg,
+  "Glanza": glanzaImg,
+  "Punch": punchImg,
+  "i20": i20Img,
+  "Polo": poloImg,
+  "Brezza": brezzaImg,
+  "Fronx": fronxImg,
+  "Sonet": sonetImg,
+  "Creta": cretaImg,
+  "Seltos": seltosImg,
+  "Thar": tharImg,
+  "Thar Roxx": tharRoxxImg,
+  "Ertiga": ertigaImg,
+  "Innova": innovaImg,
+  "XUV500": xuv500Img,
+  "Rumion": rumionImg,
+  "Innova Crysta": innovaCrystaImg,
+  "XUV700": xuv700Img,
+  "Hycross": hycrossImg,
+  "Fortuner": fortunerImg,
+};
+
+type Category = "all" | "5-Seater" | "7-Seater";
 
 interface Car {
+  id: string;
   name: string;
   price: number;
   image: string;
-  category: "5-seater" | "7-seater";
+  category: string;
   categoryLabel: string;
-  transmission: "Manual" | "Automatic" | "Manual & Automatic";
-  fuel: "Petrol" | "Diesel";
+  transmission: string;
+  fuel: string;
 }
-
-const cars: Car[] = [
-  // 5-Seaters
-  { name: "Swift", price: 2500, image: swiftImg, category: "5-seater", categoryLabel: "Hatchback", transmission: "Manual & Automatic", fuel: "Petrol" },
-  { name: "Baleno", price: 3000, image: balenoImg, category: "5-seater", categoryLabel: "Hatchback", transmission: "Manual & Automatic", fuel: "Petrol" },
-  { name: "Glanza", price: 3000, image: glanzaImg, category: "5-seater", categoryLabel: "Hatchback", transmission: "Manual", fuel: "Petrol" },
-  { name: "Punch", price: 3000, image: punchImg, category: "5-seater", categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
-  { name: "i20", price: 3000, image: i20Img, category: "5-seater", categoryLabel: "Hatchback", transmission: "Manual & Automatic", fuel: "Petrol" },
-  { name: "Polo", price: 3000, image: poloImg, category: "5-seater", categoryLabel: "Hatchback", transmission: "Manual", fuel: "Petrol" },
-  { name: "Brezza", price: 3500, image: brezzaImg, category: "5-seater", categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
-  { name: "Fronx", price: 3500, image: fronxImg, category: "5-seater", categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
-  { name: "Sonet", price: 3500, image: sonetImg, category: "5-seater", categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
-  { name: "Creta", price: 4000, image: cretaImg, category: "5-seater", categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
-  { name: "Seltos", price: 4500, image: seltosImg, category: "5-seater", categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
-  { name: "Thar", price: 6500, image: tharImg, category: "5-seater", categoryLabel: "SUV", transmission: "Manual & Automatic", fuel: "Diesel" },
-  { name: "Thar Roxx", price: 8000, image: tharRoxxImg, category: "5-seater", categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
-  // 7-Seaters
-  { name: "Ertiga", price: 4000, image: ertigaImg, category: "7-seater", categoryLabel: "MUV", transmission: "Manual", fuel: "Petrol" },
-  { name: "Innova", price: 4000, image: innovaImg, category: "7-seater", categoryLabel: "MUV", transmission: "Manual", fuel: "Diesel" },
-  { name: "XUV500", price: 4000, image: xuv500Img, category: "7-seater", categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
-  { name: "Rumion", price: 4500, image: rumionImg, category: "7-seater", categoryLabel: "MUV", transmission: "Manual", fuel: "Petrol" },
-  { name: "Innova Crysta", price: 6500, image: innovaCrystaImg, category: "7-seater", categoryLabel: "MUV", transmission: "Manual & Automatic", fuel: "Diesel" },
-  { name: "XUV700", price: 6500, image: xuv700Img, category: "7-seater", categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
-  { name: "Hycross", price: 7500, image: hycrossImg, category: "7-seater", categoryLabel: "MUV", transmission: "Automatic", fuel: "Petrol" },
-  { name: "Fortuner", price: 9000, image: fortunerImg, category: "7-seater", categoryLabel: "SUV", transmission: "Manual", fuel: "Petrol" },
-];
 
 const FleetSection = () => {
   const [activeCategory, setActiveCategory] = useState<Category>("all");
+  const [cars, setCars] = useState<Car[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCars = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('cars')
+          .select('*')
+          .order('price', { ascending: true });
+        
+        if (error) throw error;
+        
+        setCars(data.map(car => ({
+          id: car.id,
+          name: car.name,
+          price: car.price,
+          image: car.image || fallbackImages[car.name] || swiftImg,
+          category: car.category,
+          categoryLabel: car.category_label || 'Hatchback',
+          transmission: car.transmission,
+          fuel: car.fuel,
+        })));
+      } catch (error) {
+        console.error('Error fetching cars:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCars();
+  }, []);
 
   const filteredCars = activeCategory === "all" 
     ? cars 
@@ -72,8 +106,8 @@ const FleetSection = () => {
 
   const categories: { key: Category; label: string }[] = [
     { key: "all", label: "All Cars" },
-    { key: "5-seater", label: "5-Seater" },
-    { key: "7-seater", label: "7-Seater" },
+    { key: "5-Seater", label: "5-Seater" },
+    { key: "7-Seater", label: "7-Seater" },
   ];
 
   return (
@@ -113,20 +147,27 @@ const FleetSection = () => {
         </div>
 
         {/* Cars Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
-          {filteredCars.slice(0, 8).map((car, index) => (
-            <div key={car.name} data-aos="fade-up" data-aos-delay={index * 50}>
-              <CarCard
-                name={car.name}
-                price={car.price}
-                image={car.image}
-                category={car.categoryLabel}
-                transmission={car.transmission}
-                fuel={car.fuel}
-              />
-            </div>
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-3 text-muted-foreground">Loading cars...</span>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
+            {filteredCars.slice(0, 8).map((car, index) => (
+              <div key={car.id} data-aos="fade-up" data-aos-delay={index * 50}>
+                <CarCard
+                  name={car.name}
+                  price={car.price}
+                  image={car.image}
+                  category={car.categoryLabel}
+                  transmission={car.transmission}
+                  fuel={car.fuel}
+                />
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* View All Cars Link */}
         <div className="text-center mt-10">

@@ -1,10 +1,11 @@
 import { useState, useMemo, useEffect } from "react";
-import { Calendar, Clock, MapPin, Search, MessageCircle, AlertCircle, Loader2, Settings2 } from "lucide-react";
+import { Calendar, Clock, MapPin, Search, MessageCircle, AlertCircle, Loader2, Settings2, User, Phone, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 // Import fallback car images
 import swiftImg from "@/assets/cars/swift.png";
@@ -57,12 +58,17 @@ const fallbackImages: Record<string, string> = {
 interface Car {
   id: string;
   name: string;
+  brand: string;
   price: number;
   image: string;
   categoryLabel: string;
   transmission: string;
   fuel: string;
   kmLimit: number;
+  price3Days: number | null;
+  price7Days: number | null;
+  price15Days: number | null;
+  price30Days: number | null;
 }
 
 const locations = [
@@ -93,6 +99,7 @@ const PriceCalculator = ({
   dropTime: initialDropTime = "10:00",
   pickupLocation: initialLocation = ""
 }: PriceCalculatorProps) => {
+  const { toast } = useToast();
   const [pickupDate, setPickupDate] = useState(initialPickupDate);
   const [pickupTime, setPickupTime] = useState(initialPickupTime);
   const [dropDate, setDropDate] = useState(initialDropDate);
@@ -101,6 +108,11 @@ const PriceCalculator = ({
   const [showCars, setShowCars] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [transmissionFilter, setTransmissionFilter] = useState<TransmissionFilter>("all");
+  
+  // Customer details for enquiry
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [isSubmittingEnquiry, setIsSubmittingEnquiry] = useState<string | null>(null);
   
   const [cars, setCars] = useState<Car[]>([]);
   const [isLoadingCars, setIsLoadingCars] = useState(true);
@@ -119,16 +131,20 @@ const PriceCalculator = ({
         setCars(data.map(car => ({
           id: car.id,
           name: car.name,
+          brand: car.brand,
           price: car.price,
           image: car.image || fallbackImages[car.name] || swiftImg,
           categoryLabel: car.category_label || 'Hatchback',
           transmission: car.transmission,
           fuel: car.fuel,
           kmLimit: car.km_limit,
+          price3Days: car.price_3_days,
+          price7Days: car.price_7_days,
+          price15Days: car.price_15_days,
+          price30Days: car.price_30_days,
         })));
       } catch (error) {
         console.error('Error fetching cars:', error);
-        // Use empty array on error - will show no cars available
       } finally {
         setIsLoadingCars(false);
       }
@@ -175,10 +191,25 @@ const PriceCalculator = ({
     }
     
     return filteredCars.map(car => {
-      const hourlyRate = car.price / 24;
-      const daysPrice = calculation.fullDays * car.price;
-      const hoursPrice = Math.round(calculation.extraHours * hourlyRate);
-      const totalPrice = daysPrice + hoursPrice;
+      const days = calculation.fullDays;
+      let totalPrice: number;
+      
+      // Check for special pricing based on duration
+      if (days >= 30 && car.price30Days) {
+        totalPrice = car.price30Days;
+      } else if (days >= 15 && car.price15Days) {
+        totalPrice = car.price15Days;
+      } else if (days >= 7 && car.price7Days) {
+        totalPrice = car.price7Days;
+      } else if (days >= 3 && car.price3Days) {
+        totalPrice = car.price3Days;
+      } else {
+        // Standard pricing
+        const hourlyRate = car.price / 24;
+        const daysPrice = calculation.fullDays * car.price;
+        const hoursPrice = Math.round(calculation.extraHours * hourlyRate);
+        totalPrice = daysPrice + hoursPrice;
+      }
       
       return {
         ...car,
@@ -208,11 +239,94 @@ Please confirm availability.`;
     if (!calculation || calculation.error) return;
     
     setIsLoading(true);
-    // Simulate loading for effect
     setTimeout(() => {
       setIsLoading(false);
       setShowCars(true);
     }, 800);
+  };
+
+  const handleSubmitEnquiry = async (car: CarWithCalculatedPrice) => {
+    if (!customerName.trim() || !customerPhone.trim()) {
+      toast({
+        title: "Missing Details",
+        description: "Please enter your name and phone number.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (customerPhone.length < 10) {
+      toast({
+        title: "Invalid Phone",
+        description: "Please enter a valid phone number.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmittingEnquiry(car.id);
+
+    try {
+      // Save enquiry to database
+      const { error: dbError } = await supabase
+        .from('booking_enquiries')
+        .insert({
+          customer_name: customerName,
+          customer_phone: customerPhone,
+          car_id: car.id,
+          car_name: `${car.brand} ${car.name}`,
+          pickup_date: `${pickupDate}T${pickupTime}`,
+          drop_date: `${dropDate}T${dropTime}`,
+          pickup_location: pickupLocation || "To be decided",
+          total_days: car.fullDays,
+          total_hours: car.extraHours,
+          estimated_price: car.totalPrice,
+          status: 'pending',
+        });
+
+      if (dbError) {
+        console.error('Database error:', dbError);
+        throw dbError;
+      }
+
+      // Send email notification
+      const { error: emailError } = await supabase.functions.invoke('send-booking-email', {
+        body: {
+          customerName,
+          customerPhone,
+          carName: `${car.brand} ${car.name}`,
+          pickupDate: `${pickupDate}T${pickupTime}`,
+          dropDate: `${dropDate}T${dropTime}`,
+          pickupLocation: pickupLocation || "To be decided",
+          totalDays: car.fullDays,
+          totalHours: car.extraHours,
+          estimatedPrice: car.totalPrice,
+        },
+      });
+
+      if (emailError) {
+        console.error('Email error:', emailError);
+        // Don't throw - enquiry is saved, email is secondary
+      }
+
+      toast({
+        title: "Enquiry Submitted!",
+        description: "We'll contact you shortly to confirm your booking.",
+      });
+
+      // Open WhatsApp as well
+      window.open(`https://wa.me/919448277091?text=${generateWhatsAppMessage(car)}`, '_blank');
+
+    } catch (error) {
+      console.error('Enquiry error:', error);
+      toast({
+        title: "Submission Failed",
+        description: "Please try again or contact us directly.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmittingEnquiry(null);
+    }
   };
 
   // Get minimum date (today)
@@ -387,6 +501,39 @@ Please confirm availability.`;
               </p>
             </div>
 
+            {/* Customer Details Form */}
+            <div className="max-w-2xl mx-auto mb-8 bg-primary-foreground/5 backdrop-blur-xl border border-primary-foreground/10 rounded-2xl p-4 md:p-6">
+              <h4 className="text-primary-foreground font-semibold mb-4 text-center">Enter your details to book</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-primary-foreground font-medium flex items-center gap-2 text-sm">
+                    <User className="w-4 h-4 text-electric-light" />
+                    Your Name
+                  </Label>
+                  <Input
+                    type="text"
+                    placeholder="Enter your name"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-primary-foreground font-medium flex items-center gap-2 text-sm">
+                    <Phone className="w-4 h-4 text-electric-light" />
+                    Phone Number
+                  </Label>
+                  <Input
+                    type="tel"
+                    placeholder="Enter phone number"
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
               {carsWithPrices.map((car, index) => (
                 <div 
@@ -433,15 +580,23 @@ Please confirm availability.`;
                     </div>
 
                     {/* Book Now Button */}
-                    <a
-                      href={`https://wa.me/919448277091?text=${generateWhatsAppMessage(car)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <Button
+                      onClick={() => handleSubmitEnquiry(car)}
+                      disabled={isSubmittingEnquiry === car.id}
                       className="flex items-center justify-center gap-2 w-full bg-whatsapp hover:bg-whatsapp/90 text-primary-foreground py-2.5 md:py-3 rounded-xl font-semibold transition-all hover:scale-[1.02] text-sm md:text-base"
                     >
-                      <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
-                      Book Now
-                    </a>
+                      {isSubmittingEnquiry === car.id ? (
+                        <>
+                          <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4 md:w-5 md:h-5" />
+                          Book Now
+                        </>
+                      )}
+                    </Button>
                   </div>
                 </div>
               ))}

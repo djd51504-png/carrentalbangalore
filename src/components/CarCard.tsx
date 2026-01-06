@@ -5,8 +5,8 @@ interface CarCardProps {
   price: number;
   image: string;
   category: string;
-  transmission: "Manual" | "Automatic" | "Manual & Automatic";
-  fuel: "Petrol" | "Diesel";
+  transmission: string;
+  fuel: string;
 }
 
 const CarCard = ({ name, price, image, category, transmission, fuel }: CarCardProps) => {
