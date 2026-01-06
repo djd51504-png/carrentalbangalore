@@ -14,6 +14,68 @@ export type Database = {
   }
   public: {
     Tables: {
+      booking_enquiries: {
+        Row: {
+          car_id: string | null
+          car_name: string
+          created_at: string
+          customer_name: string
+          customer_phone: string
+          drop_date: string
+          estimated_price: number
+          id: string
+          notes: string | null
+          pickup_date: string
+          pickup_location: string
+          status: string
+          total_days: number
+          total_hours: number | null
+          updated_at: string
+        }
+        Insert: {
+          car_id?: string | null
+          car_name: string
+          created_at?: string
+          customer_name: string
+          customer_phone: string
+          drop_date: string
+          estimated_price: number
+          id?: string
+          notes?: string | null
+          pickup_date: string
+          pickup_location: string
+          status?: string
+          total_days: number
+          total_hours?: number | null
+          updated_at?: string
+        }
+        Update: {
+          car_id?: string | null
+          car_name?: string
+          created_at?: string
+          customer_name?: string
+          customer_phone?: string
+          drop_date?: string
+          estimated_price?: number
+          id?: string
+          notes?: string | null
+          pickup_date?: string
+          pickup_location?: string
+          status?: string
+          total_days?: number
+          total_hours?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_enquiries_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cars: {
         Row: {
           brand: string
@@ -27,6 +89,10 @@ export type Database = {
           km_limit: number
           name: string
           price: number
+          price_15_days: number | null
+          price_3_days: number | null
+          price_30_days: number | null
+          price_7_days: number | null
           transmission: string
           updated_at: string
         }
@@ -42,6 +108,10 @@ export type Database = {
           km_limit?: number
           name: string
           price: number
+          price_15_days?: number | null
+          price_3_days?: number | null
+          price_30_days?: number | null
+          price_7_days?: number | null
           transmission?: string
           updated_at?: string
         }
@@ -57,6 +127,10 @@ export type Database = {
           km_limit?: number
           name?: string
           price?: number
+          price_15_days?: number | null
+          price_3_days?: number | null
+          price_30_days?: number | null
+          price_7_days?: number | null
           transmission?: string
           updated_at?: string
         }

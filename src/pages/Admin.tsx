@@ -40,6 +40,10 @@ interface CarData {
   category: string;
   categoryLabel: string;
   image?: string;
+  price3Days?: number | null;
+  price7Days?: number | null;
+  price15Days?: number | null;
+  price30Days?: number | null;
 }
 
 const Admin = () => {
@@ -139,6 +143,10 @@ const Admin = () => {
         category: car.category,
         categoryLabel: car.category_label || 'Hatchback',
         image: car.image || undefined,
+        price3Days: car.price_3_days,
+        price7Days: car.price_7_days,
+        price15Days: car.price_15_days,
+        price30Days: car.price_30_days,
       })));
     } catch (error) {
       console.error('Error fetching cars:', error);
@@ -207,6 +215,10 @@ const Admin = () => {
     transmission: "Manual",
     category: "5-Seater",
     categoryLabel: "Hatchback",
+    price3Days: "",
+    price7Days: "",
+    price15Days: "",
+    price30Days: "",
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -226,6 +238,10 @@ const Admin = () => {
     transmission: "Manual",
     category: "5-Seater",
     categoryLabel: "Hatchback",
+    price3Days: "",
+    price7Days: "",
+    price15Days: "",
+    price30Days: "",
   });
   const [editImageFile, setEditImageFile] = useState<File | null>(null);
   const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
@@ -391,6 +407,10 @@ const Admin = () => {
           category: formData.category,
           category_label: formData.categoryLabel,
           image: imageUrl,
+          price_3_days: formData.price3Days ? Number(formData.price3Days) : null,
+          price_7_days: formData.price7Days ? Number(formData.price7Days) : null,
+          price_15_days: formData.price15Days ? Number(formData.price15Days) : null,
+          price_30_days: formData.price30Days ? Number(formData.price30Days) : null,
         })
         .select()
         .single();
@@ -422,6 +442,10 @@ const Admin = () => {
         transmission: "Manual",
         category: "5-Seater",
         categoryLabel: "Hatchback",
+        price3Days: "",
+        price7Days: "",
+        price15Days: "",
+        price30Days: "",
       });
       setImageFile(null);
       setImagePreview(null);
@@ -454,6 +478,10 @@ const Admin = () => {
       transmission: car.transmission,
       category: car.category,
       categoryLabel: car.categoryLabel,
+      price3Days: car.price3Days?.toString() || "",
+      price7Days: car.price7Days?.toString() || "",
+      price15Days: car.price15Days?.toString() || "",
+      price30Days: car.price30Days?.toString() || "",
     });
     setEditImagePreview(car.image || null);
     setEditImageFile(null);
@@ -471,6 +499,10 @@ const Admin = () => {
       transmission: "Manual",
       category: "5-Seater",
       categoryLabel: "Hatchback",
+      price3Days: "",
+      price7Days: "",
+      price15Days: "",
+      price30Days: "",
     });
     setEditImageFile(null);
     setEditImagePreview(null);
@@ -551,6 +583,10 @@ const Admin = () => {
           category: editFormData.category,
           category_label: editFormData.categoryLabel,
           image: imageUrl,
+          price_3_days: editFormData.price3Days ? Number(editFormData.price3Days) : null,
+          price_7_days: editFormData.price7Days ? Number(editFormData.price7Days) : null,
+          price_15_days: editFormData.price15Days ? Number(editFormData.price15Days) : null,
+          price_30_days: editFormData.price30Days ? Number(editFormData.price30Days) : null,
         })
         .eq('id', editingCar.id);
       
@@ -568,6 +604,10 @@ const Admin = () => {
         category: editFormData.category,
         categoryLabel: editFormData.categoryLabel,
         image: imageUrl,
+        price3Days: editFormData.price3Days ? Number(editFormData.price3Days) : null,
+        price7Days: editFormData.price7Days ? Number(editFormData.price7Days) : null,
+        price15Days: editFormData.price15Days ? Number(editFormData.price15Days) : null,
+        price30Days: editFormData.price30Days ? Number(editFormData.price30Days) : null,
       };
 
       setCars(cars.map((car) => (car.id === editingCar.id ? updatedCar : car)));
@@ -894,7 +934,55 @@ const Admin = () => {
                         />
                       </div>
                     </div>
-                  </div>
+                    </div>
+
+                    {/* Multi-Day Pricing */}
+                    <div className="space-y-3 pt-2 border-t border-border">
+                      <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Package Pricing (Optional)</h3>
+                      <p className="text-xs text-muted-foreground">Set total package prices for longer rentals. Leave empty to use daily rate.</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                          <Label htmlFor="price3Days">3+ Days Total (₹)</Label>
+                          <Input
+                            id="price3Days"
+                            type="number"
+                            placeholder="e.g., 7000"
+                            value={formData.price3Days}
+                            onChange={(e) => setFormData({ ...formData, price3Days: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="price7Days">7+ Days Total (₹)</Label>
+                          <Input
+                            id="price7Days"
+                            type="number"
+                            placeholder="e.g., 15000"
+                            value={formData.price7Days}
+                            onChange={(e) => setFormData({ ...formData, price7Days: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="price15Days">15+ Days Total (₹)</Label>
+                          <Input
+                            id="price15Days"
+                            type="number"
+                            placeholder="e.g., 28000"
+                            value={formData.price15Days}
+                            onChange={(e) => setFormData({ ...formData, price15Days: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="price30Days">30+ Days Total (₹)</Label>
+                          <Input
+                            id="price30Days"
+                            type="number"
+                            placeholder="e.g., 50000"
+                            value={formData.price30Days}
+                            onChange={(e) => setFormData({ ...formData, price30Days: e.target.value })}
+                          />
+                        </div>
+                      </div>
+                    </div>
 
                   {/* Specifications */}
                   <div className="space-y-3 pt-2 border-t border-border">
@@ -1229,6 +1317,54 @@ const Admin = () => {
                             value={editFormData.extraKmCharge}
                             onChange={(e) => setEditFormData({ ...editFormData, extraKmCharge: e.target.value })}
                             required
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Multi-Day Pricing */}
+                    <div className="space-y-3 pt-2 border-t border-border">
+                      <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Package Pricing (Optional)</h3>
+                      <p className="text-xs text-muted-foreground">Set total package prices for longer rentals. Leave empty to use daily rate.</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-price3Days">3+ Days Total (₹)</Label>
+                          <Input
+                            id="edit-price3Days"
+                            type="number"
+                            placeholder="e.g., 7000"
+                            value={editFormData.price3Days}
+                            onChange={(e) => setEditFormData({ ...editFormData, price3Days: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-price7Days">7+ Days Total (₹)</Label>
+                          <Input
+                            id="edit-price7Days"
+                            type="number"
+                            placeholder="e.g., 15000"
+                            value={editFormData.price7Days}
+                            onChange={(e) => setEditFormData({ ...editFormData, price7Days: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-price15Days">15+ Days Total (₹)</Label>
+                          <Input
+                            id="edit-price15Days"
+                            type="number"
+                            placeholder="e.g., 28000"
+                            value={editFormData.price15Days}
+                            onChange={(e) => setEditFormData({ ...editFormData, price15Days: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-price30Days">30+ Days Total (₹)</Label>
+                          <Input
+                            id="edit-price30Days"
+                            type="number"
+                            placeholder="e.g., 50000"
+                            value={editFormData.price30Days}
+                            onChange={(e) => setEditFormData({ ...editFormData, price30Days: e.target.value })}
                           />
                         </div>
                       </div>
