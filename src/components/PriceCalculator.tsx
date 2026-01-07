@@ -192,24 +192,24 @@ const PriceCalculator = ({
     
     return filteredCars.map(car => {
       const days = calculation.fullDays;
-      let totalPrice: number;
+      let perDayRate: number;
       
-      // Check for special pricing based on duration
-      if (days >= 30 && car.price30Days) {
-        totalPrice = car.price30Days;
-      } else if (days >= 15 && car.price15Days) {
-        totalPrice = car.price15Days;
-      } else if (days >= 7 && car.price7Days) {
-        totalPrice = car.price7Days;
+      // Tiered per-day pricing: 1-2 days, 3-7 days, 8-15 days, 16+ days
+      if (days >= 16 && car.price15Days) {
+        perDayRate = car.price15Days;
+      } else if (days >= 8 && car.price7Days) {
+        perDayRate = car.price7Days;
       } else if (days >= 3 && car.price3Days) {
-        totalPrice = car.price3Days;
+        perDayRate = car.price3Days;
       } else {
-        // Standard pricing
-        const hourlyRate = car.price / 24;
-        const daysPrice = calculation.fullDays * car.price;
-        const hoursPrice = Math.round(calculation.extraHours * hourlyRate);
-        totalPrice = daysPrice + hoursPrice;
+        perDayRate = car.price;
       }
+      
+      // Calculate total: (days * per day rate) + (extra hours * hourly rate)
+      const hourlyRate = perDayRate / 24;
+      const daysPrice = days * perDayRate;
+      const hoursPrice = Math.round(calculation.extraHours * hourlyRate);
+      const totalPrice = daysPrice + hoursPrice;
       
       return {
         ...car,
@@ -532,6 +532,11 @@ Please confirm availability.`;
                   />
                 </div>
               </div>
+              {/* Booking Confirmation Info */}
+              <div className="mt-4 p-3 bg-gold/10 border border-gold/30 rounded-lg text-center">
+                <p className="text-gold font-semibold text-sm">₹1000 Advance for Confirmation</p>
+                <p className="text-primary-foreground/70 text-xs mt-1">Balance trip amount at pickup • ₹10,000 refundable deposit OR 2-wheeler with RC card</p>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
@@ -544,9 +549,6 @@ Please confirm availability.`;
                 >
                   {/* Image Container */}
                   <div className="relative bg-secondary/50 p-3 md:p-6">
-                    <div className="absolute top-2 right-2 md:top-3 md:right-3 bg-electric text-primary-foreground text-[10px] md:text-xs font-bold px-2 md:px-3 py-1 rounded-full">
-                      {car.kmLimit}KM Limit
-                    </div>
                     <img
                       src={car.image}
                       alt={car.name}

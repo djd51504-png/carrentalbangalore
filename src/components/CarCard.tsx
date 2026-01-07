@@ -16,9 +16,6 @@ const CarCard = ({ name, price, image, category, transmission, fuel }: CarCardPr
     <div className="group bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-2 border border-border">
       {/* Image Container */}
       <div className="relative bg-secondary/50 p-4 md:p-6">
-        <div className="absolute top-3 right-3 bg-electric text-primary-foreground text-xs font-bold px-3 py-1 rounded-full">
-          300KM Limit
-        </div>
         <img
           src={image}
           alt={name}
