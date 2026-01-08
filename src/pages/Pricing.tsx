@@ -1,33 +1,59 @@
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
-import { CreditCard, Smartphone, Banknote, Phone } from "lucide-react";
+import { CreditCard, Smartphone, Banknote, Phone, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
-const cars = [
-  { name: "Swift", category: "Hatchback", seats: 5, price: 2500, fuel: "Petrol" },
-  { name: "Baleno", category: "Hatchback", seats: 5, price: 3000, fuel: "Petrol" },
-  { name: "Glanza", category: "Hatchback", seats: 5, price: 3000, fuel: "Petrol" },
-  { name: "Punch", category: "SUV", seats: 5, price: 3000, fuel: "Petrol" },
-  { name: "i20", category: "Hatchback", seats: 5, price: 3000, fuel: "Petrol" },
-  { name: "Polo", category: "Hatchback", seats: 5, price: 3000, fuel: "Petrol" },
-  { name: "Brezza", category: "SUV", seats: 5, price: 3500, fuel: "Petrol" },
-  { name: "Fronx", category: "SUV", seats: 5, price: 3500, fuel: "Petrol" },
-  { name: "Sonet", category: "SUV", seats: 5, price: 3500, fuel: "Petrol" },
-  { name: "Creta", category: "SUV", seats: 5, price: 4000, fuel: "Petrol" },
-  { name: "Seltos", category: "SUV", seats: 5, price: 4500, fuel: "Petrol" },
-  { name: "Thar", category: "SUV", seats: 5, price: 6500, fuel: "Diesel" },
-  { name: "Thar Roxx", category: "SUV", seats: 5, price: 8000, fuel: "Petrol" },
-  { name: "Ertiga", category: "MUV", seats: 7, price: 4000, fuel: "Petrol" },
-  { name: "Innova", category: "MUV", seats: 7, price: 4000, fuel: "Diesel" },
-  { name: "XUV500", category: "SUV", seats: 7, price: 4000, fuel: "Petrol" },
-  { name: "Rumion", category: "MUV", seats: 7, price: 4500, fuel: "Petrol" },
-  { name: "Innova Crysta", category: "MUV", seats: 7, price: 6500, fuel: "Diesel" },
-  { name: "XUV700", category: "SUV", seats: 7, price: 6500, fuel: "Petrol" },
-  { name: "Hycross", category: "MUV", seats: 7, price: 7500, fuel: "Petrol" },
-  { name: "Fortuner", category: "SUV", seats: 7, price: 9000, fuel: "Petrol" },
-];
+interface Car {
+  name: string;
+  category: string;
+  seats: number;
+  fuel: string;
+  transmission: string;
+  price: number;
+  price3Days: number | null;
+  price7Days: number | null;
+  price15Days: number | null;
+  price30Days: number | null;
+}
 
 const Pricing = () => {
+  const [cars, setCars] = useState<Car[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCars = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('cars')
+          .select('*')
+          .order('price', { ascending: true });
+        
+        if (error) throw error;
+        
+        setCars(data.map(car => ({
+          name: car.name,
+          category: car.category_label || 'Hatchback',
+          seats: car.category === '7-Seater' ? 7 : 5,
+          fuel: car.fuel,
+          transmission: car.transmission,
+          price: car.price,
+          price3Days: car.price_3_days,
+          price7Days: car.price_7_days,
+          price15Days: car.price_15_days,
+          price30Days: car.price_30_days,
+        })));
+      } catch (error) {
+        console.error('Error fetching cars:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCars();
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -59,52 +85,89 @@ const Pricing = () => {
               <p className="text-sm text-muted-foreground">
                 Secure your ride with a minimal advance. Balance payable at pickup.
               </p>
+              <p className="text-xs text-muted-foreground mt-2">
+                Refundable deposit: ₹10,000 or 2-wheeler with RC card required at pickup
+              </p>
             </div>
           </div>
 
           {/* Pricing Table */}
           <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-card mb-10">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-secondary/50">
-                    <th className="text-left py-4 px-6 font-heading font-semibold text-foreground">Car Model</th>
-                    <th className="text-left py-4 px-6 font-heading font-semibold text-foreground">Type</th>
-                    <th className="text-center py-4 px-6 font-heading font-semibold text-foreground">Seats</th>
-                    <th className="text-center py-4 px-6 font-heading font-semibold text-foreground">Fuel</th>
-                    <th className="text-right py-4 px-6 font-heading font-semibold text-foreground">Price/Day</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {cars.map((car, index) => (
-                    <tr 
-                      key={car.name} 
-                      className={`border-t border-border hover:bg-secondary/30 transition-colors ${
-                        index % 2 === 0 ? "" : "bg-secondary/10"
-                      }`}
-                    >
-                      <td className="py-4 px-6">
-                        <span className="font-semibold text-foreground">{car.name}</span>
-                      </td>
-                      <td className="py-4 px-6 text-muted-foreground">{car.category}</td>
-                      <td className="py-4 px-6 text-center text-muted-foreground">{car.seats}</td>
-                      <td className="py-4 px-6 text-center">
-                        <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${
-                          car.fuel === "Diesel" 
-                            ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400" 
-                            : "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                        }`}>
-                          {car.fuel}
-                        </span>
-                      </td>
-                      <td className="py-4 px-6 text-right">
-                        <span className="font-heading font-bold text-lg text-primary">₹{car.price}</span>
-                      </td>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <span className="ml-3 text-muted-foreground">Loading prices...</span>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-secondary/50">
+                      <th className="text-left py-4 px-4 font-heading font-semibold text-foreground text-sm">Car Model</th>
+                      <th className="text-center py-4 px-2 font-heading font-semibold text-foreground text-sm">Fuel</th>
+                      <th className="text-center py-4 px-2 font-heading font-semibold text-foreground text-sm">Transmission</th>
+                      <th className="text-right py-4 px-2 font-heading font-semibold text-foreground text-sm">1-2 Days</th>
+                      <th className="text-right py-4 px-2 font-heading font-semibold text-foreground text-sm">3-7 Days</th>
+                      <th className="text-right py-4 px-2 font-heading font-semibold text-foreground text-sm">8-15 Days</th>
+                      <th className="text-right py-4 px-4 font-heading font-semibold text-foreground text-sm">16+ Days</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {cars.map((car, index) => (
+                      <tr 
+                        key={car.name} 
+                        className={`border-t border-border hover:bg-secondary/30 transition-colors ${
+                          index % 2 === 0 ? "" : "bg-secondary/10"
+                        }`}
+                      >
+                        <td className="py-4 px-4">
+                          <span className="font-semibold text-foreground">{car.name}</span>
+                          <span className="text-xs text-muted-foreground ml-2">({car.seats}-seater)</span>
+                        </td>
+                        <td className="py-4 px-2 text-center">
+                          <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${
+                            car.fuel === "Diesel" 
+                              ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400" 
+                              : "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                          }`}>
+                            {car.fuel}
+                          </span>
+                        </td>
+                        <td className="py-4 px-2 text-center">
+                          <span className="inline-block px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                            {car.transmission}
+                          </span>
+                        </td>
+                        <td className="py-4 px-2 text-right">
+                          <span className="font-heading font-bold text-primary">₹{car.price}</span>
+                        </td>
+                        <td className="py-4 px-2 text-right">
+                          <span className="font-heading font-bold text-primary">
+                            {car.price3Days ? `₹${car.price3Days}` : '-'}
+                          </span>
+                        </td>
+                        <td className="py-4 px-2 text-right">
+                          <span className="font-heading font-bold text-primary">
+                            {car.price7Days ? `₹${car.price7Days}` : '-'}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4 text-right">
+                          <span className="font-heading font-bold text-gold">
+                            {car.price15Days ? `₹${car.price15Days}` : '-'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {/* Pricing Notes */}
+          <div className="text-center mb-8 text-sm text-muted-foreground">
+            <p>* All prices are per day. Prices shown are applied for the entire duration.</p>
+            <p>* 300km limit per day. Extra km charged at ₹10/km.</p>
           </div>
 
           {/* Negotiation Note */}

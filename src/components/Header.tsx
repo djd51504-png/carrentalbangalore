@@ -35,6 +35,7 @@ const Header = () => {
             <Link
               key={link.href}
               to={link.href}
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className={`text-sm font-medium transition-colors ${
                 location.pathname === link.href
                   ? "text-primary"
@@ -72,7 +73,10 @@ const Header = () => {
               <Link
                 key={link.href}
                 to={link.href}
-                onClick={() => setIsMenuOpen(false)}
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
                 className={`text-lg font-medium py-4 px-4 rounded-xl transition-all ${
                   location.pathname === link.href
                     ? "text-primary bg-primary/10"
