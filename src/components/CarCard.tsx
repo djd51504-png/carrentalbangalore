@@ -1,4 +1,4 @@
-import { MessageCircle, Fuel, Cog } from "lucide-react";
+import { MessageCircle, Fuel, Cog, Gauge } from "lucide-react";
 
 interface CarCardProps {
   name: string;
@@ -49,6 +49,10 @@ const CarCard = ({ name, price, image, category, transmission, fuel }: CarCardPr
           <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
             <Cog className="w-3 h-3" />
             {transmission}
+          </span>
+          <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
+            <Gauge className="w-3 h-3" />
+            300km/day
           </span>
         </div>
 

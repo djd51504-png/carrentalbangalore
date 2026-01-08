@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Calendar, Clock, MapPin, Search, MessageCircle, AlertCircle, Loader2, Settings2, User, Phone, Send } from "lucide-react";
+import { Calendar, Clock, MapPin, Search, MessageCircle, AlertCircle, Loader2, Settings2, User, Phone, Send, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -113,6 +113,7 @@ const PriceCalculator = ({
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [isSubmittingEnquiry, setIsSubmittingEnquiry] = useState<string | null>(null);
+  const [isPaymentLoading, setIsPaymentLoading] = useState<string | null>(null);
   
   const [cars, setCars] = useState<Car[]>([]);
   const [isLoadingCars, setIsLoadingCars] = useState(true);
@@ -314,8 +315,26 @@ Please confirm availability.`;
         description: "We'll contact you shortly to confirm your booking.",
       });
 
-      // Open WhatsApp as well
-      window.open(`https://wa.me/919448277091?text=${generateWhatsAppMessage(car)}`, '_blank');
+      // Send WhatsApp notification to owner (9448277091)
+      const formatDate = (date: string) => {
+        const d = new Date(date);
+        return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+      };
+      
+      const ownerWhatsAppMessage = `🚗 *New Booking Enquiry*
+
+👤 *Customer:* ${customerName}
+📱 *Phone:* ${customerPhone}
+
+🚙 *Car:* ${car.brand} ${car.name}
+📅 *Pickup:* ${formatDate(pickupDate)} ${pickupTime}
+📅 *Drop:* ${formatDate(dropDate)} ${dropTime}
+📍 *Location:* ${pickupLocation || "To be decided"}
+
+⏱️ *Duration:* ${car.fullDays} days${car.extraHours > 0 ? ` + ${car.extraHours} hours` : ""}
+💰 *Estimated:* ₹${car.totalPrice.toLocaleString()}`;
+      
+      window.open(`https://wa.me/919448277091?text=${encodeURIComponent(ownerWhatsAppMessage)}`, '_blank');
 
     } catch (error) {
       console.error('Enquiry error:', error);
@@ -326,6 +345,115 @@ Please confirm availability.`;
       });
     } finally {
       setIsSubmittingEnquiry(null);
+    }
+  };
+
+  // Razorpay payment handler
+  const handlePayAdvance = async (car: CarWithCalculatedPrice) => {
+    if (!customerName.trim() || !customerPhone.trim()) {
+      toast({
+        title: "Missing Details",
+        description: "Please enter your name and phone number first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (customerPhone.length < 10) {
+      toast({
+        title: "Invalid Phone",
+        description: "Please enter a valid phone number.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsPaymentLoading(car.id);
+
+    try {
+      // Create order via edge function
+      const { data: orderData, error } = await supabase.functions.invoke('create-razorpay-order', {
+        body: {
+          amount: 1000,
+          customerName,
+          customerPhone,
+          carName: `${car.brand} ${car.name}`,
+        },
+      });
+
+      if (error) throw error;
+
+      // Open Razorpay checkout
+      const options = {
+        ...orderData,
+        handler: async function (response: any) {
+          console.log("Payment successful:", response);
+          
+          // Save enquiry after successful payment
+          await supabase.from('booking_enquiries').insert({
+            customer_name: customerName,
+            customer_phone: customerPhone,
+            car_id: car.id,
+            car_name: `${car.brand} ${car.name}`,
+            pickup_date: `${pickupDate}T${pickupTime}`,
+            drop_date: `${dropDate}T${dropTime}`,
+            pickup_location: pickupLocation || "To be decided",
+            total_days: car.fullDays,
+            total_hours: car.extraHours,
+            estimated_price: car.totalPrice,
+            status: 'confirmed',
+            notes: `Razorpay Payment ID: ${response.razorpay_payment_id}`,
+          });
+
+          // Send WhatsApp notification
+          const formatDate = (date: string) => {
+            const d = new Date(date);
+            return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+          };
+          
+          const ownerWhatsAppMessage = `💳 *PAYMENT RECEIVED - ₹1000*
+
+🚗 *Booking Confirmed!*
+
+👤 *Customer:* ${customerName}
+📱 *Phone:* ${customerPhone}
+
+🚙 *Car:* ${car.brand} ${car.name}
+📅 *Pickup:* ${formatDate(pickupDate)} ${pickupTime}
+📅 *Drop:* ${formatDate(dropDate)} ${dropTime}
+📍 *Location:* ${pickupLocation || "To be decided"}
+
+⏱️ *Duration:* ${car.fullDays} days${car.extraHours > 0 ? ` + ${car.extraHours} hours` : ""}
+💰 *Trip Total:* ₹${car.totalPrice.toLocaleString()}
+
+🆔 Payment ID: ${response.razorpay_payment_id}`;
+          
+          window.open(`https://wa.me/919448277091?text=${encodeURIComponent(ownerWhatsAppMessage)}`, '_blank');
+
+          toast({
+            title: "Payment Successful! 🎉",
+            description: "Your booking is confirmed. We'll contact you shortly.",
+          });
+        },
+        modal: {
+          ondismiss: function() {
+            setIsPaymentLoading(null);
+          }
+        }
+      };
+
+      // @ts-ignore - Razorpay is loaded via script
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast({
+        title: "Payment Failed",
+        description: "Please try again or contact us directly.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsPaymentLoading(null);
     }
   };
 
@@ -539,7 +667,7 @@ Please confirm availability.`;
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
               {carsWithPrices.map((car, index) => (
                 <div 
                   key={car.id} 
@@ -579,26 +707,52 @@ Please confirm availability.`;
                       <span className="text-[10px] md:text-xs px-2 py-0.5 bg-muted rounded-full text-muted-foreground">
                         {car.transmission}
                       </span>
+                      <span className="text-[10px] md:text-xs px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 rounded-full text-purple-800 dark:text-purple-400">
+                        300km/day
+                      </span>
                     </div>
 
-                    {/* Book Now Button */}
-                    <Button
-                      onClick={() => handleSubmitEnquiry(car)}
-                      disabled={isSubmittingEnquiry === car.id}
-                      className="flex items-center justify-center gap-2 w-full bg-whatsapp hover:bg-whatsapp/90 text-primary-foreground py-2.5 md:py-3 rounded-xl font-semibold transition-all hover:scale-[1.02] text-sm md:text-base"
-                    >
-                      {isSubmittingEnquiry === car.id ? (
-                        <>
-                          <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
-                          Sending...
-                        </>
-                      ) : (
-                        <>
-                          <Send className="w-4 h-4 md:w-5 md:h-5" />
-                          Book Now
-                        </>
-                      )}
-                    </Button>
+                    {/* Action Buttons */}
+                    <div className="flex flex-col gap-2">
+                      {/* Pay Advance Button */}
+                      <Button
+                        onClick={() => handlePayAdvance(car)}
+                        disabled={isPaymentLoading === car.id}
+                        className="flex items-center justify-center gap-2 w-full bg-gradient-button text-primary-foreground py-2.5 md:py-3 rounded-xl font-semibold transition-all hover:scale-[1.02] text-sm md:text-base"
+                      >
+                        {isPaymentLoading === car.id ? (
+                          <>
+                            <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
+                            Processing...
+                          </>
+                        ) : (
+                          <>
+                            <CreditCard className="w-4 h-4 md:w-5 md:h-5" />
+                            Pay ₹1000 & Confirm
+                          </>
+                        )}
+                      </Button>
+                      
+                      {/* Book via WhatsApp Button */}
+                      <Button
+                        onClick={() => handleSubmitEnquiry(car)}
+                        disabled={isSubmittingEnquiry === car.id}
+                        variant="outline"
+                        className="flex items-center justify-center gap-2 w-full border-whatsapp text-whatsapp hover:bg-whatsapp hover:text-primary-foreground py-2 md:py-2.5 rounded-xl font-semibold transition-all text-xs md:text-sm"
+                      >
+                        {isSubmittingEnquiry === car.id ? (
+                          <>
+                            <Loader2 className="w-3 h-3 md:w-4 md:h-4 animate-spin" />
+                            Sending...
+                          </>
+                        ) : (
+                          <>
+                            <Send className="w-3 h-3 md:w-4 md:h-4" />
+                            Enquire on WhatsApp
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}

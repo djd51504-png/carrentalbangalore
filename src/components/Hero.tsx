@@ -24,11 +24,11 @@ const Hero = () => {
         <source src="/hero-video.mp4" type="video/mp4" />
       </video>
       
-      {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-charcoal/70 backdrop-blur-[2px]" />
+      {/* Lighter Overlay for better video visibility */}
+      <div className="absolute inset-0 bg-charcoal/40" />
       
-      {/* Gradient Overlay for depth */}
-      <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-transparent to-charcoal/30" />
+      {/* Gradient Overlay for depth - lighter */}
+      <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-transparent to-charcoal/20" />
 
       <div className="container relative z-10 py-12 md:py-20">
         <div className="max-w-5xl mx-auto text-center">
