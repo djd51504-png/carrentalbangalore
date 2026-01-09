@@ -29,13 +29,13 @@ const CarCard = ({ name, price, image, category, transmission, fuel }: CarCardPr
       </div>
 
       {/* Content */}
-      <div className="p-4 md:p-6">
+      <div className="p-3 md:p-6">
         {/* Title and Price */}
-        <div className="flex items-start justify-between gap-3 mb-4">
-          <h3 className="font-heading font-bold text-xl md:text-2xl text-foreground leading-tight">{name}</h3>
-          <div className="text-right flex-shrink-0">
-            <p className="font-heading font-bold text-2xl md:text-3xl text-primary">₹{price}</p>
-            <p className="text-xs text-muted-foreground font-medium">/24hrs</p>
+        <div className="flex flex-col gap-1 mb-3">
+          <h3 className="font-heading font-bold text-base md:text-xl text-foreground leading-tight truncate">{name}</h3>
+          <div className="flex items-baseline gap-1">
+            <p className="font-heading font-bold text-xl md:text-2xl text-primary">₹{price}</p>
+            <p className="text-xs text-muted-foreground font-medium">/day</p>
           </div>
         </div>
 
