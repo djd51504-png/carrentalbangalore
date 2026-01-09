@@ -1,4 +1,4 @@
-import { MessageCircle, Fuel, Cog, Gauge, Users } from "lucide-react";
+import { MessageCircle, Fuel, Cog, Users } from "lucide-react";
 
 interface CarCardProps {
   name: string;
@@ -31,17 +31,18 @@ const CarCard = ({ name, price, image, category, transmission, fuel }: CarCardPr
       {/* Content */}
       <div className="p-3 md:p-6">
         {/* Title and Price */}
-        <div className="flex flex-col gap-1 mb-3">
+        <div className="flex flex-col gap-1 mb-2">
           <h3 className="font-heading font-bold text-base md:text-xl text-foreground leading-tight truncate">{name}</h3>
           <div className="flex items-baseline gap-1">
             <p className="font-heading font-bold text-xl md:text-2xl text-primary">₹{price}</p>
             <p className="text-xs text-muted-foreground font-medium">/day</p>
           </div>
+          <p className="text-xs text-muted-foreground">300km per day limit</p>
         </div>
 
-        {/* Badges Grid */}
-        <div className="grid grid-cols-3 gap-2 mb-5">
-          <span className={`flex flex-col items-center justify-center gap-1 text-xs font-semibold px-2 py-2.5 rounded-xl ${
+        {/* Badges Grid - 2 columns only */}
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <span className={`flex flex-col items-center justify-center gap-1 text-xs font-semibold px-2 py-2 rounded-xl ${
             fuel === "Diesel" 
               ? "bg-gradient-to-br from-amber-100 to-amber-200 text-amber-900 dark:from-amber-900/40 dark:to-amber-900/20 dark:text-amber-300" 
               : "bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-900 dark:from-emerald-900/40 dark:to-emerald-900/20 dark:text-emerald-300"
@@ -49,13 +50,9 @@ const CarCard = ({ name, price, image, category, transmission, fuel }: CarCardPr
             <Fuel className="w-4 h-4" />
             {fuel}
           </span>
-          <span className="flex flex-col items-center justify-center gap-1 text-xs font-semibold px-2 py-2.5 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 text-blue-900 dark:from-blue-900/40 dark:to-blue-900/20 dark:text-blue-300">
+          <span className="flex flex-col items-center justify-center gap-1 text-xs font-semibold px-2 py-2 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 text-blue-900 dark:from-blue-900/40 dark:to-blue-900/20 dark:text-blue-300">
             <Cog className="w-4 h-4" />
             {transmission.length > 8 ? transmission.split(' ')[0] : transmission}
-          </span>
-          <span className="flex flex-col items-center justify-center gap-1 text-xs font-semibold px-2 py-2.5 rounded-xl bg-gradient-to-br from-purple-100 to-purple-200 text-purple-900 dark:from-purple-900/40 dark:to-purple-900/20 dark:text-purple-300">
-            <Gauge className="w-4 h-4" />
-            300km
           </span>
         </div>
 
@@ -63,7 +60,7 @@ const CarCard = ({ name, price, image, category, transmission, fuel }: CarCardPr
           href={whatsappLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-whatsapp to-emerald-500 hover:from-whatsapp/90 hover:to-emerald-500/90 text-white py-3.5 md:py-4 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] text-base"
+          className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-whatsapp to-emerald-500 hover:from-whatsapp/90 hover:to-emerald-500/90 text-white py-3 md:py-4 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] text-sm md:text-base"
         >
           <MessageCircle className="w-5 h-5" />
           Book Now
