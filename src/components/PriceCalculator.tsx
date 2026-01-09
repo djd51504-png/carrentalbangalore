@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Calendar, Clock, MapPin, Search, MessageCircle, AlertCircle, Loader2, Settings2, User, Phone, Send, CreditCard } from "lucide-react";
+import { Calendar, Clock, MapPin, Search, AlertCircle, Loader2, Settings2, User, Phone, Send, Fuel, Cog, Gauge } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -113,7 +113,6 @@ const PriceCalculator = ({
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [isSubmittingEnquiry, setIsSubmittingEnquiry] = useState<string | null>(null);
-  const [isPaymentLoading, setIsPaymentLoading] = useState<string | null>(null);
   
   const [cars, setCars] = useState<Car[]>([]);
   const [isLoadingCars, setIsLoadingCars] = useState(true);
@@ -221,21 +220,6 @@ const PriceCalculator = ({
     });
   }, [calculation, transmissionFilter, cars]);
 
-  const generateWhatsAppMessage = (car: CarWithCalculatedPrice) => {
-    const formatDate = (date: string) => {
-      const d = new Date(date);
-      return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-    };
-    
-    const message = `Hi Vikas, I need ${car.name} from ${formatDate(pickupDate)} ${pickupTime} to ${formatDate(dropDate)} ${dropTime}.
-
-📍 Pickup Location: ${pickupLocation || "To be decided"}
-💰 Estimated Total: ₹${car.totalPrice.toLocaleString()} (${car.fullDays} days${car.extraHours > 0 ? ` + ${car.extraHours} hours` : ""})
-
-Please confirm availability.`;
-    return encodeURIComponent(message);
-  };
-
   const handleCheckAvailability = () => {
     if (!calculation || calculation.error) return;
     
@@ -307,7 +291,6 @@ Please confirm availability.`;
 
       if (emailError) {
         console.error('Email error:', emailError);
-        // Don't throw - enquiry is saved, email is secondary
       }
 
       toast({
@@ -345,115 +328,6 @@ Please confirm availability.`;
       });
     } finally {
       setIsSubmittingEnquiry(null);
-    }
-  };
-
-  // Razorpay payment handler
-  const handlePayAdvance = async (car: CarWithCalculatedPrice) => {
-    if (!customerName.trim() || !customerPhone.trim()) {
-      toast({
-        title: "Missing Details",
-        description: "Please enter your name and phone number first.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (customerPhone.length < 10) {
-      toast({
-        title: "Invalid Phone",
-        description: "Please enter a valid phone number.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsPaymentLoading(car.id);
-
-    try {
-      // Create order via edge function
-      const { data: orderData, error } = await supabase.functions.invoke('create-razorpay-order', {
-        body: {
-          amount: 1000,
-          customerName,
-          customerPhone,
-          carName: `${car.brand} ${car.name}`,
-        },
-      });
-
-      if (error) throw error;
-
-      // Open Razorpay checkout
-      const options = {
-        ...orderData,
-        handler: async function (response: any) {
-          console.log("Payment successful:", response);
-          
-          // Save enquiry after successful payment
-          await supabase.from('booking_enquiries').insert({
-            customer_name: customerName,
-            customer_phone: customerPhone,
-            car_id: car.id,
-            car_name: `${car.brand} ${car.name}`,
-            pickup_date: `${pickupDate}T${pickupTime}`,
-            drop_date: `${dropDate}T${dropTime}`,
-            pickup_location: pickupLocation || "To be decided",
-            total_days: car.fullDays,
-            total_hours: car.extraHours,
-            estimated_price: car.totalPrice,
-            status: 'confirmed',
-            notes: `Razorpay Payment ID: ${response.razorpay_payment_id}`,
-          });
-
-          // Send WhatsApp notification
-          const formatDate = (date: string) => {
-            const d = new Date(date);
-            return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-          };
-          
-          const ownerWhatsAppMessage = `💳 *PAYMENT RECEIVED - ₹1000*
-
-🚗 *Booking Confirmed!*
-
-👤 *Customer:* ${customerName}
-📱 *Phone:* ${customerPhone}
-
-🚙 *Car:* ${car.brand} ${car.name}
-📅 *Pickup:* ${formatDate(pickupDate)} ${pickupTime}
-📅 *Drop:* ${formatDate(dropDate)} ${dropTime}
-📍 *Location:* ${pickupLocation || "To be decided"}
-
-⏱️ *Duration:* ${car.fullDays} days${car.extraHours > 0 ? ` + ${car.extraHours} hours` : ""}
-💰 *Trip Total:* ₹${car.totalPrice.toLocaleString()}
-
-🆔 Payment ID: ${response.razorpay_payment_id}`;
-          
-          window.open(`https://wa.me/919448277091?text=${encodeURIComponent(ownerWhatsAppMessage)}`, '_blank');
-
-          toast({
-            title: "Payment Successful! 🎉",
-            description: "Your booking is confirmed. We'll contact you shortly.",
-          });
-        },
-        modal: {
-          ondismiss: function() {
-            setIsPaymentLoading(null);
-          }
-        }
-      };
-
-      // @ts-ignore - Razorpay is loaded via script
-      const rzp = new window.Razorpay(options);
-      rzp.open();
-    } catch (error) {
-      console.error('Payment error:', error);
-      toast({
-        title: "Payment Failed",
-        description: "Please try again or contact us directly.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsPaymentLoading(null);
     }
   };
 
@@ -671,88 +545,73 @@ Please confirm availability.`;
               {carsWithPrices.map((car, index) => (
                 <div 
                   key={car.id} 
-                  className="group bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 md:hover:-translate-y-2 border border-border"
+                  className="group bg-gradient-to-br from-card to-card/80 rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-2 border border-border/50 hover:border-primary/30"
                   data-aos="fade-up"
                   data-aos-delay={index * 50}
                 >
                   {/* Image Container */}
-                  <div className="relative bg-secondary/50 p-3 md:p-6">
+                  <div className="relative bg-gradient-to-br from-secondary/30 to-secondary/60 p-3 md:p-6">
                     <img
                       src={car.image}
                       alt={car.name}
-                      className="w-full h-28 md:h-44 object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-32 md:h-48 object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500"
                     />
+                    {/* Category Badge */}
+                    <span className="absolute top-2 left-2 text-[10px] md:text-xs font-bold px-2 py-1 rounded-full bg-primary/90 text-primary-foreground">
+                      {car.categoryLabel}
+                    </span>
                   </div>
 
                   {/* Content */}
                   <div className="p-3 md:p-5">
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <div>
-                        <h3 className="font-heading font-bold text-base md:text-lg text-foreground">{car.name}</h3>
-                        <p className="text-[10px] md:text-xs text-muted-foreground">{car.categoryLabel}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-heading font-bold text-lg md:text-xl text-primary">₹{car.totalPrice.toLocaleString()}</p>
+                    <div className="flex items-start justify-between gap-2 mb-3">
+                      <h3 className="font-heading font-bold text-base md:text-xl text-foreground leading-tight">{car.name}</h3>
+                      <div className="text-right flex-shrink-0">
+                        <p className="font-heading font-bold text-lg md:text-2xl text-primary">₹{car.totalPrice.toLocaleString()}</p>
                         <p className="text-[10px] md:text-xs text-muted-foreground">
                           {car.fullDays}d{car.extraHours > 0 ? ` + ${car.extraHours}h` : ""}
                         </p>
                       </div>
                     </div>
                     
-                    {/* Features */}
-                    <div className="flex flex-wrap gap-1.5 md:gap-2 mb-3 md:mb-4">
-                      <span className="text-[10px] md:text-xs px-2 py-0.5 bg-muted rounded-full text-muted-foreground">
+                    {/* Features Grid */}
+                    <div className="grid grid-cols-3 gap-1.5 md:gap-2 mb-3 md:mb-4">
+                      <span className={`flex flex-col items-center gap-0.5 text-[9px] md:text-xs font-semibold px-1 py-1.5 md:py-2 rounded-lg ${
+                        car.fuel === "Diesel" 
+                          ? "bg-gradient-to-br from-amber-100 to-amber-200 text-amber-900 dark:from-amber-900/40 dark:to-amber-900/20 dark:text-amber-300" 
+                          : "bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-900 dark:from-emerald-900/40 dark:to-emerald-900/20 dark:text-emerald-300"
+                      }`}>
+                        <Fuel className="w-3 h-3 md:w-4 md:h-4" />
                         {car.fuel}
                       </span>
-                      <span className="text-[10px] md:text-xs px-2 py-0.5 bg-muted rounded-full text-muted-foreground">
-                        {car.transmission}
+                      <span className="flex flex-col items-center gap-0.5 text-[9px] md:text-xs font-semibold px-1 py-1.5 md:py-2 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 text-blue-900 dark:from-blue-900/40 dark:to-blue-900/20 dark:text-blue-300">
+                        <Cog className="w-3 h-3 md:w-4 md:h-4" />
+                        {car.transmission.length > 6 ? car.transmission.split(' ')[0] : car.transmission}
                       </span>
-                      <span className="text-[10px] md:text-xs px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 rounded-full text-purple-800 dark:text-purple-400">
-                        300km/day
+                      <span className="flex flex-col items-center gap-0.5 text-[9px] md:text-xs font-semibold px-1 py-1.5 md:py-2 rounded-lg bg-gradient-to-br from-purple-100 to-purple-200 text-purple-900 dark:from-purple-900/40 dark:to-purple-900/20 dark:text-purple-300">
+                        <Gauge className="w-3 h-3 md:w-4 md:h-4" />
+                        300km
                       </span>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex flex-col gap-2">
-                      {/* Pay Advance Button */}
-                      <Button
-                        onClick={() => handlePayAdvance(car)}
-                        disabled={isPaymentLoading === car.id}
-                        className="flex items-center justify-center gap-2 w-full bg-gradient-button text-primary-foreground py-2.5 md:py-3 rounded-xl font-semibold transition-all hover:scale-[1.02] text-sm md:text-base"
-                      >
-                        {isPaymentLoading === car.id ? (
-                          <>
-                            <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
-                            Processing...
-                          </>
-                        ) : (
-                          <>
-                            <CreditCard className="w-4 h-4 md:w-5 md:h-5" />
-                            Pay ₹1000 & Confirm
-                          </>
-                        )}
-                      </Button>
-                      
-                      {/* Book via WhatsApp Button */}
-                      <Button
-                        onClick={() => handleSubmitEnquiry(car)}
-                        disabled={isSubmittingEnquiry === car.id}
-                        variant="outline"
-                        className="flex items-center justify-center gap-2 w-full border-whatsapp text-whatsapp hover:bg-whatsapp hover:text-primary-foreground py-2 md:py-2.5 rounded-xl font-semibold transition-all text-xs md:text-sm"
-                      >
-                        {isSubmittingEnquiry === car.id ? (
-                          <>
-                            <Loader2 className="w-3 h-3 md:w-4 md:h-4 animate-spin" />
-                            Sending...
-                          </>
-                        ) : (
-                          <>
-                            <Send className="w-3 h-3 md:w-4 md:h-4" />
-                            Enquire on WhatsApp
-                          </>
-                        )}
-                      </Button>
-                    </div>
+                    {/* Book Button */}
+                    <Button
+                      onClick={() => handleSubmitEnquiry(car)}
+                      disabled={isSubmittingEnquiry === car.id}
+                      className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-whatsapp to-emerald-500 hover:from-whatsapp/90 hover:to-emerald-500/90 text-white py-2.5 md:py-3.5 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] text-sm md:text-base"
+                    >
+                      {isSubmittingEnquiry === car.id ? (
+                        <>
+                          <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4 md:w-5 md:h-5" />
+                          Book via WhatsApp
+                        </>
+                      )}
+                    </Button>
                   </div>
                 </div>
               ))}
