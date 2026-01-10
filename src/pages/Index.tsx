@@ -4,6 +4,7 @@ import LocationsSection from "@/components/LocationsSection";
 import PriceCalculator from "@/components/PriceCalculator";
 import SocialProofMap from "@/components/SocialProofMap";
 import FleetSection from "@/components/FleetSection";
+import GoogleReviews from "@/components/GoogleReviews";
 import TermsSection from "@/components/TermsSection";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -17,6 +18,7 @@ const Index = () => {
       <PriceCalculator />
       <SocialProofMap />
       <FleetSection />
+      <GoogleReviews />
       <TermsSection />
       <Footer />
       <WhatsAppButton />

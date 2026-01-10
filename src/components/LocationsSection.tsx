@@ -14,7 +14,7 @@ const locations = [
 
 const LocationsSection = () => {
   return (
-    <section className="py-16 md:py-20 bg-secondary/50">
+    <section id="locations" className="py-16 md:py-20 bg-secondary/50">
       <div className="container">
         {/* Section Header */}
         <div className="text-center mb-12" data-aos="fade-down">

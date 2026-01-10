@@ -66,6 +66,11 @@ interface Car {
   categoryLabel: string;
   transmission: string;
   fuel: string;
+  price3Days: number | null;
+  price7Days: number | null;
+  price15Days: number | null;
+  price30Days: number | null;
+  extraKmCharge: number;
 }
 
 const Cars = () => {
@@ -92,6 +97,11 @@ const Cars = () => {
           categoryLabel: car.category_label || 'Hatchback',
           transmission: car.transmission,
           fuel: car.fuel,
+          price3Days: car.price_3_days,
+          price7Days: car.price_7_days,
+          price15Days: car.price_15_days,
+          price30Days: car.price_30_days,
+          extraKmCharge: car.extra_km_charge,
         })));
       } catch (error) {
         console.error('Error fetching cars:', error);
@@ -169,6 +179,11 @@ const Cars = () => {
                   category={car.categoryLabel}
                   transmission={car.transmission}
                   fuel={car.fuel}
+                  price3Days={car.price3Days}
+                  price7Days={car.price7Days}
+                  price15Days={car.price15Days}
+                  price30Days={car.price30Days}
+                  extraKmCharge={car.extraKmCharge}
                 />
               ))}
             </div>
