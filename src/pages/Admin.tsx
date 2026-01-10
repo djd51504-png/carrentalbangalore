@@ -1053,7 +1053,7 @@ const Admin = () => {
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="price15Days">16+ Days (₹/day)</Label>
+                            <Label htmlFor="price15Days">16-30 Days (₹/day)</Label>
                             <Input
                               id="price15Days"
                               type="number"
@@ -1062,6 +1062,18 @@ const Admin = () => {
                               onChange={(e) => setFormData({ ...formData, price15Days: e.target.value })}
                             />
                           </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="price30Days">30+ Days (₹/day)</Label>
+                            <Input
+                              id="price30Days"
+                              type="number"
+                              placeholder="e.g., 1600"
+                              value={formData.price30Days}
+                              onChange={(e) => setFormData({ ...formData, price30Days: e.target.value })}
+                            />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 mt-3">
                           <div className="space-y-2">
                             <Label htmlFor="kmLimit">KM Limit/Day</Label>
                             <Input
@@ -1072,16 +1084,16 @@ const Admin = () => {
                               required
                             />
                           </div>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="extraKmCharge">Extra KM Charge (₹)</Label>
-                          <Input
-                            id="extraKmCharge"
-                            type="number"
-                            value={formData.extraKmCharge}
-                            onChange={(e) => setFormData({ ...formData, extraKmCharge: e.target.value })}
-                            required
-                          />
+                          <div className="space-y-2">
+                            <Label htmlFor="extraKmCharge">Extra KM Charge (₹)</Label>
+                            <Input
+                              id="extraKmCharge"
+                              type="number"
+                              value={formData.extraKmCharge}
+                              onChange={(e) => setFormData({ ...formData, extraKmCharge: e.target.value })}
+                              required
+                            />
+                          </div>
                         </div>
                       </div>
 
@@ -1522,7 +1534,7 @@ const Admin = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="edit-price15Days">16+ Days (₹/day)</Label>
+                    <Label htmlFor="edit-price15Days">16-30 Days (₹/day)</Label>
                     <Input
                       id="edit-price15Days"
                       type="number"
@@ -1531,6 +1543,18 @@ const Admin = () => {
                       onChange={(e) => setEditFormData({ ...editFormData, price15Days: e.target.value })}
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-price30Days">30+ Days (₹/day)</Label>
+                    <Input
+                      id="edit-price30Days"
+                      type="number"
+                      placeholder="e.g., 1600"
+                      value={editFormData.price30Days}
+                      onChange={(e) => setEditFormData({ ...editFormData, price30Days: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3 mt-3">
                   <div className="space-y-2">
                     <Label htmlFor="edit-kmLimit">KM Limit/Day</Label>
                     <Input
@@ -1541,16 +1565,16 @@ const Admin = () => {
                       required
                     />
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="edit-extraKmCharge">Extra KM Charge (₹)</Label>
-                  <Input
-                    id="edit-extraKmCharge"
-                    type="number"
-                    value={editFormData.extraKmCharge}
-                    onChange={(e) => setEditFormData({ ...editFormData, extraKmCharge: e.target.value })}
-                    required
-                  />
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-extraKmCharge">Extra KM Charge (₹)</Label>
+                    <Input
+                      id="edit-extraKmCharge"
+                      type="number"
+                      value={editFormData.extraKmCharge}
+                      onChange={(e) => setEditFormData({ ...editFormData, extraKmCharge: e.target.value })}
+                      required
+                    />
+                  </div>
                 </div>
               </div>
 
