@@ -1,4 +1,5 @@
-import { MessageCircle, Fuel, Cog, Users } from "lucide-react";
+import { MessageCircle, Fuel, Cog, Users, Info, Gauge, IndianRupee } from "lucide-react";
+import { useState } from "react";
 
 interface CarCardProps {
   name: string;
@@ -7,13 +8,35 @@ interface CarCardProps {
   category: string;
   transmission: string;
   fuel: string;
+  price3Days?: number | null;
+  price7Days?: number | null;
+  price15Days?: number | null;
+  price30Days?: number | null;
+  extraKmCharge?: number;
 }
 
-const CarCard = ({ name, price, image, category, transmission, fuel }: CarCardProps) => {
+const CarCard = ({ 
+  name, 
+  price, 
+  image, 
+  category, 
+  transmission, 
+  fuel,
+  price3Days,
+  price7Days,
+  price15Days,
+  price30Days,
+  extraKmCharge = 8
+}: CarCardProps) => {
+  const [showDetails, setShowDetails] = useState(false);
   const whatsappLink = `https://wa.me/919448277091?text=Hi%20Vikas,%20I%20want%20to%20book%20the%20${encodeURIComponent(name)}%20from%20Key2Go.`;
 
   return (
-    <div className="group bg-gradient-to-br from-card to-card/80 rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-2 border border-border/50 hover:border-primary/30">
+    <div 
+      className="group relative bg-gradient-to-br from-card to-card/80 rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-2 border border-border/50 hover:border-primary/30"
+      onMouseEnter={() => setShowDetails(true)}
+      onMouseLeave={() => setShowDetails(false)}
+    >
       {/* Image Container */}
       <div className="relative bg-gradient-to-br from-secondary/30 to-secondary/60 p-4 md:p-8">
         <img
@@ -26,6 +49,54 @@ const CarCard = ({ name, price, image, category, transmission, fuel }: CarCardPr
           <Users className="w-3 h-3" />
           {category}
         </span>
+        
+        {/* Hover Details Overlay */}
+        <div 
+          className={`absolute inset-0 bg-gradient-to-t from-charcoal/95 via-charcoal/80 to-charcoal/60 flex flex-col justify-end p-4 transition-opacity duration-300 ${
+            showDetails ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
+        >
+          <h4 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
+            <Info className="w-4 h-4 text-primary" />
+            Package Pricing
+          </h4>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            {price3Days && (
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg px-2 py-1.5">
+                <span className="text-white/70">3 Days:</span>
+                <span className="text-gold font-bold ml-1">₹{price3Days}</span>
+              </div>
+            )}
+            {price7Days && (
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg px-2 py-1.5">
+                <span className="text-white/70">7 Days:</span>
+                <span className="text-gold font-bold ml-1">₹{price7Days}</span>
+              </div>
+            )}
+            {price15Days && (
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg px-2 py-1.5">
+                <span className="text-white/70">15 Days:</span>
+                <span className="text-gold font-bold ml-1">₹{price15Days}</span>
+              </div>
+            )}
+            {price30Days && (
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg px-2 py-1.5">
+                <span className="text-white/70">30 Days:</span>
+                <span className="text-gold font-bold ml-1">₹{price30Days}</span>
+              </div>
+            )}
+          </div>
+          <div className="mt-3 flex items-center gap-4 text-xs">
+            <div className="flex items-center gap-1 text-white/80">
+              <Gauge className="w-3 h-3 text-emerald-400" />
+              <span>300km/day</span>
+            </div>
+            <div className="flex items-center gap-1 text-white/80">
+              <IndianRupee className="w-3 h-3 text-amber-400" />
+              <span>₹{extraKmCharge}/extra km</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Content */}

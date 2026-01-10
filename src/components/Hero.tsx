@@ -83,10 +83,13 @@ const Hero = () => {
               <Clock className="w-5 h-5 text-gold" />
               <span className="text-sm font-medium">24/7 Support</span>
             </div>
-            <div className="flex items-center gap-2.5 text-primary-foreground/90 backdrop-blur-md bg-gradient-to-r from-whatsapp/10 to-cyan/10 border border-whatsapp/30 px-4 py-2.5 rounded-full">
+            <button
+              onClick={() => document.getElementById("locations")?.scrollIntoView({ behavior: "smooth" })}
+              className="flex items-center gap-2.5 text-primary-foreground/90 backdrop-blur-md bg-gradient-to-r from-whatsapp/10 to-cyan/10 border border-whatsapp/30 px-4 py-2.5 rounded-full hover:bg-whatsapp/20 transition-colors cursor-pointer"
+            >
               <MapPin className="w-5 h-5 text-whatsapp" />
               <span className="text-sm font-medium">9 Locations</span>
-            </div>
+            </button>
           </div>
         </div>
       </div>
