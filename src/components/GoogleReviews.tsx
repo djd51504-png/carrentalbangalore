@@ -121,7 +121,7 @@ const GoogleReviews = () => {
         {/* CTA */}
         <div className="text-center mt-12" data-aos="fade-up">
           <a
-            href="https://wa.me/919876543210?text=Hi%2C%20I%20want%20to%20book%20a%20car"
+            href="https://wa.me/919448277091?text=Hi%2C%20I%20want%20to%20book%20a%20car"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-gradient-to-r from-whatsapp to-emerald-500 text-white px-8 py-4 rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
