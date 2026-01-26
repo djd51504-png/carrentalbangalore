@@ -734,7 +734,8 @@ const Admin = () => {
 
   const openWhatsApp = (enquiry: BookingEnquiry) => {
     const message = `Hi ${enquiry.customer_name}, regarding your booking enquiry for ${enquiry.car_name} from ${formatDate(enquiry.pickup_date)} to ${formatDate(enquiry.drop_date)}. Total: ₹${enquiry.estimated_price.toLocaleString()}. Please confirm your booking with ₹1000 advance payment.`;
-    window.open(`https://wa.me/91${enquiry.customer_phone}?text=${encodeURIComponent(message)}`, '_blank');
+    // Use Business WhatsApp API (wa.me/c/) instead of regular WhatsApp
+    window.open(`https://api.whatsapp.com/send?phone=91${enquiry.customer_phone}&text=${encodeURIComponent(message)}`, '_blank');
   };
 
   // Loading state

@@ -224,6 +224,26 @@ const PriceCalculator = ({
     if (!calculation || calculation.error) return;
     
     setIsLoading(true);
+    
+    // Send WhatsApp notification to admin with availability check details
+    const formatDateForNotification = (date: string, time: string) => {
+      const d = new Date(`${date}T${time}`);
+      return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) + ' ' + time;
+    };
+    
+    const adminNotificationMessage = `🔍 *Availability Check*
+
+📅 *Pickup:* ${formatDateForNotification(pickupDate, pickupTime)}
+📅 *Drop:* ${formatDateForNotification(dropDate, dropTime)}
+📍 *Location:* ${pickupLocation || "Not selected"}
+⏱️ *Duration:* ${calculation.fullDays} days${calculation.extraHours > 0 ? ` + ${calculation.extraHours} hours` : ""}
+🚗 *Transmission:* ${transmissionFilter === "all" ? "Any" : transmissionFilter}
+
+_Customer is browsing available cars..._`;
+    
+    // Open WhatsApp to admin with availability details
+    window.open(`https://wa.me/919448277091?text=${encodeURIComponent(adminNotificationMessage)}`, '_blank');
+    
     setTimeout(() => {
       setIsLoading(false);
       setShowCars(true);
