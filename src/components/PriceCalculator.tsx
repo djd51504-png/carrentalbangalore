@@ -220,34 +220,59 @@ const PriceCalculator = ({
     });
   }, [calculation, transmissionFilter, cars]);
 
-  const handleCheckAvailability = () => {
+  const handleCheckAvailability = async () => {
     if (!calculation || calculation.error) return;
+    
+    // Validate customer details before showing cars
+    if (!customerName.trim() || !customerPhone.trim()) {
+      toast({
+        title: "Contact Details Required",
+        description: "Please enter your name and phone number to check availability.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (customerPhone.length < 10) {
+      toast({
+        title: "Invalid Phone",
+        description: "Please enter a valid 10-digit phone number.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setIsLoading(true);
     
-    // Send WhatsApp notification to admin with availability check details
-    const formatDateForNotification = (date: string, time: string) => {
-      const d = new Date(`${date}T${time}`);
-      return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) + ' ' + time;
-    };
-    
-    const adminNotificationMessage = `🔍 *Availability Check*
+    try {
+      // Send notification to admin via edge function (silent - no WhatsApp popup)
+      const formatDateForNotification = (date: string, time: string) => {
+        const d = new Date(`${date}T${time}`);
+        return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) + ' ' + time;
+      };
 
-📅 *Pickup:* ${formatDateForNotification(pickupDate, pickupTime)}
-📅 *Drop:* ${formatDateForNotification(dropDate, dropTime)}
-📍 *Location:* ${pickupLocation || "Not selected"}
-⏱️ *Duration:* ${calculation.fullDays} days${calculation.extraHours > 0 ? ` + ${calculation.extraHours} hours` : ""}
-🚗 *Transmission:* ${transmissionFilter === "all" ? "Any" : transmissionFilter}
-
-_Customer is browsing available cars..._`;
-    
-    // Open WhatsApp to admin with availability details
-    window.open(`https://wa.me/919448277091?text=${encodeURIComponent(adminNotificationMessage)}`, '_blank');
+      // Send email notification to admin about availability check
+      await supabase.functions.invoke('send-availability-notification', {
+        body: {
+          customerName,
+          customerPhone,
+          pickupDate: `${pickupDate}T${pickupTime}`,
+          dropDate: `${dropDate}T${dropTime}`,
+          pickupLocation: pickupLocation || "Not selected",
+          totalDays: calculation.fullDays,
+          totalHours: calculation.extraHours,
+          transmission: transmissionFilter === "all" ? "Any" : transmissionFilter,
+        },
+      });
+    } catch (error) {
+      console.error('Notification error:', error);
+      // Don't block the user flow if notification fails
+    }
     
     setTimeout(() => {
       setIsLoading(false);
       setShowCars(true);
-    }, 800);
+    }, 500);
   };
 
   const handleSubmitEnquiry = async (car: CarWithCalculatedPrice) => {
@@ -461,6 +486,36 @@ _Customer is browsing available cars..._`;
                     </button>
                   ))}
                 </div>
+              </div>
+
+              {/* Customer Name */}
+              <div className="space-y-2">
+                <Label className="text-primary-foreground font-medium flex items-center gap-2 text-sm">
+                  <User className="w-4 h-4 text-electric-light" />
+                  Your Name
+                </Label>
+                <Input
+                  type="text"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  placeholder="Enter your name"
+                  className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50 text-sm"
+                />
+              </div>
+
+              {/* Customer Phone */}
+              <div className="space-y-2">
+                <Label className="text-primary-foreground font-medium flex items-center gap-2 text-sm">
+                  <Phone className="w-4 h-4 text-electric-light" />
+                  Phone Number
+                </Label>
+                <Input
+                  type="tel"
+                  value={customerPhone}
+                  onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                  placeholder="Enter 10-digit phone number"
+                  className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50 text-sm"
+                />
               </div>
             </div>
 
