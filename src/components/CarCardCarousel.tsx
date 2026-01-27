@@ -1,0 +1,258 @@
+import { useState, useCallback, useEffect } from "react";
+import { MessageCircle, Fuel, Cog, Users, Info, Gauge, IndianRupee, ChevronLeft, ChevronRight } from "lucide-react";
+import useEmblaCarousel from "embla-carousel-react";
+
+interface CarCardCarouselProps {
+  name: string;
+  price: number;
+  image: string;
+  images?: string[];
+  category: string;
+  transmission: string;
+  fuel: string;
+  price3Days?: number | null;
+  price7Days?: number | null;
+  price15Days?: number | null;
+  price30Days?: number | null;
+  extraKmCharge?: number;
+  isAvailable?: boolean;
+}
+
+const CarCardCarousel = ({ 
+  name, 
+  price, 
+  image, 
+  images = [],
+  category, 
+  transmission, 
+  fuel,
+  price3Days,
+  price7Days,
+  price15Days,
+  price30Days,
+  extraKmCharge = 8,
+  isAvailable = true
+}: CarCardCarouselProps) => {
+  const [showDetails, setShowDetails] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const whatsappLink = `https://wa.me/919448277091?text=Hi%20Vikas,%20I%20want%20to%20book%20the%20${encodeURIComponent(name)}%20from%20Key2Go.`;
+
+  // Use images array if available, otherwise fallback to single image
+  const allImages = images.length > 0 ? images : (image ? [image] : []);
+  const hasMultipleImages = allImages.length > 1;
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
+
+  const scrollPrev = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (emblaApi) emblaApi.scrollPrev();
+  }, [emblaApi]);
+
+  const scrollNext = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (emblaApi) emblaApi.scrollNext();
+  }, [emblaApi]);
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  // Subscribe to select event using useEffect
+  useEffect(() => {
+    if (!emblaApi) return;
+    emblaApi.on('select', onSelect);
+    onSelect();
+    return () => {
+      emblaApi.off('select', onSelect);
+    };
+  }, [emblaApi, onSelect]);
+
+  const hasPricingDetails = price3Days || price7Days || price15Days || price30Days;
+
+  return (
+    <div 
+      className={`group relative bg-gradient-to-br from-card to-card/80 rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-500 hover:-translate-y-3 border border-border/50 hover:border-primary/40 animate-fade-in backdrop-blur-sm ${!isAvailable ? 'opacity-60 grayscale' : ''}`}
+      onMouseEnter={() => setShowDetails(true)}
+      onMouseLeave={() => setShowDetails(false)}
+    >
+      {/* Unavailable Badge */}
+      {!isAvailable && (
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-charcoal/60 backdrop-blur-sm">
+          <span className="bg-red-500 text-white px-4 py-2 rounded-full font-bold text-sm">
+            Currently Unavailable
+          </span>
+        </div>
+      )}
+
+      {/* Image Container with Carousel */}
+      <div className="relative bg-gradient-to-br from-secondary/30 to-secondary/60 overflow-hidden">
+        {allImages.length > 0 ? (
+          <div className="overflow-hidden" ref={emblaRef}>
+            <div className="flex">
+              {allImages.map((img, index) => (
+                <div key={index} className="flex-[0_0_100%] min-w-0 p-4 md:p-8">
+                  <img
+                    src={img}
+                    alt={`${name} - View ${index + 1}`}
+                    className="w-full h-40 md:h-52 object-contain mix-blend-multiply transition-all duration-700 ease-out group-hover:scale-110 group-hover:rotate-1"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="p-4 md:p-8">
+            <div className="w-full h-40 md:h-52 bg-muted/50 rounded-lg flex items-center justify-center">
+              <span className="text-muted-foreground">No image</span>
+            </div>
+          </div>
+        )}
+
+        {/* Carousel Navigation */}
+        {hasMultipleImages && (
+          <>
+            <button
+              onClick={scrollPrev}
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-charcoal/70 backdrop-blur-sm flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-charcoal hover:scale-110 shadow-lg"
+              aria-label="Previous image"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              onClick={scrollNext}
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-charcoal/70 backdrop-blur-sm flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-charcoal hover:scale-110 shadow-lg"
+              aria-label="Next image"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+
+            {/* Pagination Dots */}
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 flex gap-1.5">
+              {allImages.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    emblaApi?.scrollTo(index);
+                  }}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    index === selectedIndex 
+                      ? 'bg-primary w-4' 
+                      : 'bg-white/50 hover:bg-white/80'
+                  }`}
+                  aria-label={`Go to image ${index + 1}`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* Category Badge */}
+        <span className="absolute top-3 left-3 inline-flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full bg-primary/90 text-primary-foreground shadow-lg transition-transform duration-300 group-hover:scale-105 z-10">
+          <Users className="w-3 h-3" />
+          {category}
+        </span>
+        
+        {/* Hover Details Overlay */}
+        {hasPricingDetails && (
+          <div 
+            className={`absolute inset-0 bg-gradient-to-t from-charcoal/95 via-charcoal/85 to-charcoal/70 flex flex-col justify-end p-4 transition-all duration-400 z-10 ${
+              showDetails ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+            }`}
+          >
+            <h4 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
+              <Info className="w-4 h-4 text-primary animate-pulse" />
+              Package Pricing (per day)
+            </h4>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              {price3Days && (
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-2 py-1.5 transition-transform duration-300 hover:scale-105 hover:bg-white/20">
+                  <span className="text-white/70">3-7 Days:</span>
+                  <span className="text-gold font-bold ml-1">₹{price3Days}</span>
+                </div>
+              )}
+              {price7Days && (
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-2 py-1.5 transition-transform duration-300 hover:scale-105 hover:bg-white/20">
+                  <span className="text-white/70">8-15 Days:</span>
+                  <span className="text-gold font-bold ml-1">₹{price7Days}</span>
+                </div>
+              )}
+              {price15Days && (
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-2 py-1.5 transition-transform duration-300 hover:scale-105 hover:bg-white/20">
+                  <span className="text-white/70">16-30 Days:</span>
+                  <span className="text-gold font-bold ml-1">₹{price15Days}</span>
+                </div>
+              )}
+              {price30Days && (
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-2 py-1.5 transition-transform duration-300 hover:scale-105 hover:bg-white/20">
+                  <span className="text-white/70">30+ Days:</span>
+                  <span className="text-gold font-bold ml-1">₹{price30Days}</span>
+                </div>
+              )}
+            </div>
+            <div className="mt-3 flex items-center gap-4 text-xs">
+              <div className="flex items-center gap-1 text-white/80">
+                <Gauge className="w-3 h-3 text-emerald-400" />
+                <span>300km/day</span>
+              </div>
+              <div className="flex items-center gap-1 text-white/80">
+                <IndianRupee className="w-3 h-3 text-amber-400" />
+                <span>₹{extraKmCharge}/extra km</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="p-3 md:p-6">
+        {/* Title and Price */}
+        <div className="flex flex-col gap-1 mb-2">
+          <h3 className="font-heading font-bold text-base md:text-xl text-foreground leading-tight truncate">{name}</h3>
+          <div className="flex items-baseline gap-1">
+            <p className="font-heading font-bold text-xl md:text-2xl text-primary">₹{price}</p>
+            <p className="text-xs text-muted-foreground font-medium">/day</p>
+          </div>
+          <p className="text-xs text-muted-foreground">300km per day limit</p>
+        </div>
+
+        {/* Badges Grid - 2 columns only */}
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <span className={`flex flex-col items-center justify-center gap-1 text-xs font-semibold px-2 py-2 rounded-xl ${
+            fuel === "Diesel" 
+              ? "bg-gradient-to-br from-amber-100 to-amber-200 text-amber-900 dark:from-amber-900/40 dark:to-amber-900/20 dark:text-amber-300" 
+              : "bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-900 dark:from-emerald-900/40 dark:to-emerald-900/20 dark:text-emerald-300"
+          }`}>
+            <Fuel className="w-4 h-4" />
+            {fuel}
+          </span>
+          <span className="flex flex-col items-center justify-center gap-1 text-xs font-semibold px-2 py-2 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 text-blue-900 dark:from-blue-900/40 dark:to-blue-900/20 dark:text-blue-300">
+            <Cog className="w-4 h-4" />
+            {transmission.length > 8 ? transmission.split(' ')[0] : transmission}
+          </span>
+        </div>
+
+        <a
+          href={isAvailable ? whatsappLink : undefined}
+          target={isAvailable ? "_blank" : undefined}
+          rel="noopener noreferrer"
+          className={`flex items-center justify-center gap-2 w-full py-3 md:py-4 rounded-xl font-bold transition-all duration-300 shadow-lg text-sm md:text-base group/btn ${
+            isAvailable 
+              ? 'bg-gradient-to-r from-whatsapp to-emerald-500 hover:from-whatsapp/90 hover:to-emerald-500/90 text-white hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+              : 'bg-muted text-muted-foreground cursor-not-allowed'
+          }`}
+          onClick={(e) => !isAvailable && e.preventDefault()}
+        >
+          <MessageCircle className={`w-5 h-5 transition-transform duration-300 ${isAvailable ? 'group-hover/btn:rotate-12' : ''}`} />
+          {isAvailable ? 'Book Now' : 'Unavailable'}
+        </a>
+      </div>
+    </div>
+  );
+};
+
+export default CarCardCarousel;

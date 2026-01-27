@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { Plus, Trash2, Car, AlertTriangle, ArrowLeft, Upload, X, ImageIcon, Loader2, Pencil, Lock, LogOut, Mail, ClipboardList, Phone, Calendar, Clock, CheckCircle, XCircle, MessageCircle } from "lucide-react";
+import { Plus, Trash2, Car, AlertTriangle, ArrowLeft, Upload, X, ImageIcon, Loader2, Pencil, Lock, LogOut, Mail, ClipboardList, Phone, Calendar, Clock, CheckCircle, XCircle, MessageCircle, Eye, EyeOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,6 +42,8 @@ interface CarData {
   category: string;
   categoryLabel: string;
   image?: string;
+  images: string[];
+  isAvailable: boolean;
   price3Days?: number | null;
   price7Days?: number | null;
   price15Days?: number | null;
@@ -166,6 +168,8 @@ const Admin = () => {
         category: car.category,
         categoryLabel: car.category_label || 'Hatchback',
         image: car.image || undefined,
+        images: (car as any).images || [],
+        isAvailable: (car as any).is_available ?? true,
         price3Days: car.price_3_days,
         price7Days: car.price_7_days,
         price15Days: car.price_15_days,
@@ -228,6 +232,35 @@ const Admin = () => {
       toast({
         title: "Error",
         description: "Failed to update status.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const toggleCarAvailability = async (carId: string, currentStatus: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('cars')
+        .update({ is_available: !currentStatus } as any)
+        .eq('id', carId);
+      
+      if (error) throw error;
+      
+      setCars(cars.map(car => 
+        car.id === carId ? { ...car, isAvailable: !currentStatus } : car
+      ));
+      
+      toast({
+        title: currentStatus ? "Car Hidden" : "Car Available",
+        description: currentStatus 
+          ? "Car is now hidden from customers." 
+          : "Car is now visible to customers.",
+      });
+    } catch (error) {
+      console.error('Error toggling availability:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update availability.",
         variant: "destructive",
       });
     }
@@ -503,6 +536,8 @@ const Admin = () => {
         category: data.category,
         categoryLabel: data.category_label || 'Hatchback',
         image: data.image || undefined,
+        images: [],
+        isAvailable: true,
         price3Days: data.price_3_days,
         price7Days: data.price_7_days,
         price15Days: data.price_15_days,
@@ -682,6 +717,8 @@ const Admin = () => {
         category: editFormData.category,
         categoryLabel: editFormData.categoryLabel,
         image: imageUrl,
+        images: editingCar.images,
+        isAvailable: editingCar.isAvailable,
         price3Days: editFormData.price3Days ? Number(editFormData.price3Days) : null,
         price7Days: editFormData.price7Days ? Number(editFormData.price7Days) : null,
         price15Days: editFormData.price15Days ? Number(editFormData.price15Days) : null,
@@ -1239,22 +1276,34 @@ const Admin = () => {
                   ) : (
                     <div className="space-y-3">
                       {cars.map((car) => (
-                        <Card key={car.id} className={`transition-colors ${selectedCars.includes(car.id) ? "border-primary bg-primary/5" : ""}`}>
+                        <Card key={car.id} className={`transition-colors ${selectedCars.includes(car.id) ? "border-primary bg-primary/5" : ""} ${!car.isAvailable ? "opacity-60" : ""}`}>
                           <CardContent className="py-4">
                             <div className="flex items-center gap-4">
                               <Checkbox
                                 checked={selectedCars.includes(car.id)}
                                 onCheckedChange={(checked) => handleSelectCar(car.id, checked as boolean)}
                               />
-                              <div className="h-16 w-24 rounded-lg bg-muted flex items-center justify-center overflow-hidden">
+                              <div className="h-16 w-24 rounded-lg bg-muted flex items-center justify-center overflow-hidden relative">
                                 {car.image ? (
                                   <img src={car.image} alt={car.name} className="h-full w-full object-contain" />
                                 ) : (
                                   <ImageIcon className="h-8 w-8 text-muted-foreground" />
                                 )}
+                                {car.images.length > 1 && (
+                                  <span className="absolute bottom-1 right-1 text-xs bg-charcoal/70 text-white px-1.5 py-0.5 rounded">
+                                    +{car.images.length - 1}
+                                  </span>
+                                )}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <h3 className="font-semibold text-foreground">{car.brand} {car.name}</h3>
+                                <div className="flex items-center gap-2">
+                                  <h3 className="font-semibold text-foreground">{car.brand} {car.name}</h3>
+                                  {!car.isAvailable && (
+                                    <Badge variant="outline" className="text-xs border-destructive text-destructive">
+                                      Hidden
+                                    </Badge>
+                                  )}
+                                </div>
                                 <div className="flex flex-wrap gap-2 mt-1">
                                   <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">{car.category}</span>
                                   <span className="text-xs px-2 py-0.5 bg-muted text-muted-foreground rounded-full">{car.fuel}</span>
@@ -1266,6 +1315,15 @@ const Admin = () => {
                                 <p className="text-lg font-bold text-primary">₹{car.price.toLocaleString()}</p>
                                 <p className="text-xs text-muted-foreground">{car.kmLimit}km limit</p>
                               </div>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className={`shrink-0 ${car.isAvailable ? 'text-green-600 border-green-300 hover:bg-green-50' : 'text-muted-foreground'}`}
+                                onClick={() => toggleCarAvailability(car.id, car.isAvailable)}
+                                title={car.isAvailable ? "Hide from customers" : "Show to customers"}
+                              >
+                                {car.isAvailable ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                              </Button>
                               <Button
                                 variant="outline"
                                 size="icon"
