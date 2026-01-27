@@ -16,7 +16,7 @@ import {
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
-import CarCard from "@/components/CarCard";
+import CarCardCarousel from "@/components/CarCardCarousel";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -96,6 +96,7 @@ interface Car {
   brand: string;
   price: number;
   image: string;
+  images: string[];
   category: string;
   categoryLabel: string;
   transmission: string;
@@ -105,6 +106,7 @@ interface Car {
   price15Days: number | null;
   price30Days: number | null;
   extraKmCharge: number;
+  isAvailable: boolean;
 }
 
 const Cars = () => {
@@ -134,6 +136,7 @@ const Cars = () => {
           brand: car.brand,
           price: car.price,
           image: car.image || fallbackImages[car.name] || swiftImg,
+          images: (car as any).images || [],
           category: car.category,
           categoryLabel: car.category_label || 'Hatchback',
           transmission: car.transmission,
@@ -143,6 +146,7 @@ const Cars = () => {
           price15Days: car.price_15_days,
           price30Days: car.price_30_days,
           extraKmCharge: car.extra_km_charge,
+          isAvailable: (car as any).is_available ?? true,
         })));
       } catch (error) {
         console.error('Error fetching cars:', error);
@@ -159,9 +163,9 @@ const Cars = () => {
     return [...new Set(cars.map(car => car.brand))];
   }, [cars]);
 
-  // Filter and sort cars
+  // Filter and sort cars (only show available cars by default)
   const filteredCars = useMemo(() => {
-    let result = [...cars];
+    let result = cars.filter(car => car.isAvailable);
 
     // Search filter
     if (searchQuery) {
@@ -519,10 +523,11 @@ const Cars = () => {
                   data-aos="fade-up" 
                   data-aos-delay={Math.min(index * 50, 300)}
                 >
-                  <CarCard
+                  <CarCardCarousel
                     name={car.name}
                     price={car.price}
                     image={car.image}
+                    images={car.images}
                     category={car.categoryLabel}
                     transmission={car.transmission}
                     fuel={car.fuel}
@@ -531,6 +536,7 @@ const Cars = () => {
                     price15Days={car.price15Days}
                     price30Days={car.price30Days}
                     extraKmCharge={car.extraKmCharge}
+                    isAvailable={car.isAvailable}
                   />
                 </div>
               ))}

@@ -50,7 +50,7 @@ const handler = async (req: Request): Promise<Response> => {
       });
     };
 
-    // Send email notification to admin
+    // Send email notification to admin using Resend API
     const emailResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
