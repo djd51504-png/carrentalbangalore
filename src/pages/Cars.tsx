@@ -531,11 +531,6 @@ const Cars = () => {
                     category={car.categoryLabel}
                     transmission={car.transmission}
                     fuel={car.fuel}
-                    price3Days={car.price3Days}
-                    price7Days={car.price7Days}
-                    price15Days={car.price15Days}
-                    price30Days={car.price30Days}
-                    extraKmCharge={car.extraKmCharge}
                     isAvailable={car.isAvailable}
                   />
                 </div>
