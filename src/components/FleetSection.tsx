@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Loader2 } from "lucide-react";
-import CarCard from "./CarCard";
+import CarCardCarousel from "./CarCardCarousel";
 import { supabase } from "@/integrations/supabase/client";
 
 // Import all fallback car images
@@ -59,15 +59,12 @@ interface Car {
   name: string;
   price: number;
   image: string;
+  images: string[];
   category: string;
   categoryLabel: string;
   transmission: string;
   fuel: string;
-  price3Days: number | null;
-  price7Days: number | null;
-  price15Days: number | null;
-  price30Days: number | null;
-  extraKmCharge: number;
+  isAvailable: boolean;
 }
 
 const FleetSection = () => {
@@ -90,15 +87,12 @@ const FleetSection = () => {
           name: car.name,
           price: car.price,
           image: car.image || fallbackImages[car.name] || swiftImg,
+          images: (car as any).images || [],
           category: car.category,
           categoryLabel: car.category_label || 'Hatchback',
           transmission: car.transmission,
           fuel: car.fuel,
-          price3Days: car.price_3_days,
-          price7Days: car.price_7_days,
-          price15Days: car.price_15_days,
-          price30Days: car.price_30_days,
-          extraKmCharge: car.extra_km_charge,
+          isAvailable: (car as any).is_available ?? true,
         })));
       } catch (error) {
         console.error('Error fetching cars:', error);
@@ -110,9 +104,12 @@ const FleetSection = () => {
     fetchCars();
   }, []);
 
+  // Only show available cars
+  const availableCars = cars.filter(car => car.isAvailable);
+
   const filteredCars = activeCategory === "all" 
-    ? cars 
-    : cars.filter(car => car.category === activeCategory);
+    ? availableCars 
+    : availableCars.filter(car => car.category === activeCategory);
 
   const categories: { key: Category; label: string }[] = [
     { key: "all", label: "All Cars" },
@@ -166,18 +163,15 @@ const FleetSection = () => {
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
             {filteredCars.slice(0, 8).map((car, index) => (
               <div key={car.id} data-aos="fade-up" data-aos-delay={index * 50}>
-                <CarCard
+                <CarCardCarousel
                   name={car.name}
                   price={car.price}
                   image={car.image}
+                  images={car.images}
                   category={car.categoryLabel}
                   transmission={car.transmission}
                   fuel={car.fuel}
-                  price3Days={car.price3Days}
-                  price7Days={car.price7Days}
-                  price15Days={car.price15Days}
-                  price30Days={car.price30Days}
-                  extraKmCharge={car.extraKmCharge}
+                  isAvailable={car.isAvailable}
                 />
               </div>
             ))}
