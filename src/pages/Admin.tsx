@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { Plus, Trash2, Car, AlertTriangle, ArrowLeft, Upload, X, ImageIcon, Loader2, Pencil, Lock, LogOut, Mail, ClipboardList, Phone, Calendar, Clock, CheckCircle, XCircle, MessageCircle, Eye, EyeOff } from "lucide-react";
+import { Plus, Trash2, Car, AlertTriangle, ArrowLeft, ImageIcon, Loader2, Pencil, Lock, LogOut, Mail, ClipboardList, Phone, Calendar, Clock, CheckCircle, XCircle, MessageCircle, Eye, EyeOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import MultiImageUpload from "@/components/MultiImageUpload";
 import type { User, Session } from "@supabase/supabase-js";
 
 interface CarData {
@@ -328,10 +329,9 @@ const Admin = () => {
     price30Days: "",
   });
 
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  // Multi-image state for add form
+  const [formImages, setFormImages] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
 
   // Edit mode state
   const [editingCar, setEditingCar] = useState<CarData | null>(null);
@@ -350,70 +350,9 @@ const Admin = () => {
     price15Days: "",
     price30Days: "",
   });
-  const [editImageFile, setEditImageFile] = useState<File | null>(null);
-  const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
-  const [isEditUploading, setIsEditUploading] = useState(false);
-  const [isEditDragging, setIsEditDragging] = useState(false);
+  // Multi-image state for edit form
+  const [editFormImages, setEditFormImages] = useState<string[]>([]);
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, []);
-
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  }, []);
-
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith("image/")) {
-      setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
-    } else {
-      toast({
-        title: "Invalid file",
-        description: "Please upload an image file (JPG, PNG, WebP)",
-        variant: "destructive",
-      });
-    }
-  }, [toast]);
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
-    }
-  };
-
-  const removeImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
-  };
-
-  const uploadImage = async (file: File): Promise<string | null> => {
-    const fileExt = file.name.split(".").pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-    const filePath = `cars/${fileName}`;
-
-    const { error } = await supabase.storage
-      .from("car-images")
-      .upload(filePath, file);
-
-    if (error) {
-      console.error("Upload error:", error);
-      return null;
-    }
-
-    const { data: { publicUrl } } = supabase.storage
-      .from("car-images")
-      .getPublicUrl(filePath);
-
-    return publicUrl;
-  };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -486,20 +425,6 @@ const Admin = () => {
     e.preventDefault();
     setIsUploading(true);
 
-    let imageUrl: string | undefined;
-    if (imageFile) {
-      const uploadedUrl = await uploadImage(imageFile);
-      if (uploadedUrl) {
-        imageUrl = uploadedUrl;
-      } else {
-        toast({
-          title: "Upload Failed",
-          description: "Failed to upload image. Car added without image.",
-          variant: "destructive",
-        });
-      }
-    }
-
     try {
       const { data, error } = await supabase
         .from('cars')
@@ -513,12 +438,13 @@ const Admin = () => {
           transmission: formData.transmission,
           category: formData.category,
           category_label: formData.categoryLabel,
-          image: imageUrl,
+          image: formImages[0] || null,
+          images: formImages,
           price_3_days: formData.price3Days ? Number(formData.price3Days) : null,
           price_7_days: formData.price7Days ? Number(formData.price7Days) : null,
           price_15_days: formData.price15Days ? Number(formData.price15Days) : null,
           price_30_days: formData.price30Days ? Number(formData.price30Days) : null,
-        })
+        } as any)
         .select()
         .single();
       
@@ -536,7 +462,7 @@ const Admin = () => {
         category: data.category,
         categoryLabel: data.category_label || 'Hatchback',
         image: data.image || undefined,
-        images: [],
+        images: (data as any).images || [],
         isAvailable: true,
         price3Days: data.price_3_days,
         price7Days: data.price_7_days,
@@ -560,8 +486,7 @@ const Admin = () => {
         price15Days: "",
         price30Days: "",
       });
-      setImageFile(null);
-      setImagePreview(null);
+      setFormImages([]);
       toast({
         title: "Car Added",
         description: `${newCar.brand} ${newCar.name} has been added to inventory.`,
@@ -596,8 +521,7 @@ const Admin = () => {
       price15Days: car.price15Days?.toString() || "",
       price30Days: car.price30Days?.toString() || "",
     });
-    setEditImagePreview(car.image || null);
-    setEditImageFile(null);
+    setEditFormImages(car.images || []);
   };
 
   const closeEditDialog = () => {
@@ -617,70 +541,14 @@ const Admin = () => {
       price15Days: "",
       price30Days: "",
     });
-    setEditImageFile(null);
-    setEditImagePreview(null);
-  };
-
-  const handleEditDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsEditDragging(true);
-  }, []);
-
-  const handleEditDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsEditDragging(false);
-  }, []);
-
-  const handleEditDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsEditDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith("image/")) {
-      setEditImageFile(file);
-      setEditImagePreview(URL.createObjectURL(file));
-    } else {
-      toast({
-        title: "Invalid file",
-        description: "Please upload an image file (JPG, PNG, WebP)",
-        variant: "destructive",
-      });
-    }
-  }, [toast]);
-
-  const handleEditFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      setEditImageFile(file);
-      setEditImagePreview(URL.createObjectURL(file));
-    }
-  };
-
-  const removeEditImage = () => {
-    setEditImageFile(null);
-    setEditImagePreview(null);
+    setEditFormImages([]);
   };
 
   const handleUpdateCar = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingCar) return;
 
-    setIsEditUploading(true);
-
-    let imageUrl = editingCar.image;
-    if (editImageFile) {
-      const uploadedUrl = await uploadImage(editImageFile);
-      if (uploadedUrl) {
-        imageUrl = uploadedUrl;
-      } else {
-        toast({
-          title: "Upload Failed",
-          description: "Failed to upload image. Keeping existing image.",
-          variant: "destructive",
-        });
-      }
-    } else if (!editImagePreview) {
-      imageUrl = undefined;
-    }
+    setIsUploading(true);
 
     try {
       const { error } = await supabase
@@ -695,12 +563,13 @@ const Admin = () => {
           transmission: editFormData.transmission,
           category: editFormData.category,
           category_label: editFormData.categoryLabel,
-          image: imageUrl,
+          image: editFormImages[0] || null,
+          images: editFormImages,
           price_3_days: editFormData.price3Days ? Number(editFormData.price3Days) : null,
           price_7_days: editFormData.price7Days ? Number(editFormData.price7Days) : null,
           price_15_days: editFormData.price15Days ? Number(editFormData.price15Days) : null,
           price_30_days: editFormData.price30Days ? Number(editFormData.price30Days) : null,
-        })
+        } as any)
         .eq('id', editingCar.id);
       
       if (error) throw error;
@@ -716,8 +585,8 @@ const Admin = () => {
         transmission: editFormData.transmission,
         category: editFormData.category,
         categoryLabel: editFormData.categoryLabel,
-        image: imageUrl,
-        images: editingCar.images,
+        image: editFormImages[0] || undefined,
+        images: editFormImages,
         isAvailable: editingCar.isAvailable,
         price3Days: editFormData.price3Days ? Number(editFormData.price3Days) : null,
         price7Days: editFormData.price7Days ? Number(editFormData.price7Days) : null,
@@ -739,7 +608,7 @@ const Admin = () => {
         variant: "destructive",
       });
     } finally {
-      setIsEditUploading(false);
+      setIsUploading(false);
     }
   };
 
@@ -948,58 +817,15 @@ const Admin = () => {
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={handleAddCar} className="space-y-4">
-                      {/* Image Upload */}
+                      {/* Multi-Image Upload */}
                       <div className="space-y-3">
-                        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Photo</h3>
-                        {imagePreview ? (
-                          <div className="relative">
-                            <img
-                              src={imagePreview}
-                              alt="Preview"
-                              className="w-full h-40 object-contain rounded-lg border border-border bg-muted"
-                            />
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              size="icon"
-                              className="absolute top-2 right-2 h-8 w-8"
-                              onClick={removeImage}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        ) : (
-                          <div
-                            onDragOver={handleDragOver}
-                            onDragLeave={handleDragLeave}
-                            onDrop={handleDrop}
-                            className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
-                              isDragging
-                                ? "border-primary bg-primary/5"
-                                : "border-border hover:border-primary/50 hover:bg-muted/50"
-                            }`}
-                          >
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleFileSelect}
-                              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                            />
-                            <div className="flex flex-col items-center gap-2">
-                              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                                <Upload className="h-6 w-6 text-primary" />
-                              </div>
-                              <div>
-                                <p className="text-sm font-medium text-foreground">
-                                  Drag & drop or click to upload
-                                </p>
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  JPG, PNG, WebP up to 5MB
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Photos</h3>
+                        <MultiImageUpload
+                          images={formImages}
+                          onImagesChange={setFormImages}
+                          maxImages={10}
+                          disabled={isUploading}
+                        />
                       </div>
 
                       {/* Basic Info */}
@@ -1450,58 +1276,15 @@ const Admin = () => {
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleUpdateCar} className="space-y-4">
-              {/* Image Upload */}
+              {/* Multi-Image Upload */}
               <div className="space-y-3">
-                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Photo</h3>
-                {editImagePreview ? (
-                  <div className="relative">
-                    <img
-                      src={editImagePreview}
-                      alt="Preview"
-                      className="w-full h-40 object-contain rounded-lg border border-border bg-muted"
-                    />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      className="absolute top-2 right-2 h-8 w-8"
-                      onClick={removeEditImage}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <div
-                    onDragOver={handleEditDragOver}
-                    onDragLeave={handleEditDragLeave}
-                    onDrop={handleEditDrop}
-                    className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
-                      isEditDragging
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:border-primary/50 hover:bg-muted/50"
-                    }`}
-                  >
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleEditFileSelect}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    />
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Upload className="h-6 w-6 text-primary" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">
-                          Drag & drop or click to upload
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          JPG, PNG, WebP up to 5MB
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Photos</h3>
+                <MultiImageUpload
+                  images={editFormImages}
+                  onImagesChange={setEditFormImages}
+                  maxImages={10}
+                  disabled={isUploading}
+                />
               </div>
 
               {/* Basic Info */}
@@ -1673,8 +1456,8 @@ const Admin = () => {
                 <Button type="button" variant="outline" className="flex-1" onClick={closeEditDialog}>
                   Cancel
                 </Button>
-                <Button type="submit" className="flex-1" disabled={isEditUploading}>
-                  {isEditUploading ? (
+                <Button type="submit" className="flex-1" disabled={isUploading}>
+                  {isUploading ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       Saving...
