@@ -44,7 +44,7 @@ const MultiImageUpload = ({
     return publicUrl;
   };
 
-  const handleFiles = async (files: FileList | File[]) => {
+  const handleFiles = useCallback(async (files: FileList | File[]) => {
     const fileArray = Array.from(files);
     const imageFiles = fileArray.filter(file => file.type.startsWith("image/"));
     
@@ -98,7 +98,7 @@ const MultiImageUpload = ({
 
     setIsUploading(false);
     setUploadProgress(0);
-  };
+  }, [images, maxImages, onImagesChange, toast]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -119,7 +119,7 @@ const MultiImageUpload = ({
     if (files.length > 0) {
       handleFiles(files);
     }
-  }, [disabled, images, maxImages]);
+  }, [disabled, handleFiles]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
