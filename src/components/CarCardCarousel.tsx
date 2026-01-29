@@ -64,7 +64,7 @@ const CarCardCarousel = ({
 
   return (
     <div 
-      className={`group relative rounded-2xl overflow-hidden bg-card shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 animate-fade-in ${!isAvailable ? 'opacity-60 grayscale' : ''}`}
+      className={`group relative rounded-[20px] overflow-hidden bg-card shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] transition-all duration-500 hover:-translate-y-1 animate-fade-in font-sans ${!isAvailable ? 'opacity-60 grayscale' : ''}`}
     >
       {/* Unavailable Badge */}
       {!isAvailable && (
@@ -76,7 +76,7 @@ const CarCardCarousel = ({
       )}
 
       {/* Image Container - Clean, no text overlay */}
-      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+      <div className="relative aspect-[16/10] overflow-hidden bg-muted">
         {allImages.length > 0 ? (
           <div className="overflow-hidden h-full" ref={emblaRef}>
             <div className="flex h-full">
@@ -146,9 +146,9 @@ const CarCardCarousel = ({
       </div>
 
       {/* Card Content - Below Image */}
-      <div className="p-4 space-y-4">
+      <div className="p-5 space-y-4">
         {/* Car Name */}
-        <h3 className="font-heading font-bold text-lg md:text-xl text-foreground leading-tight">
+        <h3 className="font-sans font-bold text-xl md:text-2xl text-foreground leading-tight tracking-tight">
           {name}
         </h3>
 
@@ -173,10 +173,10 @@ const CarCardCarousel = ({
         </div>
 
         {/* Pricing & Details */}
-        <div className="border-t border-border pt-4 space-y-2">
+        <div className="border-t border-border pt-4 space-y-3">
           <div className="flex items-end justify-between">
             <div>
-              <span className="font-heading font-bold text-2xl text-primary">₹{price}</span>
+              <span className="font-sans font-bold text-2xl md:text-3xl text-primary">₹{price}</span>
               <span className="text-muted-foreground text-sm ml-1">/day</span>
             </div>
           </div>
