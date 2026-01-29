@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { MessageCircle, Fuel, Cog, ChevronLeft, ChevronRight, Gauge } from "lucide-react";
+import { MessageCircle, Fuel, Cog, ChevronLeft, ChevronRight, Gauge, Users } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 
 interface CarCardCarouselProps {
@@ -11,6 +11,7 @@ interface CarCardCarouselProps {
   transmission: string;
   fuel: string;
   kmLimit?: number;
+  extraKmCharge?: number;
   isAvailable?: boolean;
 }
 
@@ -23,6 +24,7 @@ const CarCardCarousel = ({
   transmission, 
   fuel,
   kmLimit = 300,
+  extraKmCharge = 10,
   isAvailable = true
 }: CarCardCarouselProps) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -62,7 +64,7 @@ const CarCardCarousel = ({
 
   return (
     <div 
-      className={`group relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 animate-fade-in ${!isAvailable ? 'opacity-60 grayscale' : ''}`}
+      className={`group relative rounded-2xl overflow-hidden bg-card shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 animate-fade-in ${!isAvailable ? 'opacity-60 grayscale' : ''}`}
     >
       {/* Unavailable Badge */}
       {!isAvailable && (
@@ -73,8 +75,8 @@ const CarCardCarousel = ({
         </div>
       )}
 
-      {/* Image Container with Carousel */}
-      <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-secondary/30 to-secondary/60">
+      {/* Image Container - Clean, no text overlay */}
+      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
         {allImages.length > 0 ? (
           <div className="overflow-hidden h-full" ref={emblaRef}>
             <div className="flex h-full">
@@ -95,22 +97,19 @@ const CarCardCarousel = ({
           </div>
         )}
 
-        {/* Gradient Overlay at bottom */}
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/90 via-black/60 to-transparent pointer-events-none" />
-
         {/* Carousel Navigation */}
         {hasMultipleImages && (
           <>
             <button
               onClick={scrollPrev}
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/30 hover:scale-110"
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black/60"
               aria-label="Previous image"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button
               onClick={scrollNext}
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/30 hover:scale-110"
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black/60"
               aria-label="Next image"
             >
               <ChevronRight className="w-5 h-5" />
@@ -118,9 +117,9 @@ const CarCardCarousel = ({
           </>
         )}
 
-        {/* Pagination Dots - positioned on the gradient */}
+        {/* Pagination Dots */}
         {hasMultipleImages && (
-          <div className="absolute bottom-20 left-4 z-20 flex gap-1.5">
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-1.5">
             {allImages.map((_, index) => (
               <button
                 key={index}
@@ -132,7 +131,7 @@ const CarCardCarousel = ({
                 className={`w-2 h-2 rounded-full transition-all duration-300 ${
                   index === selectedIndex 
                     ? 'bg-white w-4' 
-                    : 'bg-white/40 hover:bg-white/60'
+                    : 'bg-white/50 hover:bg-white/70'
                 }`}
                 aria-label={`Go to image ${index + 1}`}
               />
@@ -140,54 +139,54 @@ const CarCardCarousel = ({
           </div>
         )}
 
-        {/* Car Info Overlay on Image */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
-          <h3 className="font-heading font-bold text-lg md:text-xl text-white leading-tight mb-1">
-            {name}
-          </h3>
-          <div className="flex items-center gap-2 text-white/80 text-sm">
-            <span>{transmission}</span>
-            <span className="text-white/40">•</span>
-            <span>{fuel}</span>
-          </div>
-        </div>
-
         {/* Category Badge */}
         <span className="absolute top-3 left-3 inline-flex items-center text-xs font-bold px-3 py-1.5 rounded-full bg-primary text-primary-foreground shadow-lg z-10">
           {category}
         </span>
       </div>
 
-      {/* Content Below Image */}
-      <div className="bg-card p-4">
-        {/* Price and KM Limit Row */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Gauge className="w-4 h-4 text-emerald-500" />
-            <span className="text-sm font-medium">{kmLimit}km per day</span>
-          </div>
-          <div className="text-right">
-            <div className="flex items-baseline gap-1">
-              <span className="font-heading font-bold text-xl md:text-2xl text-primary">₹{price}</span>
-              <span className="text-sm text-muted-foreground">/day</span>
-            </div>
-          </div>
-        </div>
+      {/* Card Content - Below Image */}
+      <div className="p-4 space-y-4">
+        {/* Car Name */}
+        <h3 className="font-heading font-bold text-lg md:text-xl text-foreground leading-tight">
+          {name}
+        </h3>
 
-        {/* Fuel and Transmission Badges */}
-        <div className="flex items-center gap-2 mb-4">
-          <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full ${
+        {/* Specs Row */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${
             fuel === "Diesel" 
-              ? "bg-amber-500/20 text-amber-400" 
-              : "bg-emerald-500/20 text-emerald-400"
+              ? "bg-amber-500/15 text-amber-500" 
+              : "bg-emerald-500/15 text-emerald-500"
           }`}>
             <Fuel className="w-3.5 h-3.5" />
             {fuel}
           </span>
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-blue-500/20 text-blue-400">
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-blue-500/15 text-blue-500">
             <Cog className="w-3.5 h-3.5" />
             {transmission}
           </span>
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full bg-purple-500/15 text-purple-500">
+            <Users className="w-3.5 h-3.5" />
+            5 Seats
+          </span>
+        </div>
+
+        {/* Pricing & Details */}
+        <div className="border-t border-border pt-4 space-y-2">
+          <div className="flex items-end justify-between">
+            <div>
+              <span className="font-heading font-bold text-2xl text-primary">₹{price}</span>
+              <span className="text-muted-foreground text-sm ml-1">/day</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <Gauge className="w-4 h-4 text-emerald-500" />
+              {kmLimit}km/day included
+            </span>
+            <span className="text-xs">₹{extraKmCharge}/km extra</span>
+          </div>
         </div>
 
         {/* Book Now Button */}
