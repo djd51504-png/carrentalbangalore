@@ -311,7 +311,7 @@ const Cars = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-muted/30">
       <Header />
       
       <main className="pt-20 md:pt-24">
