@@ -160,7 +160,7 @@ const FleetSection = () => {
             <span className="ml-3 text-muted-foreground">Loading cars...</span>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
+          <div className="grid grid-cols-1 gap-6 max-w-xl mx-auto">
             {filteredCars.slice(0, 8).map((car, index) => (
               <div key={car.id} data-aos="fade-up" data-aos-delay={index * 50}>
                 <CarCardCarousel
