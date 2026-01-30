@@ -72,7 +72,7 @@ interface Car {
 }
 
 const locations = [
-  "Hebbal", "Thanisandra", "KR Puram", "Bellandur", "Haralur", 
+  "Hebbal", "Thanisandra", "KR Puram", "Bellandur", 
   "Hongasandra", "Kengeri", "Nagarabhavi", "Kadugodi"
 ];
 

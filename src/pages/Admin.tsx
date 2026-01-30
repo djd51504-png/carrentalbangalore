@@ -851,9 +851,8 @@ const Admin = () => {
                             required
                           />
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
                           <div className="space-y-2">
-                            <Label htmlFor="category">Seating</Label>
+                            <Label htmlFor="category">Seating Capacity</Label>
                             <Select value={formData.category} onValueChange={(v) => setFormData({ ...formData, category: v })}>
                               <SelectTrigger>
                                 <SelectValue />
@@ -864,21 +863,6 @@ const Admin = () => {
                               </SelectContent>
                             </Select>
                           </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="categoryLabel">Type</Label>
-                            <Select value={formData.categoryLabel} onValueChange={(v) => setFormData({ ...formData, categoryLabel: v })}>
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="Hatchback">Hatchback</SelectItem>
-                                <SelectItem value="SUV">SUV</SelectItem>
-                                <SelectItem value="MUV">MUV</SelectItem>
-                                <SelectItem value="Sedan">Sedan</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
                       </div>
 
                       {/* Pricing */}
@@ -1134,7 +1118,6 @@ const Admin = () => {
                                   <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">{car.category}</span>
                                   <span className="text-xs px-2 py-0.5 bg-muted text-muted-foreground rounded-full">{car.fuel}</span>
                                   <span className="text-xs px-2 py-0.5 bg-muted text-muted-foreground rounded-full">{car.transmission}</span>
-                                  <span className="text-xs px-2 py-0.5 bg-muted text-muted-foreground rounded-full">{car.categoryLabel}</span>
                                 </div>
                               </div>
                               <div className="text-right mr-2">
@@ -1310,9 +1293,8 @@ const Admin = () => {
                     required
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <Label>Seating</Label>
+                <div className="space-y-2">
+                    <Label>Seating Capacity</Label>
                     <Select value={editFormData.category} onValueChange={(v) => setEditFormData({ ...editFormData, category: v })}>
                       <SelectTrigger>
                         <SelectValue />
@@ -1323,21 +1305,6 @@ const Admin = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-2">
-                    <Label>Type</Label>
-                    <Select value={editFormData.categoryLabel} onValueChange={(v) => setEditFormData({ ...editFormData, categoryLabel: v })}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Hatchback">Hatchback</SelectItem>
-                        <SelectItem value="SUV">SUV</SelectItem>
-                        <SelectItem value="MUV">MUV</SelectItem>
-                        <SelectItem value="Sedan">Sedan</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
               </div>
 
               {/* Pricing */}
