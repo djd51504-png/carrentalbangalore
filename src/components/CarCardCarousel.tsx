@@ -79,7 +79,7 @@ const CarCardCarousel = ({
       )}
 
       {/* Image Container */}
-      <div className="relative aspect-[16/10] overflow-hidden bg-muted">
+      <div className="relative aspect-[16/9] overflow-hidden bg-muted">
         {allImages.length > 0 ? (
           <div className="overflow-hidden h-full" ref={emblaRef}>
             <div className="flex h-full">
@@ -159,72 +159,68 @@ const CarCardCarousel = ({
       </div>
 
       {/* Card Content */}
-      <div className="p-5 space-y-4">
-        {/* Car Name & Rating */}
+      <div className="p-4 space-y-3">
+        {/* Car Name & Specs Row */}
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-heading font-bold text-xl md:text-2xl text-foreground leading-tight tracking-tight">
-            {name}
-          </h3>
-          <div className="flex items-center gap-1 bg-secondary px-2 py-1 rounded-lg shrink-0">
-            <Star className="w-3.5 h-3.5 fill-gold text-gold" />
-            <span className="text-sm font-semibold text-foreground">4.8</span>
-          </div>
-        </div>
-
-        {/* Specs Row */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg ${
-            fuel === "Diesel" 
-              ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20" 
-              : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
-          }`}>
-            <Fuel className="w-3.5 h-3.5" />
-            {fuel}
-          </span>
-          <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-            <Cog className="w-3.5 h-3.5" />
-            {transmission}
-          </span>
-        </div>
-
-        {/* Pricing Section */}
-        <div className="bg-secondary/50 rounded-xl p-4 space-y-3">
-          <div className="flex items-end justify-between">
-            <div>
-              <span className="text-xs text-muted-foreground uppercase tracking-wide">Starting from</span>
-              <div className="flex items-baseline gap-1">
-                <span className="font-heading font-bold text-2xl md:text-3xl text-primary">₹{price.toLocaleString()}</span>
-                <span className="text-muted-foreground text-sm">/day</span>
-              </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-heading font-bold text-lg text-foreground leading-tight tracking-tight truncate">
+              {name}
+            </h3>
+            {/* Compact Specs */}
+            <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+              <span className={`inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full ${
+                fuel === "Diesel" 
+                  ? "bg-amber-500/15 text-amber-600 dark:text-amber-400" 
+                  : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+              }`}>
+                <Fuel className="w-2.5 h-2.5" />
+                {fuel}
+              </span>
+              <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-600 dark:text-blue-400">
+                <Cog className="w-2.5 h-2.5" />
+                {transmission}
+              </span>
+              <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                <Star className="w-2.5 h-2.5 fill-gold text-gold" />
+                4.8
+              </span>
             </div>
           </div>
-          <div className="flex items-center gap-3 text-sm">
-            <span className="flex items-center gap-1.5 text-muted-foreground">
-              <Gauge className="w-4 h-4 text-primary" />
-              <span className="font-medium text-foreground">{kmLimit}km</span>/day
-            </span>
-            <span className="text-muted-foreground">•</span>
-            <span className="text-muted-foreground">
-              Extra: <span className="font-medium text-foreground">₹{extraKmCharge}/km</span>
-            </span>
-          </div>
         </div>
 
-        {/* Book Now Button */}
-        <a
-          href={isAvailable ? whatsappLink : undefined}
-          target={isAvailable ? "_blank" : undefined}
-          rel="noopener noreferrer"
-          className={`flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-bold transition-all duration-300 text-sm group/btn ${
-            isAvailable 
-              ? 'bg-gradient-to-r from-whatsapp to-emerald-500 hover:from-whatsapp/90 hover:to-emerald-500/90 text-white shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
-              : 'bg-muted text-muted-foreground cursor-not-allowed'
-          }`}
-          onClick={(e) => !isAvailable && e.preventDefault()}
-        >
-          <MessageCircle className={`w-5 h-5 transition-transform duration-300 ${isAvailable ? 'group-hover/btn:rotate-12' : ''}`} />
-          {isAvailable ? 'Book on WhatsApp' : 'Unavailable'}
-        </a>
+        {/* Price & Book Row */}
+        <div className="flex items-center justify-between gap-3 pt-1 border-t border-border/50">
+          <div>
+            <div className="flex items-baseline gap-1">
+              <span className="font-heading font-bold text-xl text-primary">₹{price.toLocaleString()}</span>
+              <span className="text-muted-foreground text-xs">/day</span>
+            </div>
+            <div className="flex items-center gap-2 text-[10px] text-muted-foreground mt-0.5">
+              <span className="flex items-center gap-0.5">
+                <Gauge className="w-3 h-3" />
+                {kmLimit}km
+              </span>
+              <span>•</span>
+              <span>₹{extraKmCharge}/km extra</span>
+            </div>
+          </div>
+          
+          {/* Compact Book Button */}
+          <a
+            href={isAvailable ? whatsappLink : undefined}
+            target={isAvailable ? "_blank" : undefined}
+            rel="noopener noreferrer"
+            className={`flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg font-semibold transition-all duration-300 text-xs whitespace-nowrap ${
+              isAvailable 
+                ? 'bg-whatsapp hover:bg-whatsapp/90 text-white shadow-md hover:shadow-lg hover:scale-105 active:scale-95'
+                : 'bg-muted text-muted-foreground cursor-not-allowed'
+            }`}
+            onClick={(e) => !isAvailable && e.preventDefault()}
+          >
+            <MessageCircle className="w-3.5 h-3.5" />
+            {isAvailable ? 'Book' : 'N/A'}
+          </a>
+        </div>
       </div>
     </div>
   );
