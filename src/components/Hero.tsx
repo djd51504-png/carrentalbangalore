@@ -88,7 +88,7 @@ const Hero = () => {
               className="flex items-center gap-2.5 text-primary-foreground/90 backdrop-blur-md bg-gradient-to-r from-whatsapp/10 to-cyan/10 border border-whatsapp/30 px-4 py-2.5 rounded-full hover:bg-whatsapp/20 transition-colors cursor-pointer"
             >
               <MapPin className="w-5 h-5 text-whatsapp" />
-              <span className="text-sm font-medium">9 Locations</span>
+              <span className="text-sm font-medium">Many Locations</span>
             </button>
           </div>
         </div>
