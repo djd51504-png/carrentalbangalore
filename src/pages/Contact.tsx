@@ -8,7 +8,6 @@ const locations = [
   { name: "Thanisandra", address: "Thanisandra Main Road", lat: 13.0674, lng: 77.6208 },
   { name: "KR Puram", address: "KR Puram Railway Station", lat: 13.0012, lng: 77.6968 },
   { name: "Bellandur", address: "Bellandur Junction", lat: 12.9261, lng: 77.6763 },
-  { name: "Haralur", address: "Haralur Road", lat: 12.9150, lng: 77.6750 },
   { name: "Hongasandra", address: "Hongasandra Main Road", lat: 12.8897, lng: 77.6350 },
   { name: "Kengeri", address: "Kengeri Satellite Town", lat: 12.9036, lng: 77.4830 },
   { name: "Nagarabhavi", address: "Nagarabhavi Circle", lat: 12.9600, lng: 77.5100 },
@@ -31,7 +30,7 @@ const Contact = () => {
             </h1>
             <p className="text-muted-foreground text-lg">
               Get in touch with us for bookings, inquiries, or any assistance. 
-              We're available across 9 convenient locations in Bengaluru.
+              We have many convenient locations across Bengaluru.
             </p>
           </div>
         </section>

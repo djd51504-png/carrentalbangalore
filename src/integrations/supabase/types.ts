@@ -89,6 +89,7 @@ export type Database = {
           images: string[] | null
           is_available: boolean
           km_limit: number
+          locations: string[] | null
           name: string
           price: number
           price_15_days: number | null
@@ -110,6 +111,7 @@ export type Database = {
           images?: string[] | null
           is_available?: boolean
           km_limit?: number
+          locations?: string[] | null
           name: string
           price: number
           price_15_days?: number | null
@@ -131,6 +133,7 @@ export type Database = {
           images?: string[] | null
           is_available?: boolean
           km_limit?: number
+          locations?: string[] | null
           name?: string
           price?: number
           price_15_days?: number | null

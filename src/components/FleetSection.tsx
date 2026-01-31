@@ -57,6 +57,7 @@ type Category = "all" | "5-Seater" | "7-Seater";
 interface Car {
   id: string;
   name: string;
+  brand: string;
   price: number;
   image: string;
   images: string[];
@@ -64,6 +65,8 @@ interface Car {
   categoryLabel: string;
   transmission: string;
   fuel: string;
+  kmLimit: number;
+  extraKmCharge: number;
   isAvailable: boolean;
 }
 
@@ -85,6 +88,7 @@ const FleetSection = () => {
         setCars(data.map(car => ({
           id: car.id,
           name: car.name,
+          brand: car.brand,
           price: car.price,
           image: car.image || fallbackImages[car.name] || swiftImg,
           images: (car as any).images || [],
@@ -92,6 +96,8 @@ const FleetSection = () => {
           categoryLabel: car.category_label || 'Hatchback',
           transmission: car.transmission,
           fuel: car.fuel,
+          kmLimit: car.km_limit,
+          extraKmCharge: car.extra_km_charge,
           isAvailable: (car as any).is_available ?? true,
         })));
       } catch (error) {
@@ -165,12 +171,14 @@ const FleetSection = () => {
               <div key={car.id} data-aos="fade-up" data-aos-delay={index * 50}>
                 <CarCardCarousel
                   name={car.name}
+                  brand={car.brand}
                   price={car.price}
                   image={car.image}
                   images={car.images}
-                  category={car.categoryLabel}
                   transmission={car.transmission}
                   fuel={car.fuel}
+                  kmLimit={car.kmLimit}
+                  extraKmCharge={car.extraKmCharge}
                   isAvailable={car.isAvailable}
                 />
               </div>

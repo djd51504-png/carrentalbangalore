@@ -519,12 +519,14 @@ const Cars = () => {
                 >
                   <CarCardCarousel
                     name={car.name}
+                    brand={car.brand}
                     price={car.price}
                     image={car.image}
                     images={car.images}
-                    category={car.categoryLabel}
                     transmission={car.transmission}
                     fuel={car.fuel}
+                    kmLimit={car.extraKmCharge > 0 ? 300 : 300}
+                    extraKmCharge={car.extraKmCharge}
                     isAvailable={car.isAvailable}
                   />
                 </div>

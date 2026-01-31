@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { Plus, Trash2, Car, AlertTriangle, ArrowLeft, ImageIcon, Loader2, Pencil, Lock, LogOut, Mail, ClipboardList, Phone, Calendar, Clock, CheckCircle, XCircle, MessageCircle, Eye, EyeOff } from "lucide-react";
+import { Plus, Trash2, Car, AlertTriangle, ArrowLeft, ImageIcon, Loader2, Pencil, Lock, LogOut, Mail, ClipboardList, Phone, Calendar, Clock, CheckCircle, XCircle, MessageCircle, Eye, EyeOff, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +31,18 @@ import { supabase } from "@/integrations/supabase/client";
 import MultiImageUpload from "@/components/MultiImageUpload";
 import type { User, Session } from "@supabase/supabase-js";
 
+// Available locations
+const AVAILABLE_LOCATIONS = [
+  "Hebbal",
+  "Thanisandra",
+  "KR Puram",
+  "Bellandur",
+  "Hongasandra",
+  "Kengeri",
+  "Nagarabhavi",
+  "Kadugodi",
+];
+
 interface CarData {
   id: string;
   name: string;
@@ -45,6 +57,7 @@ interface CarData {
   image?: string;
   images: string[];
   isAvailable: boolean;
+  locations: string[];
   price3Days?: number | null;
   price7Days?: number | null;
   price15Days?: number | null;
@@ -171,6 +184,7 @@ const Admin = () => {
         image: car.image || undefined,
         images: (car as any).images || [],
         isAvailable: (car as any).is_available ?? true,
+        locations: (car as any).locations || [],
         price3Days: car.price_3_days,
         price7Days: car.price_7_days,
         price15Days: car.price_15_days,
@@ -328,6 +342,7 @@ const Admin = () => {
     price15Days: "",
     price30Days: "",
   });
+  const [formLocations, setFormLocations] = useState<string[]>([]);
 
   // Multi-image state for add form
   const [formImages, setFormImages] = useState<string[]>([]);
@@ -352,6 +367,7 @@ const Admin = () => {
   });
   // Multi-image state for edit form
   const [editFormImages, setEditFormImages] = useState<string[]>([]);
+  const [editFormLocations, setEditFormLocations] = useState<string[]>([]);
 
 
   const handleSelectAll = (checked: boolean) => {
@@ -440,6 +456,7 @@ const Admin = () => {
           category_label: formData.categoryLabel,
           image: formImages[0] || null,
           images: formImages,
+          locations: formLocations,
           price_3_days: formData.price3Days ? Number(formData.price3Days) : null,
           price_7_days: formData.price7Days ? Number(formData.price7Days) : null,
           price_15_days: formData.price15Days ? Number(formData.price15Days) : null,
@@ -464,6 +481,7 @@ const Admin = () => {
         image: data.image || undefined,
         images: (data as any).images || [],
         isAvailable: true,
+        locations: (data as any).locations || [],
         price3Days: data.price_3_days,
         price7Days: data.price_7_days,
         price15Days: data.price_15_days,
@@ -487,6 +505,7 @@ const Admin = () => {
         price30Days: "",
       });
       setFormImages([]);
+      setFormLocations([]);
       toast({
         title: "Car Added",
         description: `${newCar.brand} ${newCar.name} has been added to inventory.`,
@@ -522,6 +541,7 @@ const Admin = () => {
       price30Days: car.price30Days?.toString() || "",
     });
     setEditFormImages(car.images || []);
+    setEditFormLocations(car.locations || []);
   };
 
   const closeEditDialog = () => {
@@ -542,6 +562,7 @@ const Admin = () => {
       price30Days: "",
     });
     setEditFormImages([]);
+    setEditFormLocations([]);
   };
 
   const handleUpdateCar = async (e: React.FormEvent) => {
@@ -565,6 +586,7 @@ const Admin = () => {
           category_label: editFormData.categoryLabel,
           image: editFormImages[0] || null,
           images: editFormImages,
+          locations: editFormLocations,
           price_3_days: editFormData.price3Days ? Number(editFormData.price3Days) : null,
           price_7_days: editFormData.price7Days ? Number(editFormData.price7Days) : null,
           price_15_days: editFormData.price15Days ? Number(editFormData.price15Days) : null,
@@ -588,6 +610,7 @@ const Admin = () => {
         image: editFormImages[0] || undefined,
         images: editFormImages,
         isAvailable: editingCar.isAvailable,
+        locations: editFormLocations,
         price3Days: editFormData.price3Days ? Number(editFormData.price3Days) : null,
         price7Days: editFormData.price7Days ? Number(editFormData.price7Days) : null,
         price15Days: editFormData.price15Days ? Number(editFormData.price15Days) : null,
@@ -974,6 +997,34 @@ const Admin = () => {
                               </SelectContent>
                             </Select>
                           </div>
+                        </div>
+                      </div>
+
+                      {/* Available Locations */}
+                      <div className="space-y-3 pt-2 border-t border-border">
+                        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                          <MapPin className="h-4 w-4" />
+                          Available Locations
+                        </h3>
+                        <div className="grid grid-cols-2 gap-2">
+                          {AVAILABLE_LOCATIONS.map((location) => (
+                            <label
+                              key={location}
+                              className="flex items-center gap-2 p-2 rounded-lg border border-border hover:bg-muted/50 cursor-pointer transition-colors"
+                            >
+                              <Checkbox
+                                checked={formLocations.includes(location)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setFormLocations([...formLocations, location]);
+                                  } else {
+                                    setFormLocations(formLocations.filter((l) => l !== location));
+                                  }
+                                }}
+                              />
+                              <span className="text-sm">{location}</span>
+                            </label>
+                          ))}
                         </div>
                       </div>
 
@@ -1416,6 +1467,34 @@ const Admin = () => {
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+              </div>
+
+              {/* Available Locations (Edit) */}
+              <div className="space-y-3 pt-2 border-t border-border">
+                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                  <MapPin className="h-4 w-4" />
+                  Available Locations
+                </h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {AVAILABLE_LOCATIONS.map((location) => (
+                    <label
+                      key={location}
+                      className="flex items-center gap-2 p-2 rounded-lg border border-border hover:bg-muted/50 cursor-pointer transition-colors"
+                    >
+                      <Checkbox
+                        checked={editFormLocations.includes(location)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setEditFormLocations([...editFormLocations, location]);
+                          } else {
+                            setEditFormLocations(editFormLocations.filter((l) => l !== location));
+                          }
+                        }}
+                      />
+                      <span className="text-sm">{location}</span>
+                    </label>
+                  ))}
                 </div>
               </div>
 
