@@ -59,7 +59,7 @@ const handler = async (req: Request): Promise<Response> => {
       },
       body: JSON.stringify({
         from: "Car Rental Bangalore <onboarding@resend.dev>",
-        to: ["vikas@carrentalbanglore.site"],
+        to: ["selfdrivecars2500@gmail.com"],
         subject: `🔍 New Availability Check - ${customerName} (${customerPhone})`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
