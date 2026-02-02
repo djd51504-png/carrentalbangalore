@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { MessageCircle, Fuel, Cog, ChevronLeft, ChevronRight, Gauge, Shield, Star } from "lucide-react";
+import { MessageCircle, Fuel, Cog, ChevronLeft, ChevronRight, Gauge, Shield } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 
 interface CarCardCarouselProps {
@@ -148,61 +148,67 @@ const CarCardCarousel = ({
         </div>
       </div>
 
+      {/* Decorative Background Pattern */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
+        <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-primary/5 rounded-full blur-2xl" />
+        <div className="absolute -left-4 -top-4 w-20 h-20 bg-accent/10 rounded-full blur-xl" />
+        <div className="absolute right-1/4 top-1/2 w-2 h-2 bg-primary/20 rounded-full" />
+        <div className="absolute left-1/3 bottom-1/4 w-1.5 h-1.5 bg-accent/30 rounded-full" />
+      </div>
+
       {/* Card Content */}
-      <div className="p-3 space-y-2">
-        {/* Car Name & Specs Row */}
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex-1 min-w-0">
-            <h3 className="font-heading font-bold text-base text-foreground leading-tight tracking-tight truncate">
-              {brand && <span className="text-muted-foreground font-medium">{brand} </span>}
-              {name}
-            </h3>
-            {/* Compact Specs */}
-            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-              <span className={`inline-flex items-center gap-0.5 text-[9px] font-medium px-1.5 py-0.5 rounded ${
-                fuel === "Diesel" 
-                  ? "bg-amber-500/15 text-amber-600 dark:text-amber-400" 
-                  : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
-              }`}>
-                <Fuel className="w-2 h-2" />
-                {fuel === "Petrol" ? "P" : "D"}
-              </span>
-              <span className="inline-flex items-center gap-0.5 text-[9px] font-medium px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-600 dark:text-blue-400">
-                <Cog className="w-2 h-2" />
-                {transmission === "Manual" ? "M" : "A"}
-              </span>
-              <span className="flex items-center gap-0.5 text-[9px] text-muted-foreground">
-                <Star className="w-2 h-2 fill-gold text-gold" />
-                4.8
-              </span>
-              <span className="text-[9px] text-muted-foreground flex items-center gap-0.5">
-                <Gauge className="w-2 h-2" />
-                {kmLimit}km • ₹{extraKmCharge}/km
-              </span>
-            </div>
+      <div className="relative p-4 space-y-3">
+        {/* Car Name */}
+        <h3 className="font-heading font-bold text-lg text-foreground leading-tight tracking-tight">
+          {brand} {name}
+        </h3>
+        
+        {/* Specs Row */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${
+            fuel === "Diesel" 
+              ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20" 
+              : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+          }`}>
+            <Fuel className="w-3 h-3" />
+            {fuel}
+          </span>
+          <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+            <Cog className="w-3 h-3" />
+            {transmission}
+          </span>
+        </div>
+
+        {/* KM Limit & Extra Charge */}
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1 font-medium">
+            <Gauge className="w-3.5 h-3.5 text-primary" />
+            {kmLimit}km/day
+          </span>
+          <span className="text-border">•</span>
+          <span className="font-medium">Extra: ₹{extraKmCharge}/km</span>
+        </div>
+
+        {/* Price & Book Row */}
+        <div className="flex items-center justify-between pt-2 border-t border-border/50">
+          <div>
+            <span className="font-heading font-bold text-xl text-primary">₹{price.toLocaleString()}</span>
+            <span className="text-muted-foreground text-xs">/day</span>
           </div>
-          
-          {/* Price & Book Button */}
-          <div className="flex flex-col items-end gap-1">
-            <div className="text-right">
-              <span className="font-heading font-bold text-lg text-primary">₹{price.toLocaleString()}</span>
-              <span className="text-muted-foreground text-[10px]">/day</span>
-            </div>
-            <a
-              href={isAvailable ? whatsappLink : undefined}
-              target={isAvailable ? "_blank" : undefined}
-              rel="noopener noreferrer"
-              className={`flex items-center justify-center gap-1 px-3 py-1.5 rounded-md font-semibold transition-all duration-300 text-[10px] whitespace-nowrap ${
-                isAvailable 
-                  ? 'bg-whatsapp hover:bg-whatsapp/90 text-white shadow-sm hover:shadow-md hover:scale-105 active:scale-95'
-                  : 'bg-muted text-muted-foreground cursor-not-allowed'
-              }`}
-              onClick={(e) => !isAvailable && e.preventDefault()}
-            >
-              <MessageCircle className="w-3 h-3" />
-              Book
-            </a>
-          </div>
+          <a
+            href={isAvailable ? whatsappLink : undefined}
+            target={isAvailable ? "_blank" : undefined}
+            rel="noopener noreferrer"
+            className={`flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg font-semibold transition-all duration-300 text-xs whitespace-nowrap ${
+              isAvailable 
+                ? 'bg-whatsapp hover:bg-whatsapp/90 text-white shadow-sm hover:shadow-md hover:scale-105 active:scale-95'
+                : 'bg-muted text-muted-foreground cursor-not-allowed'
+            }`}
+            onClick={(e) => !isAvailable && e.preventDefault()}
+          >
+            <MessageCircle className="w-3.5 h-3.5" />
+            Book Now
+          </a>
         </div>
       </div>
     </div>
