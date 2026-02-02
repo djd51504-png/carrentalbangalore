@@ -11,7 +11,8 @@ import {
   Grid3X3,
   LayoutGrid,
   X,
-  ChevronDown
+  ChevronDown,
+  MapPin
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -90,6 +91,18 @@ type TransmissionType = "all" | "Manual" | "Automatic" | "Manual & Automatic";
 type SortOption = "price-asc" | "price-desc" | "name-asc" | "name-desc";
 type GridView = "compact" | "comfortable";
 
+// Available locations
+const AVAILABLE_LOCATIONS = [
+  "Hebbal",
+  "Thanisandra",
+  "KR Puram",
+  "Bellandur",
+  "Hongasandra",
+  "Kengeri",
+  "Nagarabhavi",
+  "Kadugodi",
+];
+
 interface Car {
   id: string;
   name: string;
@@ -107,6 +120,7 @@ interface Car {
   price30Days: number | null;
   extraKmCharge: number;
   isAvailable: boolean;
+  locations: string[];
 }
 
 const Cars = () => {
@@ -116,6 +130,7 @@ const Cars = () => {
   const [activeCategory, setActiveCategory] = useState<Category>("all");
   const [fuelType, setFuelType] = useState<FuelType>("all");
   const [transmissionType, setTransmissionType] = useState<TransmissionType>("all");
+  const [locationFilter, setLocationFilter] = useState<string>("all");
   const [sortOption, setSortOption] = useState<SortOption>("price-asc");
   const [gridView, setGridView] = useState<GridView>("comfortable");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -147,6 +162,7 @@ const Cars = () => {
           price30Days: car.price_30_days,
           extraKmCharge: car.extra_km_charge,
           isAvailable: (car as any).is_available ?? true,
+          locations: (car as any).locations || [],
         })));
       } catch (error) {
         console.error('Error fetching cars:', error);
@@ -195,6 +211,13 @@ const Cars = () => {
       );
     }
 
+    // Location filter
+    if (locationFilter !== "all") {
+      result = result.filter(car => 
+        car.locations.includes(locationFilter)
+      );
+    }
+
     // Sort
     switch (sortOption) {
       case "price-asc":
@@ -212,18 +235,20 @@ const Cars = () => {
     }
 
     return result;
-  }, [cars, searchQuery, activeCategory, fuelType, transmissionType, sortOption]);
+  }, [cars, searchQuery, activeCategory, fuelType, transmissionType, locationFilter, sortOption]);
 
   const activeFiltersCount = [
     activeCategory !== "all",
     fuelType !== "all",
-    transmissionType !== "all"
+    transmissionType !== "all",
+    locationFilter !== "all"
   ].filter(Boolean).length;
 
   const clearAllFilters = () => {
     setActiveCategory("all");
     setFuelType("all");
     setTransmissionType("all");
+    setLocationFilter("all");
     setSearchQuery("");
   };
 
@@ -235,6 +260,38 @@ const Cars = () => {
 
   const FilterContent = () => (
     <div className="space-y-6">
+      {/* Location Filter */}
+      <div>
+        <h4 className="text-sm font-semibold text-foreground mb-3">Pickup Location</h4>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setLocationFilter("all")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+              locationFilter === "all"
+                ? "bg-primary text-primary-foreground shadow-md"
+                : "bg-secondary text-secondary-foreground hover:bg-primary/10"
+            }`}
+          >
+            <MapPin className="w-4 h-4" />
+            All Locations
+          </button>
+          {AVAILABLE_LOCATIONS.map((loc) => (
+            <button
+              key={loc}
+              onClick={() => setLocationFilter(loc)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                locationFilter === loc
+                  ? "bg-primary text-primary-foreground shadow-md"
+                  : "bg-secondary text-secondary-foreground hover:bg-primary/10"
+              }`}
+            >
+              <MapPin className="w-4 h-4" />
+              {loc}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Category */}
       <div>
         <h4 className="text-sm font-semibold text-foreground mb-3">Seating Capacity</h4>
@@ -401,6 +458,19 @@ const Cars = () => {
 
               {/* Desktop Filters */}
               <div className="hidden lg:flex items-center gap-2">
+                <Select value={locationFilter} onValueChange={(v) => setLocationFilter(v)}>
+                  <SelectTrigger className="w-[160px] bg-secondary/50">
+                    <MapPin className="w-4 h-4 mr-2" />
+                    <SelectValue placeholder="Location" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border border-border z-50">
+                    <SelectItem value="all">All Locations</SelectItem>
+                    {AVAILABLE_LOCATIONS.map((loc) => (
+                      <SelectItem key={loc} value={loc}>{loc}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
                 <Select value={fuelType} onValueChange={(v) => setFuelType(v as FuelType)}>
                   <SelectTrigger className="w-[130px] bg-secondary/50">
                     <Fuel className="w-4 h-4 mr-2" />

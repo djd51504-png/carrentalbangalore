@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { Plus, Trash2, Car, AlertTriangle, ArrowLeft, ImageIcon, Loader2, Pencil, Lock, LogOut, Mail, ClipboardList, Phone, Calendar, Clock, CheckCircle, XCircle, MessageCircle, Eye, EyeOff, MapPin } from "lucide-react";
+import { Plus, Trash2, Car, AlertTriangle, ArrowLeft, ImageIcon, Loader2, Pencil, Lock, LogOut, Mail, ClipboardList, Phone, Calendar, Clock, CheckCircle, XCircle, MessageCircle, Eye, EyeOff, MapPin, CalendarDays } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,6 +58,8 @@ interface CarData {
   images: string[];
   isAvailable: boolean;
   locations: string[];
+  availableFrom: string | null;
+  availableUntil: string | null;
   price3Days?: number | null;
   price7Days?: number | null;
   price15Days?: number | null;
@@ -185,6 +187,8 @@ const Admin = () => {
         images: (car as any).images || [],
         isAvailable: (car as any).is_available ?? true,
         locations: (car as any).locations || [],
+        availableFrom: (car as any).available_from || null,
+        availableUntil: (car as any).available_until || null,
         price3Days: car.price_3_days,
         price7Days: car.price_7_days,
         price15Days: car.price_15_days,
@@ -341,6 +345,8 @@ const Admin = () => {
     price7Days: "",
     price15Days: "",
     price30Days: "",
+    availableFrom: "",
+    availableUntil: "",
   });
   const [formLocations, setFormLocations] = useState<string[]>([]);
 
@@ -364,6 +370,8 @@ const Admin = () => {
     price7Days: "",
     price15Days: "",
     price30Days: "",
+    availableFrom: "",
+    availableUntil: "",
   });
   // Multi-image state for edit form
   const [editFormImages, setEditFormImages] = useState<string[]>([]);
@@ -457,6 +465,8 @@ const Admin = () => {
           image: formImages[0] || null,
           images: formImages,
           locations: formLocations,
+          available_from: formData.availableFrom || null,
+          available_until: formData.availableUntil || null,
           price_3_days: formData.price3Days ? Number(formData.price3Days) : null,
           price_7_days: formData.price7Days ? Number(formData.price7Days) : null,
           price_15_days: formData.price15Days ? Number(formData.price15Days) : null,
@@ -482,6 +492,8 @@ const Admin = () => {
         images: (data as any).images || [],
         isAvailable: true,
         locations: (data as any).locations || [],
+        availableFrom: (data as any).available_from || null,
+        availableUntil: (data as any).available_until || null,
         price3Days: data.price_3_days,
         price7Days: data.price_7_days,
         price15Days: data.price_15_days,
@@ -503,6 +515,8 @@ const Admin = () => {
         price7Days: "",
         price15Days: "",
         price30Days: "",
+        availableFrom: "",
+        availableUntil: "",
       });
       setFormImages([]);
       setFormLocations([]);
@@ -539,6 +553,8 @@ const Admin = () => {
       price7Days: car.price7Days?.toString() || "",
       price15Days: car.price15Days?.toString() || "",
       price30Days: car.price30Days?.toString() || "",
+      availableFrom: car.availableFrom || "",
+      availableUntil: car.availableUntil || "",
     });
     setEditFormImages(car.images || []);
     setEditFormLocations(car.locations || []);
@@ -560,6 +576,8 @@ const Admin = () => {
       price7Days: "",
       price15Days: "",
       price30Days: "",
+      availableFrom: "",
+      availableUntil: "",
     });
     setEditFormImages([]);
     setEditFormLocations([]);
@@ -587,6 +605,8 @@ const Admin = () => {
           image: editFormImages[0] || null,
           images: editFormImages,
           locations: editFormLocations,
+          available_from: editFormData.availableFrom || null,
+          available_until: editFormData.availableUntil || null,
           price_3_days: editFormData.price3Days ? Number(editFormData.price3Days) : null,
           price_7_days: editFormData.price7Days ? Number(editFormData.price7Days) : null,
           price_15_days: editFormData.price15Days ? Number(editFormData.price15Days) : null,
@@ -611,6 +631,8 @@ const Admin = () => {
         images: editFormImages,
         isAvailable: editingCar.isAvailable,
         locations: editFormLocations,
+        availableFrom: editFormData.availableFrom || null,
+        availableUntil: editFormData.availableUntil || null,
         price3Days: editFormData.price3Days ? Number(editFormData.price3Days) : null,
         price7Days: editFormData.price7Days ? Number(editFormData.price7Days) : null,
         price15Days: editFormData.price15Days ? Number(editFormData.price15Days) : null,
@@ -1025,6 +1047,37 @@ const Admin = () => {
                               <span className="text-sm">{location}</span>
                             </label>
                           ))}
+                        </div>
+                      </div>
+
+                      {/* Availability Dates */}
+                      <div className="space-y-3 pt-2 border-t border-border">
+                        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                          <CalendarDays className="h-4 w-4" />
+                          Availability Dates
+                        </h3>
+                        <p className="text-xs text-muted-foreground">
+                          Leave empty if car is always available. Set dates to restrict availability.
+                        </p>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-2">
+                            <Label htmlFor="availableFrom">Available From</Label>
+                            <Input
+                              id="availableFrom"
+                              type="date"
+                              value={formData.availableFrom}
+                              onChange={(e) => setFormData({ ...formData, availableFrom: e.target.value })}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="availableUntil">Available Until</Label>
+                            <Input
+                              id="availableUntil"
+                              type="date"
+                              value={formData.availableUntil}
+                              onChange={(e) => setFormData({ ...formData, availableUntil: e.target.value })}
+                            />
+                          </div>
                         </div>
                       </div>
 
@@ -1495,6 +1548,37 @@ const Admin = () => {
                       <span className="text-sm">{location}</span>
                     </label>
                   ))}
+                </div>
+              </div>
+
+              {/* Availability Dates (Edit) */}
+              <div className="space-y-3 pt-2 border-t border-border">
+                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                  <CalendarDays className="h-4 w-4" />
+                  Availability Dates
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  Leave empty if car is always available. Set dates to restrict availability.
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-availableFrom">Available From</Label>
+                    <Input
+                      id="edit-availableFrom"
+                      type="date"
+                      value={editFormData.availableFrom}
+                      onChange={(e) => setEditFormData({ ...editFormData, availableFrom: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-availableUntil">Available Until</Label>
+                    <Input
+                      id="edit-availableUntil"
+                      type="date"
+                      value={editFormData.availableUntil}
+                      onChange={(e) => setEditFormData({ ...editFormData, availableUntil: e.target.value })}
+                    />
+                  </div>
                 </div>
               </div>
 
