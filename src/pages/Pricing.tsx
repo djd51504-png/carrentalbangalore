@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import CallButton from "@/components/CallButton";
 import { CreditCard, Smartphone, Banknote, Phone, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -215,6 +216,7 @@ const Pricing = () => {
 
       <Footer />
       <WhatsAppButton />
+      <CallButton />
     </div>
   );
 };

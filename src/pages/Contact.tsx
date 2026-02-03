@@ -2,6 +2,7 @@ import { MapPin, Phone, MessageCircle, Clock, Mail } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import CallButton from "@/components/CallButton";
 
 const locations = [
   { name: "Hebbal", address: "Near Hebbal Flyover", lat: 13.0358, lng: 77.5970 },
@@ -152,6 +153,7 @@ const Contact = () => {
 
       <Footer />
       <WhatsAppButton />
+      <CallButton />
     </div>
   );
 };
