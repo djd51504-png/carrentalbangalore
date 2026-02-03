@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { Plus, Trash2, Car, AlertTriangle, ArrowLeft, ImageIcon, Loader2, Pencil, Lock, LogOut, Mail, ClipboardList, Phone, Calendar, Clock, CheckCircle, XCircle, MessageCircle, Eye, EyeOff, MapPin, CalendarDays } from "lucide-react";
+import { Plus, Trash2, Car, AlertTriangle, ArrowLeft, ImageIcon, Loader2, Pencil, Lock, LogOut, Mail, ClipboardList, Phone, Calendar, Clock, CheckCircle, XCircle, MessageCircle, Eye, EyeOff, MapPin, CalendarDays, Settings, CreditCard, Save } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -101,6 +101,11 @@ const Admin = () => {
   const [isLoadingEnquiries, setIsLoadingEnquiries] = useState(false);
   const [activeTab, setActiveTab] = useState("fleet");
 
+  // Settings state
+  const [razorpayKeyId, setRazorpayKeyId] = useState("");
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
+  const [isLoadingSettings, setIsLoadingSettings] = useState(false);
+
   // Check auth status and admin role
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -159,8 +164,56 @@ const Admin = () => {
     if (isAdmin) {
       fetchCars();
       fetchEnquiries();
+      fetchSettings();
     }
   }, [isAdmin]);
+
+  const fetchSettings = async () => {
+    setIsLoadingSettings(true);
+    try {
+      const { data, error } = await supabase
+        .from('settings')
+        .select('*')
+        .eq('key', 'razorpay_key_id')
+        .single();
+      
+      if (error && error.code !== 'PGRST116') throw error;
+      
+      if (data) {
+        setRazorpayKeyId(data.value || '');
+      }
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+    } finally {
+      setIsLoadingSettings(false);
+    }
+  };
+
+  const saveRazorpayKey = async () => {
+    setIsSavingSettings(true);
+    try {
+      const { error } = await supabase
+        .from('settings')
+        .update({ value: razorpayKeyId })
+        .eq('key', 'razorpay_key_id');
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Settings Saved",
+        description: "Razorpay Key ID has been updated successfully.",
+      });
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save settings. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSavingSettings(false);
+    }
+  };
 
   const fetchCars = async () => {
     setIsLoadingCars(true);
@@ -832,7 +885,7 @@ const Admin = () => {
 
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsList className="grid w-full max-w-lg grid-cols-3">
             <TabsTrigger value="fleet" className="flex items-center gap-2">
               <Car className="h-4 w-4" />
               Fleet ({cars.length})
@@ -840,6 +893,10 @@ const Admin = () => {
             <TabsTrigger value="enquiries" className="flex items-center gap-2">
               <ClipboardList className="h-4 w-4" />
               Enquiries ({enquiries.length})
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Settings
             </TabsTrigger>
           </TabsList>
 
@@ -1350,6 +1407,88 @@ const Admin = () => {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          {/* Settings Tab */}
+          <TabsContent value="settings">
+            <div className="max-w-2xl">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CreditCard className="h-5 w-5 text-primary" />
+                    Payment Settings
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {isLoadingSettings ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                      <span className="ml-2 text-muted-foreground">Loading settings...</span>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="space-y-3">
+                        <Label htmlFor="razorpay-key" className="text-base font-medium">
+                          Razorpay Key ID
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          Enter your Razorpay Key ID to enable payment processing. You can find this in your{" "}
+                          <a 
+                            href="https://dashboard.razorpay.com/app/keys" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-primary underline hover:no-underline"
+                          >
+                            Razorpay Dashboard → API Keys
+                          </a>.
+                        </p>
+                        <Input
+                          id="razorpay-key"
+                          type="text"
+                          placeholder="rzp_live_xxxxxxxxxxxxxx or rzp_test_xxxxxxxxxxxxxx"
+                          value={razorpayKeyId}
+                          onChange={(e) => setRazorpayKeyId(e.target.value)}
+                          className="font-mono"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Use <code className="bg-muted px-1 rounded">rzp_test_</code> keys for testing, 
+                          <code className="bg-muted px-1 rounded ml-1">rzp_live_</code> for production.
+                        </p>
+                      </div>
+
+                      <Button 
+                        onClick={saveRazorpayKey} 
+                        disabled={isSavingSettings}
+                        className="w-full sm:w-auto"
+                      >
+                        {isSavingSettings ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Saving...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="h-4 w-4 mr-2" />
+                            Save Razorpay Key
+                          </>
+                        )}
+                      </Button>
+
+                      {!razorpayKeyId && (
+                        <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                          <p className="text-amber-600 dark:text-amber-400 text-sm flex items-start gap-2">
+                            <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                            <span>
+                              <strong>Payment not configured.</strong> Customers will not be able to complete bookings until you add your Razorpay Key ID.
+                            </span>
+                          </p>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
 
