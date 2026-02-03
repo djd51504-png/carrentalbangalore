@@ -6,6 +6,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useBooking } from "@/contexts/BookingContext";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -22,13 +23,15 @@ const BookingCheckout = () => {
   const [depositType, setDepositType] = useState<"cash" | "bike">("cash");
   const [isProcessing, setIsProcessing] = useState(false);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+  const [razorpayKeyId, setRazorpayKeyId] = useState<string | null>(null);
+  const [isLoadingKey, setIsLoadingKey] = useState(true);
 
   // Placeholder advance amount (₹1000 as per business rules)
   const advanceAmount = 1000;
   const depositAmount = depositType === "cash" ? 10000 : 0;
   
-  // For demo, using a base price (in real app, this would come from car selection)
-  const estimatedBasePrice = bookingData.totalDays * 2500; // Base ₹2500/day
+  // Use basePrice from booking context if available
+  const estimatedBasePrice = bookingData.basePrice || (bookingData.totalDays * 2500);
   const totalPayNow = advanceAmount;
 
   useEffect(() => {
@@ -43,6 +46,31 @@ const BookingCheckout = () => {
     }
     window.scrollTo(0, 0);
 
+    // Fetch Razorpay Key from settings
+    const fetchRazorpayKey = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('settings')
+          .select('value')
+          .eq('key', 'razorpay_key_id')
+          .single();
+        
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error fetching Razorpay key:', error);
+        }
+        
+        if (data?.value) {
+          setRazorpayKeyId(data.value);
+        }
+      } catch (err) {
+        console.error('Error:', err);
+      } finally {
+        setIsLoadingKey(false);
+      }
+    };
+
+    fetchRazorpayKey();
+
     // Load Razorpay script
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
@@ -51,7 +79,9 @@ const BookingCheckout = () => {
     document.body.appendChild(script);
 
     return () => {
-      document.body.removeChild(script);
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
     };
   }, [bookingData, termsAccepted, navigate]);
 
@@ -84,10 +114,19 @@ const BookingCheckout = () => {
       return;
     }
 
+    if (!razorpayKeyId) {
+      toast({
+        title: "Payment Not Configured",
+        description: "Payment gateway is not configured. Please contact support.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsProcessing(true);
 
     const options = {
-      key: "rzp_test_XXXXXXXXXXXXXX", // Replace with your Razorpay Key ID
+      key: razorpayKeyId,
       amount: totalPayNow * 100, // Amount in paise
       currency: "INR",
       name: "Car Rental Bangalore",
@@ -112,6 +151,7 @@ const BookingCheckout = () => {
         pickupDate: bookingData.pickupDate,
         dropDate: bookingData.dropDate,
         location: bookingData.pickupLocation || "To be decided",
+        carName: `${bookingData.carBrand} ${bookingData.carName}`,
       },
       theme: {
         color: "#8B5CF6",
@@ -144,6 +184,15 @@ const BookingCheckout = () => {
       setIsProcessing(false);
     }
   };
+
+  // Show loading while checking key
+  if (isLoadingKey) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -324,9 +373,18 @@ const BookingCheckout = () => {
                   </div>
                 </div>
 
+                {!razorpayKeyId && (
+                  <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                    <p className="text-amber-600 dark:text-amber-400 text-xs flex items-start gap-2">
+                      <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                      Payment not configured. Contact support.
+                    </p>
+                  </div>
+                )}
+
                 <Button
                   onClick={handlePayment}
-                  disabled={isProcessing || !razorpayLoaded}
+                  disabled={isProcessing || !razorpayLoaded || !razorpayKeyId}
                   className="w-full mt-6 bg-gradient-to-r from-primary via-purple to-pink text-primary-foreground py-6 text-lg font-bold shadow-button hover:scale-[1.02] transition-all disabled:opacity-50"
                 >
                   {isProcessing ? (
