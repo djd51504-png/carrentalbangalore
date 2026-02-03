@@ -8,6 +8,7 @@ import GoogleReviews from "@/components/GoogleReviews";
 import TermsSection from "@/components/TermsSection";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import CallButton from "@/components/CallButton";
 
 const Index = () => {
   return (
@@ -22,6 +23,7 @@ const Index = () => {
       <TermsSection />
       <Footer />
       <WhatsAppButton />
+      <CallButton />
     </div>
   );
 };
