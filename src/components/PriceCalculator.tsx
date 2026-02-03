@@ -1,12 +1,13 @@
 import { useState, useMemo, useEffect } from "react";
-import { Calendar, Clock, MapPin, Search, AlertCircle, Loader2, Settings2, User, Phone, Send, Fuel, Cog, Gauge } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Calendar, Clock, MapPin, Search, AlertCircle, Loader2, Settings2, User, Phone, ArrowRight, Fuel, Cog, Gauge } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-
+import { useBooking } from "@/contexts/BookingContext";
 // Import fallback car images
 import swiftImg from "@/assets/cars/swift.png";
 import balenoImg from "@/assets/cars/baleno.png";
@@ -100,6 +101,8 @@ const PriceCalculator = ({
   pickupLocation: initialLocation = ""
 }: PriceCalculatorProps) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { updateBookingData } = useBooking();
   const [pickupDate, setPickupDate] = useState(initialPickupDate);
   const [pickupTime, setPickupTime] = useState(initialPickupTime);
   const [dropDate, setDropDate] = useState(initialDropDate);
@@ -112,7 +115,7 @@ const PriceCalculator = ({
   // Customer details for enquiry
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
-  const [isSubmittingEnquiry, setIsSubmittingEnquiry] = useState<string | null>(null);
+  const [isSelectingCar, setIsSelectingCar] = useState<string | null>(null);
   
   const [cars, setCars] = useState<Car[]>([]);
   const [isLoadingCars, setIsLoadingCars] = useState(true);
@@ -275,7 +278,7 @@ const PriceCalculator = ({
     }, 500);
   };
 
-  const handleSubmitEnquiry = async (car: CarWithCalculatedPrice) => {
+  const handleBookCar = (car: CarWithCalculatedPrice) => {
     if (!customerName.trim() || !customerPhone.trim()) {
       toast({
         title: "Missing Details",
@@ -288,92 +291,35 @@ const PriceCalculator = ({
     if (customerPhone.length < 10) {
       toast({
         title: "Invalid Phone",
-        description: "Please enter a valid phone number.",
+        description: "Please enter a valid 10-digit phone number.",
         variant: "destructive",
       });
       return;
     }
 
-    setIsSubmittingEnquiry(car.id);
+    setIsSelectingCar(car.id);
 
-    try {
-      // Save enquiry to database
-      const { error: dbError } = await supabase
-        .from('booking_enquiries')
-        .insert({
-          customer_name: customerName,
-          customer_phone: customerPhone,
-          car_id: car.id,
-          car_name: `${car.brand} ${car.name}`,
-          pickup_date: `${pickupDate}T${pickupTime}`,
-          drop_date: `${dropDate}T${dropTime}`,
-          pickup_location: pickupLocation || "To be decided",
-          total_days: car.fullDays,
-          total_hours: car.extraHours,
-          estimated_price: car.totalPrice,
-          status: 'pending',
-        });
+    // Store booking data in context
+    updateBookingData({
+      customerName: customerName.trim(),
+      customerPhone: customerPhone.trim(),
+      pickupDate,
+      pickupTime,
+      dropDate,
+      dropTime,
+      pickupLocation: pickupLocation || "",
+      carId: car.id,
+      carName: car.name,
+      carBrand: car.brand,
+      carImage: car.image,
+      totalDays: car.fullDays,
+      extraHours: car.extraHours,
+      basePrice: car.totalPrice,
+      totalAmount: car.totalPrice,
+    });
 
-      if (dbError) {
-        console.error('Database error:', dbError);
-        throw dbError;
-      }
-
-      // Send email notification
-      const { error: emailError } = await supabase.functions.invoke('send-booking-email', {
-        body: {
-          customerName,
-          customerPhone,
-          carName: `${car.brand} ${car.name}`,
-          pickupDate: `${pickupDate}T${pickupTime}`,
-          dropDate: `${dropDate}T${dropTime}`,
-          pickupLocation: pickupLocation || "To be decided",
-          totalDays: car.fullDays,
-          totalHours: car.extraHours,
-          estimatedPrice: car.totalPrice,
-        },
-      });
-
-      if (emailError) {
-        console.error('Email error:', emailError);
-      }
-
-      toast({
-        title: "Enquiry Submitted!",
-        description: "We'll contact you shortly to confirm your booking.",
-      });
-
-      // Send WhatsApp notification to owner (9448277091)
-      const formatDate = (date: string) => {
-        const d = new Date(date);
-        return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-      };
-      
-      const ownerWhatsAppMessage = `🚗 *New Booking Enquiry*
-
-👤 *Customer:* ${customerName}
-📱 *Phone:* ${customerPhone}
-
-🚙 *Car:* ${car.brand} ${car.name}
-📅 *Pickup:* ${formatDate(pickupDate)} ${pickupTime}
-📅 *Drop:* ${formatDate(dropDate)} ${dropTime}
-📍 *Location:* ${pickupLocation || "To be decided"}
-
-⏱️ *Duration:* ${car.fullDays} days${car.extraHours > 0 ? ` + ${car.extraHours} hours` : ""}
-💰 *Estimated:* ₹${car.totalPrice.toLocaleString()}`;
-      
-      window.open(`https://wa.me/919448277091?text=${encodeURIComponent(ownerWhatsAppMessage)}`, '_blank');
-
-    } catch (error) {
-      console.error('Enquiry error:', error);
-      toast({
-        title: "Submission Failed",
-        description: "Please try again or contact us directly.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmittingEnquiry(null);
-    }
+    // Navigate to terms page
+    navigate("/booking/terms");
   };
 
   // Get minimum date (today)
@@ -671,19 +617,19 @@ const PriceCalculator = ({
 
                     {/* Book Button */}
                     <Button
-                      onClick={() => handleSubmitEnquiry(car)}
-                      disabled={isSubmittingEnquiry === car.id}
-                      className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-whatsapp to-emerald-500 hover:from-whatsapp/90 hover:to-emerald-500/90 text-white py-2.5 md:py-3.5 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] text-sm md:text-base"
+                      onClick={() => handleBookCar(car)}
+                      disabled={isSelectingCar === car.id}
+                      className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-primary via-purple to-pink hover:from-primary/90 hover:via-purple/90 hover:to-pink/90 text-primary-foreground py-2.5 md:py-3.5 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] text-sm md:text-base"
                     >
-                      {isSubmittingEnquiry === car.id ? (
+                      {isSelectingCar === car.id ? (
                         <>
                           <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
-                          Sending...
+                          Loading...
                         </>
                       ) : (
                         <>
-                          <Send className="w-4 h-4 md:w-5 md:h-5" />
-                          Book via WhatsApp
+                          <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
+                          Book Now
                         </>
                       )}
                     </Button>
