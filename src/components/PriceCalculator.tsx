@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, Clock, MapPin, Search, AlertCircle, Loader2, Settings2, User, Phone, ArrowRight, Fuel, Cog, Gauge } from "lucide-react";
+import { Calendar, Clock, MapPin, Search, AlertCircle, Loader2, Settings2, User, Phone, ArrowRight, Fuel, Cog, Gauge, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -596,7 +596,7 @@ const PriceCalculator = ({
                     </div>
                     
                     {/* Features Grid */}
-                    <div className="grid grid-cols-3 gap-1.5 md:gap-2 mb-3 md:mb-4">
+                    <div className="grid grid-cols-3 gap-1.5 md:gap-2 mb-2">
                       <span className={`flex flex-col items-center gap-0.5 text-[9px] md:text-xs font-semibold px-1 py-1.5 md:py-2 rounded-lg ${
                         car.fuel === "Diesel" 
                           ? "bg-gradient-to-br from-amber-100 to-amber-200 text-amber-900 dark:from-amber-900/40 dark:to-amber-900/20 dark:text-amber-300" 
@@ -611,28 +611,56 @@ const PriceCalculator = ({
                       </span>
                       <span className="flex flex-col items-center gap-0.5 text-[9px] md:text-xs font-semibold px-1 py-1.5 md:py-2 rounded-lg bg-gradient-to-br from-purple-100 to-purple-200 text-purple-900 dark:from-purple-900/40 dark:to-purple-900/20 dark:text-purple-300">
                         <Gauge className="w-3 h-3 md:w-4 md:h-4" />
-                        300km
+                        {car.fullDays * 300}km
                       </span>
                     </div>
 
-                    {/* Book Button */}
-                    <Button
-                      onClick={() => handleBookCar(car)}
-                      disabled={isSelectingCar === car.id}
-                      className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-primary via-purple to-pink hover:from-primary/90 hover:via-purple/90 hover:to-pink/90 text-primary-foreground py-2.5 md:py-3.5 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] text-sm md:text-base"
-                    >
-                      {isSelectingCar === car.id ? (
-                        <>
-                          <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
-                          Loading...
-                        </>
-                      ) : (
-                        <>
-                          <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
-                          Book Now
-                        </>
-                      )}
-                    </Button>
+                    {/* KM Limit Info */}
+                    <p className="text-[9px] md:text-xs text-muted-foreground text-center mb-3 md:mb-4">
+                      Total KM limit: {car.fullDays * 300}km • Extra: ₹10/km
+                    </p>
+
+                    {/* Book Buttons */}
+                    <div className="space-y-2">
+                      <Button
+                        onClick={() => handleBookCar(car)}
+                        disabled={isSelectingCar === car.id}
+                        className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-primary via-purple to-pink hover:from-primary/90 hover:via-purple/90 hover:to-pink/90 text-primary-foreground py-2.5 md:py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] text-sm md:text-base"
+                      >
+                        {isSelectingCar === car.id ? (
+                          <>
+                            <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
+                            Loading...
+                          </>
+                        ) : (
+                          <>
+                            <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
+                            Book Now
+                          </>
+                        )}
+                      </Button>
+
+                      {/* WhatsApp Booking Option */}
+                      <a
+                        href={`https://wa.me/919448277091?text=${encodeURIComponent(
+                          `Hi Vikas, I want to book the ${car.brand} ${car.name}.\n\n` +
+                          `📅 Pickup: ${pickupDate} ${pickupTime}\n` +
+                          `📅 Drop: ${dropDate} ${dropTime}\n` +
+                          `📍 Location: ${pickupLocation || "To be decided"}\n\n` +
+                          `👤 Name: ${customerName}\n` +
+                          `📞 Phone: ${customerPhone}\n\n` +
+                          `💰 Price: ₹${car.totalPrice.toLocaleString()}\n` +
+                          `🛣️ KM Limit: ${car.fullDays * 300}km (₹10/extra km)\n\n` +
+                          `Please confirm availability.`
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 w-full bg-whatsapp hover:bg-whatsapp/90 text-white py-2.5 md:py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] text-sm md:text-base"
+                      >
+                        <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
+                        Book on WhatsApp
+                      </a>
+                    </div>
                   </div>
                 </div>
               ))}

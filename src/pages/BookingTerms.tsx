@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Shield, FileCheck, ArrowRight, ChevronLeft, AlertTriangle, Fuel, Gauge, Ban, CreditCard } from "lucide-react";
+import { Shield, FileCheck, ArrowRight, ChevronLeft, AlertTriangle, Fuel, Gauge, Ban, CreditCard, CreditCardIcon, IdCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useBooking } from "@/contexts/BookingContext";
@@ -9,19 +9,24 @@ import Footer from "@/components/Footer";
 
 const termsItems = [
   {
+    icon: IdCard,
+    title: "Original Aadhaar & DL Mandatory",
+    description: "You must carry your ORIGINAL Aadhaar Card and Driving License (at least 1 year old) at the time of pickup. Photocopies or digital copies will NOT be accepted.",
+  },
+  {
     icon: FileCheck,
-    title: "Valid Driving License Required",
-    description: "You must possess a valid driving license (at least 1 year old) and a government-issued photo ID at the time of pickup.",
+    title: "Valid Government ID Required",
+    description: "A valid government-issued photo ID matching your Aadhaar is required for verification purposes.",
   },
   {
     icon: Ban,
     title: "No Smoking / No Alcohol",
-    description: "Smoking and consumption of alcohol inside the vehicle is strictly prohibited. Violations will incur cleaning charges.",
+    description: "Smoking and consumption of alcohol inside the vehicle is strictly prohibited. Violations will incur cleaning charges of ₹2000.",
   },
   {
     icon: Gauge,
     title: "Speed Limit: 80 km/hr",
-    description: "For safety, the maximum speed limit is 80 km/hr. Any traffic violations or fines during the rental period are the customer's responsibility.",
+    description: "For safety, the maximum speed limit is 80 km/hr. Any traffic violations, challans, or fines during the rental period are the customer's responsibility.",
   },
   {
     icon: Fuel,
@@ -31,12 +36,12 @@ const termsItems = [
   {
     icon: AlertTriangle,
     title: "Damage & Insurance",
-    description: "Basic insurance is included. However, damages due to reckless driving, drunk driving, or negligence are the customer's responsibility.",
+    description: "Basic insurance is included. However, damages due to reckless driving, drunk driving, accidents, or negligence are the customer's full responsibility.",
   },
   {
-    icon: CreditCard,
+    icon: CreditCardIcon,
     title: "Security Deposit Required",
-    description: "A security deposit of ₹10,000 (refundable) OR leaving your 2-wheeler with original RC is required at pickup.",
+    description: "A security deposit of ₹10,000 (fully refundable) OR leaving your 2-wheeler with original RC card is required at pickup.",
   },
 ];
 
@@ -113,6 +118,10 @@ const BookingTerms = () => {
                 <span className="ml-2 text-foreground font-medium">{bookingData.customerPhone}</span>
               </div>
               <div>
+                <span className="text-muted-foreground">Car:</span>
+                <span className="ml-2 text-foreground font-medium">{bookingData.carBrand} {bookingData.carName}</span>
+              </div>
+              <div>
                 <span className="text-muted-foreground">Pick-up:</span>
                 <span className="ml-2 text-foreground font-medium">
                   {formatDate(bookingData.pickupDate, bookingData.pickupTime)}
@@ -136,6 +145,22 @@ const BookingTerms = () => {
                   <span className="ml-2 text-foreground font-medium">{bookingData.pickupLocation}</span>
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* Important Notice */}
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <IdCard className="w-6 h-6 text-amber-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-semibold text-amber-600 dark:text-amber-400 mb-1">
+                  Important: Documents Required at Pickup
+                </h4>
+                <p className="text-sm text-amber-600/80 dark:text-amber-400/80">
+                  Please carry your <strong>ORIGINAL Aadhaar Card</strong> and <strong>ORIGINAL Driving License</strong>. 
+                  Without these documents, we cannot hand over the vehicle.
+                </p>
+              </div>
             </div>
           </div>
 
@@ -167,6 +192,7 @@ const BookingTerms = () => {
               />
               <span className="text-foreground text-sm leading-relaxed">
                 I have read and agree to the <strong>Terms & Conditions</strong> mentioned above. 
+                I confirm that I will carry my <strong>Original Aadhaar Card</strong> and <strong>Original Driving License</strong> at pickup.
                 I understand that I am responsible for any damages, fines, or violations during the rental period.
               </span>
             </label>
