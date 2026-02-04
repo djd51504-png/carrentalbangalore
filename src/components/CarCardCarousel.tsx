@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { MessageCircle, Fuel, Cog, ChevronLeft, ChevronRight, Gauge, Shield } from "lucide-react";
+import { MessageCircle, Fuel, Cog, ChevronLeft, ChevronRight, Gauge, Shield, CreditCard } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 
 interface CarCardCarouselProps {
@@ -28,7 +28,7 @@ const CarCardCarousel = ({
   isAvailable = true
 }: CarCardCarouselProps) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const whatsappLink = `https://wa.me/919448277091?text=Hi%20Vikas,%20I%20want%20to%20book%20the%20${encodeURIComponent(name)}%20from%20Key2Go.`;
+  const whatsappLink = `https://wa.me/919448277091?text=Hi%20Vikas,%20I%20want%20to%20book%20the%20${encodeURIComponent(brand ? brand + ' ' + name : name)}%20from%20Key2Go.%0A%0A🚗%20Car:%20${encodeURIComponent(brand ? brand + ' ' + name : name)}%0A💰%20Price:%20₹${price}/day%0A🛣️%20KM%20Limit:%20${kmLimit}km/day%20(₹${extraKmCharge}/extra%20km)%0A%0APlease%20confirm%20availability.`;
 
   // Use images array if available, otherwise fallback to single image
   const allImages = images.length > 0 ? images : (image ? [image] : []);
@@ -195,20 +195,34 @@ const CarCardCarousel = ({
             <span className="font-heading font-bold text-xl text-primary">₹{price.toLocaleString()}</span>
             <span className="text-muted-foreground text-xs">/day</span>
           </div>
-          <a
-            href={isAvailable ? whatsappLink : undefined}
-            target={isAvailable ? "_blank" : undefined}
-            rel="noopener noreferrer"
-            className={`flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg font-semibold transition-all duration-300 text-xs whitespace-nowrap ${
-              isAvailable 
-                ? 'bg-whatsapp hover:bg-whatsapp/90 text-white shadow-sm hover:shadow-md hover:scale-105 active:scale-95'
-                : 'bg-muted text-muted-foreground cursor-not-allowed'
-            }`}
-            onClick={(e) => !isAvailable && e.preventDefault()}
-          >
-            <MessageCircle className="w-3.5 h-3.5" />
-            Book Now
-          </a>
+          <div className="flex flex-col gap-2">
+            <a
+              href="/#calculator"
+              className={`flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg font-semibold transition-all duration-300 text-xs whitespace-nowrap ${
+                isAvailable 
+                  ? 'bg-gradient-to-r from-primary to-purple text-white shadow-sm hover:shadow-md hover:scale-105 active:scale-95'
+                  : 'bg-muted text-muted-foreground cursor-not-allowed'
+              }`}
+              onClick={(e) => !isAvailable && e.preventDefault()}
+            >
+              <CreditCard className="w-3.5 h-3.5" />
+              Book Now
+            </a>
+            <a
+              href={isAvailable ? whatsappLink : undefined}
+              target={isAvailable ? "_blank" : undefined}
+              rel="noopener noreferrer"
+              className={`flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg font-semibold transition-all duration-300 text-xs whitespace-nowrap ${
+                isAvailable 
+                  ? 'bg-whatsapp hover:bg-whatsapp/90 text-white shadow-sm hover:shadow-md hover:scale-105 active:scale-95'
+                  : 'bg-muted text-muted-foreground cursor-not-allowed'
+              }`}
+              onClick={(e) => !isAvailable && e.preventDefault()}
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              Book on WhatsApp
+            </a>
+          </div>
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle, Calendar, User, Phone, MapPin, Clock, Download, Home, Share2 } from "lucide-react";
+import { CheckCircle, Calendar, User, Phone, MapPin, Clock, Home, MessageCircle, Car, Gauge, IndianRupee, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBooking } from "@/contexts/BookingContext";
 import Header from "@/components/Header";
@@ -10,6 +10,9 @@ import confetti from "canvas-confetti";
 const BookingConfirmation = () => {
   const navigate = useNavigate();
   const { bookingData, resetBooking } = useBooking();
+
+  const kmLimit = bookingData.totalDays * 300;
+  const extraKmCharge = 10;
 
   useEffect(() => {
     // Redirect if no booking ID
@@ -41,23 +44,46 @@ const BookingConfirmation = () => {
     });
   };
 
+  const formatDateShort = (dateStr: string, timeStr: string) => {
+    if (!dateStr) return "";
+    const date = new Date(`${dateStr}T${timeStr}`);
+    return date.toLocaleDateString('en-IN', { 
+      day: 'numeric', 
+      month: 'short', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
   const handleGoHome = () => {
     resetBooking();
     navigate("/");
   };
 
-  const handleShare = () => {
-    const shareText = `🚗 Booking Confirmed!\n\nBooking ID: ${bookingData.bookingId}\nPickup: ${formatDate(bookingData.pickupDate, bookingData.pickupTime)}\nDrop: ${formatDate(bookingData.dropDate, bookingData.dropTime)}\n\nCar Rental Bangalore`;
-    
-    if (navigator.share) {
-      navigator.share({
-        title: "Booking Confirmed!",
-        text: shareText,
-      });
-    } else {
-      navigator.clipboard.writeText(shareText);
-    }
-  };
+  // WhatsApp message with all booking details
+  const whatsappMessage = `🎉 Booking Confirmed!
+
+📋 Booking ID: ${bookingData.bookingId}
+
+🚗 Car: ${bookingData.carBrand} ${bookingData.carName}
+💰 Price: ₹${bookingData.totalAmount?.toLocaleString() || bookingData.basePrice?.toLocaleString()}
+🛣️ KM Limit: ${kmLimit}km (₹${extraKmCharge}/extra km)
+
+📅 Pickup: ${formatDateShort(bookingData.pickupDate, bookingData.pickupTime)}
+📅 Drop: ${formatDateShort(bookingData.dropDate, bookingData.dropTime)}
+📍 Location: ${bookingData.pickupLocation || "To be decided"}
+
+👤 Name: ${bookingData.customerName}
+📞 Phone: ${bookingData.customerPhone}
+
+🔒 Deposit: ${bookingData.depositType === "cash" ? "₹10,000 Refundable" : "Bike with RC"}
+
+Please confirm the exact pickup location and time. I have my original Aadhaar and DL ready.
+
+Thank you! 🙏`;
+
+  const whatsappLink = `https://wa.me/919448277091?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (
     <div className="min-h-screen bg-background">
@@ -77,7 +103,7 @@ const BookingConfirmation = () => {
             Booking Confirmed! 🎉
           </h1>
           <p className="text-muted-foreground mb-8">
-            Thank you for your booking. We'll contact you shortly with further details.
+            Your payment was successful. Contact owner for exact car location.
           </p>
 
           {/* Booking ID Card */}
@@ -90,8 +116,44 @@ const BookingConfirmation = () => {
             </div>
           </div>
 
+          {/* Car Details */}
+          <div className="bg-card border border-border rounded-2xl p-6 text-left mb-6">
+            <h3 className="font-semibold text-foreground mb-4 text-center flex items-center justify-center gap-2">
+              <Car className="w-5 h-5 text-primary" />
+              Car Details
+            </h3>
+            
+            <div className="flex flex-col sm:flex-row gap-4 items-start mb-4">
+              {bookingData.carImage && (
+                <img 
+                  src={bookingData.carImage} 
+                  alt={bookingData.carName}
+                  className="w-full sm:w-32 h-24 object-contain bg-secondary/30 rounded-xl"
+                />
+              )}
+              <div className="flex-1">
+                <h4 className="font-heading font-bold text-lg text-foreground">
+                  {bookingData.carBrand} {bookingData.carName}
+                </h4>
+                <div className="flex flex-wrap gap-3 mt-2 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <Gauge className="w-4 h-4 text-primary" />
+                    {kmLimit}km limit
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <IndianRupee className="w-4 h-4 text-amber-500" />
+                    ₹{extraKmCharge}/extra km
+                  </span>
+                </div>
+                <p className="mt-2 text-lg font-bold text-primary">
+                  ₹{(bookingData.totalAmount || bookingData.basePrice)?.toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Booking Details */}
-          <div className="bg-card border border-border rounded-2xl p-6 text-left mb-8">
+          <div className="bg-card border border-border rounded-2xl p-6 text-left mb-6">
             <h3 className="font-semibold text-foreground mb-4 text-center">Booking Details</h3>
             
             <div className="space-y-4">
@@ -150,43 +212,50 @@ const BookingConfirmation = () => {
                   </div>
                 </div>
               )}
-            </div>
 
-            {/* Deposit Note */}
-            <div className="mt-6 p-4 bg-primary/10 rounded-xl">
-              <p className="text-sm text-foreground">
-                <strong>Security Deposit:</strong>{" "}
-                {bookingData.depositType === "cash" 
-                  ? "₹10,000 refundable deposit at pickup" 
-                  : "Leave bike with original RC at hub"}
-              </p>
+              <div className="flex items-start gap-3">
+                <Shield className="w-5 h-5 text-blue-500 mt-0.5" />
+                <div>
+                  <span className="text-muted-foreground text-sm">Security Deposit</span>
+                  <p className="font-medium text-foreground">
+                    {bookingData.depositType === "cash" 
+                      ? "₹10,000 refundable deposit at pickup" 
+                      : "Leave bike with original RC at hub"}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* What's Next */}
+          {/* What's Next - Updated */}
           <div className="bg-gradient-to-r from-gold/10 to-orange/10 border border-gold/30 rounded-2xl p-5 mb-8 text-left">
             <h4 className="font-semibold text-foreground mb-3">What's Next?</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>✅ Our team will contact you within 30 minutes</li>
-              <li>✅ Bring valid DL + Govt ID at pickup</li>
+              <li>✅ Contact owner on WhatsApp for exact pickup location</li>
+              <li>✅ Carry ORIGINAL Aadhaar Card + Driving License</li>
               <li>✅ Arrive at the hub 15 mins before pickup time</li>
               <li>✅ Complete security deposit formalities</li>
+              <li>✅ Inspect the vehicle before driving</li>
             </ul>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              onClick={handleShare}
-              variant="outline"
-              className="flex items-center gap-2"
+          <div className="flex flex-col gap-4">
+            {/* Primary CTA - WhatsApp */}
+            <a
+              href={whatsappLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full bg-whatsapp hover:bg-whatsapp/90 text-white py-4 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] text-lg"
             >
-              <Share2 className="w-4 h-4" />
-              Share Booking
-            </Button>
+              <MessageCircle className="w-5 h-5" />
+              Confirm on WhatsApp
+            </a>
+
             <Button
               onClick={handleGoHome}
-              className="bg-gradient-to-r from-primary via-purple to-pink text-primary-foreground flex items-center gap-2"
+              variant="outline"
+              className="flex items-center gap-2"
             >
               <Home className="w-4 h-4" />
               Back to Home
