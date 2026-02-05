@@ -1,11 +1,12 @@
-import { useState } from "react";
 import { ChevronDown, Shield, MapPin, Clock, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import BookingModal from "./BookingModal";
 
 const Hero = () => {
   const navigate = useNavigate();
-  const [showBookingModal, setShowBookingModal] = useState(false);
+
+  const scrollToCalculator = () => {
+    document.getElementById("calculator")?.scrollIntoView({ behavior: "smooth" });
+  };
 
   const goToCars = () => {
     navigate("/cars");
@@ -60,7 +61,7 @@ const Hero = () => {
             {/* CTA Buttons */}
             <div data-aos="fade-up" data-aos-delay="400" className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <button
-                onClick={() => setShowBookingModal(true)}
+                onClick={scrollToCalculator}
                 className="group bg-gradient-to-r from-primary via-purple to-pink text-primary-foreground px-8 py-4 rounded-xl text-lg font-bold shadow-button hover:scale-105 transition-all duration-300"
               >
                 Check Availability
@@ -100,9 +101,6 @@ const Hero = () => {
           <ChevronDown className="w-8 h-8 text-gold opacity-80" />
         </div>
       </section>
-
-      {/* Booking Modal */}
-      <BookingModal open={showBookingModal} onOpenChange={setShowBookingModal} />
     </>
   );
 };

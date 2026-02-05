@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Car, CheckCircle, MapPin } from "lucide-react";
 
 interface CarLocation {
@@ -6,46 +6,22 @@ interface CarLocation {
   x: number;
   y: number;
   label: string;
-  testimonial?: string;
 }
 
 const locations: CarLocation[] = [
-  { id: "1", x: 25, y: 35, label: "Whitefield", testimonial: "Swift picked up at Whitefield!" },
-  { id: "2", x: 45, y: 25, label: "Mysore", testimonial: "Innova reached Mysore – 5/5 Service!" },
-  { id: "3", x: 15, y: 55, label: "Electronic City", testimonial: "i20 headed to Ooty" },
-  { id: "4", x: 70, y: 40, label: "Hebbal" },
-  { id: "5", x: 55, y: 60, label: "Koramangala", testimonial: "Creta on the way to Coorg!" },
-  { id: "6", x: 30, y: 70, label: "Rameshwaram", testimonial: "Fortuner reached Rameshwaram!" },
-  { id: "7", x: 80, y: 20, label: "Chikmagalur", testimonial: "Thar exploring Chikmagalur!" },
-  { id: "8", x: 65, y: 75, label: "Coorg" },
-  { id: "9", x: 40, y: 45, label: "Indiranagar", testimonial: "XUV700 picked up for Pondicherry trip!" },
-  { id: "10", x: 20, y: 20, label: "Ooty", testimonial: "Baleno just reached Ooty!" },
+  { id: "1", x: 20, y: 30, label: "Hebbal" },
+  { id: "2", x: 35, y: 22, label: "Thanisandra" },
+  { id: "3", x: 60, y: 26, label: "KR Puram" },
+  { id: "4", x: 58, y: 52, label: "Bellandur" },
+  { id: "5", x: 42, y: 68, label: "Hongasandra" },
+  { id: "6", x: 18, y: 70, label: "Kengeri" },
+  { id: "7", x: 24, y: 52, label: "Nagarabhavi" },
+  { id: "8", x: 78, y: 40, label: "Kadugodi" },
 ];
 
 const SocialProofMap = () => {
-  const [activePopups, setActivePopups] = useState<string[]>([]);
   const [carsOnTrip, setCarsOnTrip] = useState(22);
   const [carsAvailable, setCarsAvailable] = useState(6);
-
-  // Rotate testimonial popups
-  useEffect(() => {
-    const locationsWithTestimonials = locations.filter(l => l.testimonial);
-    let currentIndex = 0;
-
-    const interval = setInterval(() => {
-      const location = locationsWithTestimonials[currentIndex];
-      setActivePopups([location.id]);
-      
-      currentIndex = (currentIndex + 1) % locationsWithTestimonials.length;
-    }, 3000);
-
-    // Show first popup immediately
-    if (locationsWithTestimonials.length > 0) {
-      setActivePopups([locationsWithTestimonials[0].id]);
-    }
-
-    return () => clearInterval(interval);
-  }, []);
 
   // Simulate real-time counter updates
   useEffect(() => {
@@ -78,8 +54,7 @@ const SocialProofMap = () => {
         {/* Header */}
         <div className="text-center mb-12" data-aos="fade-down">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground mb-4 font-[Montserrat]">
-            Bangalore is Driving with{" "}
-            <span className="text-gradient">Active!</span>
+            Live Availability Across Bangalore
           </h2>
           
           {/* Live Counter */}
@@ -183,15 +158,6 @@ const SocialProofMap = () => {
                 </span>
               </div>
 
-              {/* Testimonial popup */}
-              {location.testimonial && activePopups.includes(location.id) && (
-                <div 
-                  className="absolute -top-16 left-1/2 -translate-x-1/2 bg-primary-foreground text-[hsl(220,20%,15%)] px-3 py-2 rounded-lg shadow-lg whitespace-nowrap animate-fade-in z-20"
-                >
-                  <p className="text-sm font-medium">{location.testimonial}</p>
-                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-primary-foreground" />
-                </div>
-              )}
             </div>
           ))}
         </div>
@@ -199,7 +165,7 @@ const SocialProofMap = () => {
         {/* Trust caption */}
         <p className="text-center text-primary/60 text-sm mt-6 flex items-center justify-center gap-2">
           <CheckCircle className="h-4 w-4 text-[hsl(142,76%,50%)]" />
-          Real-time fleet activity. We keep Bangalore moving.
+          Real-time fleet activity across our pickup locations.
         </p>
       </div>
     </section>

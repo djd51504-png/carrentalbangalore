@@ -115,6 +115,7 @@ interface Car {
   categoryLabel: string;
   transmission: string;
   fuel: string;
+  kmLimit: number;
   price3Days: number | null;
   price7Days: number | null;
   price15Days: number | null;
@@ -157,6 +158,7 @@ const Cars = () => {
           categoryLabel: car.category_label || 'Hatchback',
           transmission: car.transmission,
           fuel: car.fuel,
+          kmLimit: car.km_limit,
           price3Days: car.price_3_days,
           price7Days: car.price_7_days,
           price15Days: car.price_15_days,
@@ -596,7 +598,7 @@ const Cars = () => {
                     images={car.images}
                     transmission={car.transmission}
                     fuel={car.fuel}
-                    kmLimit={car.extraKmCharge > 0 ? 300 : 300}
+                    kmLimit={car.kmLimit}
                     extraKmCharge={car.extraKmCharge}
                     isAvailable={car.isAvailable}
                   />
