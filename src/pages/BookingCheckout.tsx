@@ -81,7 +81,7 @@ const BookingCheckout = () => {
         }
         
         if (data?.value) {
-          setRazorpayKeyId(data.value);
+          setRazorpayKeyId(String(data.value).trim());
         }
       } catch (err) {
         console.error('Error:', err);
@@ -208,6 +208,12 @@ const BookingCheckout = () => {
 
     setIsProcessing(true);
 
+    console.info("Initializing Razorpay checkout", {
+      hasKey: Boolean(razorpayKeyId),
+      advanceAmount: totalPayNow,
+      customerPhone: bookingData.customerPhone,
+    });
+
     const options = {
       key: razorpayKeyId,
       amount: totalPayNow * 100, // Amount in paise
@@ -243,15 +249,16 @@ const BookingCheckout = () => {
         ondismiss: function() {
           setIsProcessing(false);
         }
-      }
+      },
     };
 
     try {
       const rzp = new window.Razorpay(options);
       rzp.on('payment.failed', function(response: any) {
+        console.error("Razorpay payment.failed", response);
         toast({
           title: "Payment Failed",
-          description: response.error.description || "Please try again.",
+          description: response?.error?.description || response?.error?.reason || "Please try again.",
           variant: "destructive",
         });
         setIsProcessing(false);

@@ -9,11 +9,6 @@ import Footer from "@/components/Footer";
 
 const termsItems = [
   {
-    icon: IdCard,
-    title: "Original Aadhaar & DL Mandatory",
-    description: "You must carry your ORIGINAL Aadhaar Card and Driving License (at least 1 year old) at the time of pickup. Photocopies or digital copies will NOT be accepted.",
-  },
-  {
     icon: FileCheck,
     title: "Valid Government ID Required",
     description: "A valid government-issued photo ID matching your Aadhaar is required for verification purposes.",
@@ -192,7 +187,6 @@ const BookingTerms = () => {
               />
               <span className="text-foreground text-sm leading-relaxed">
                 I have read and agree to the <strong>Terms & Conditions</strong> mentioned above. 
-                I confirm that I will carry my <strong>Original Aadhaar Card</strong> and <strong>Original Driving License</strong> at pickup.
                 I understand that I am responsible for any damages, fines, or violations during the rental period.
               </span>
             </label>
