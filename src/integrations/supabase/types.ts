@@ -16,11 +16,13 @@ export type Database = {
     Tables: {
       booking_enquiries: {
         Row: {
+          booking_id: string | null
           car_id: string | null
           car_name: string
           created_at: string
           customer_name: string
           customer_phone: string
+          deposit_type: string | null
           drop_date: string
           estimated_price: number
           id: string
@@ -33,11 +35,13 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          booking_id?: string | null
           car_id?: string | null
           car_name: string
           created_at?: string
           customer_name: string
           customer_phone: string
+          deposit_type?: string | null
           drop_date: string
           estimated_price: number
           id?: string
@@ -50,11 +54,13 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          booking_id?: string | null
           car_id?: string | null
           car_name?: string
           created_at?: string
           customer_name?: string
           customer_phone?: string
+          deposit_type?: string | null
           drop_date?: string
           estimated_price?: number
           id?: string

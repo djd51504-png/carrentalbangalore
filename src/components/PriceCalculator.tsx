@@ -248,11 +248,19 @@ const PriceCalculator = ({
     setIsLoading(true);
     
     try {
-      // Send notification to admin via edge function (silent - no WhatsApp popup)
-      const formatDateForNotification = (date: string, time: string) => {
-        const d = new Date(`${date}T${time}`);
-        return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) + ' ' + time;
-      };
+      // Save enquiry to database
+      await supabase.from('booking_enquiries').insert({
+        customer_name: customerName.trim(),
+        customer_phone: customerPhone.trim(),
+        pickup_date: `${pickupDate}T${pickupTime}:00`,
+        drop_date: `${dropDate}T${dropTime}:00`,
+        pickup_location: pickupLocation || null,
+        car_name: 'Checking availability',
+        total_days: calculation.fullDays,
+        total_hours: calculation.extraHours,
+        estimated_price: 0,
+        status: 'Pending',
+      } as any);
 
       // Send email notification to admin about availability check
       await supabase.functions.invoke('send-availability-notification', {
@@ -269,7 +277,6 @@ const PriceCalculator = ({
       });
     } catch (error) {
       console.error('Notification error:', error);
-      // Don't block the user flow if notification fails
     }
     
     setTimeout(() => {
