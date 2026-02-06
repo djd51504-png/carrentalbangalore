@@ -2,7 +2,6 @@ import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import LocationsSection from "@/components/LocationsSection";
 import PriceCalculator from "@/components/PriceCalculator";
-import SocialProofMap from "@/components/SocialProofMap";
 import FleetSection from "@/components/FleetSection";
 import GoogleReviews from "@/components/GoogleReviews";
 import TermsSection from "@/components/TermsSection";
@@ -17,7 +16,6 @@ const Index = () => {
       <Hero />
       <LocationsSection />
       <PriceCalculator />
-      <SocialProofMap />
       <FleetSection />
       <GoogleReviews />
       <TermsSection />
