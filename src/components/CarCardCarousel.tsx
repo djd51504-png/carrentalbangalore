@@ -197,7 +197,7 @@ const CarCardCarousel = ({
           </div>
           <div className="flex flex-col gap-2">
             <a
-              href="/#calculator"
+              href="/?scroll=calculator"
               className={`flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg font-semibold transition-all duration-300 text-xs whitespace-nowrap ${
                 isAvailable 
                   ? 'bg-gradient-to-r from-primary to-purple text-white shadow-sm hover:shadow-md hover:scale-105 active:scale-95'
