@@ -737,9 +737,12 @@ const Admin = () => {
   };
 
   const openWhatsApp = (enquiry: BookingEnquiry) => {
-    const message = `Hi ${enquiry.customer_name}, regarding your booking enquiry for ${enquiry.car_name} from ${formatDate(enquiry.pickup_date)} to ${formatDate(enquiry.drop_date)}. Total: ₹${enquiry.estimated_price.toLocaleString()}. Please confirm your booking with ₹1000 advance payment.`;
-    // Use Business WhatsApp API (wa.me/c/) instead of regular WhatsApp
+    const message = `Hi ${enquiry.customer_name}, regarding your booking enquiry for ${enquiry.car_name} from ${formatDate(enquiry.pickup_date)} to ${formatDate(enquiry.drop_date)}. Total: ₹${enquiry.estimated_price.toLocaleString()}. Please confirm your booking.`;
     window.open(`https://api.whatsapp.com/send?phone=91${enquiry.customer_phone}&text=${encodeURIComponent(message)}`, '_blank');
+  };
+
+  const callCustomer = (phone: string) => {
+    window.open(`tel:+91${phone}`, '_self');
   };
 
   // Loading state
@@ -885,7 +888,7 @@ const Admin = () => {
 
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full max-w-lg grid-cols-3">
+          <TabsList className="grid w-full max-w-md grid-cols-2">
             <TabsTrigger value="fleet" className="flex items-center gap-2">
               <Car className="h-4 w-4" />
               Fleet ({cars.length})
@@ -893,10 +896,6 @@ const Admin = () => {
             <TabsTrigger value="enquiries" className="flex items-center gap-2">
               <ClipboardList className="h-4 w-4" />
               Enquiries ({enquiries.length})
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Settings
             </TabsTrigger>
           </TabsList>
 
@@ -1334,8 +1333,36 @@ const Admin = () => {
               </Card>
             ) : (
               <div className="space-y-4">
+                {/* Stats Summary */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  <Card>
+                    <CardContent className="py-4 text-center">
+                      <p className="text-2xl font-bold text-foreground">{enquiries.length}</p>
+                      <p className="text-xs text-muted-foreground">Total Enquiries</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="py-4 text-center">
+                      <p className="text-2xl font-bold text-yellow-600">{enquiries.filter(e => e.status === 'pending' || e.status === 'Pending').length}</p>
+                      <p className="text-xs text-muted-foreground">Pending</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="py-4 text-center">
+                      <p className="text-2xl font-bold text-blue-600">{enquiries.filter(e => e.status === 'confirmed' || e.status === 'Confirmed').length}</p>
+                      <p className="text-xs text-muted-foreground">Confirmed</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="py-4 text-center">
+                      <p className="text-2xl font-bold text-green-600">{enquiries.filter(e => e.status === 'completed' || e.status === 'Completed').length}</p>
+                      <p className="text-xs text-muted-foreground">Completed</p>
+                    </CardContent>
+                  </Card>
+                </div>
+
                 {enquiries.map((enquiry) => (
-                  <Card key={enquiry.id}>
+                  <Card key={enquiry.id} className="hover:shadow-md transition-shadow">
                     <CardContent className="py-4">
                       <div className="flex flex-col lg:flex-row lg:items-center gap-4">
                         {/* Customer Info */}
@@ -1345,10 +1372,13 @@ const Admin = () => {
                             {getStatusBadge(enquiry.status)}
                           </div>
                           <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                            <span className="flex items-center gap-1">
+                            <a 
+                              href={`tel:+91${enquiry.customer_phone}`}
+                              className="flex items-center gap-1 text-primary hover:underline font-medium"
+                            >
                               <Phone className="h-4 w-4" />
-                              {enquiry.customer_phone}
-                            </span>
+                              +91 {enquiry.customer_phone}
+                            </a>
                             <span className="flex items-center gap-1">
                               <Car className="h-4 w-4" />
                               {enquiry.car_name}
@@ -1364,16 +1394,20 @@ const Admin = () => {
                               {formatDate(enquiry.pickup_date)} → {formatDate(enquiry.drop_date)}
                             </span>
                           </div>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            📍 {enquiry.pickup_location}
-                          </p>
+                          {enquiry.pickup_location && (
+                            <p className="text-sm text-muted-foreground mt-1">
+                              📍 {enquiry.pickup_location}
+                            </p>
+                          )}
                         </div>
 
                         {/* Price & Actions */}
                         <div className="flex flex-col items-end gap-3">
-                          <p className="text-2xl font-bold text-primary">₹{enquiry.estimated_price.toLocaleString()}</p>
+                          {enquiry.estimated_price > 0 && (
+                            <p className="text-2xl font-bold text-primary">₹{enquiry.estimated_price.toLocaleString()}</p>
+                          )}
                           <p className="text-xs text-muted-foreground">
-                            Enquired: {formatDate(enquiry.created_at)}
+                            {formatDate(enquiry.created_at)}
                           </p>
                           <div className="flex flex-wrap gap-2">
                             <Button
@@ -1384,6 +1418,15 @@ const Admin = () => {
                             >
                               <MessageCircle className="h-4 w-4 mr-1" />
                               WhatsApp
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="bg-primary/10 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                              onClick={() => callCustomer(enquiry.customer_phone)}
+                            >
+                              <Phone className="h-4 w-4 mr-1" />
+                              Call
                             </Button>
                             <Select
                               value={enquiry.status}
@@ -1407,88 +1450,6 @@ const Admin = () => {
                 ))}
               </div>
             )}
-          </TabsContent>
-
-          {/* Settings Tab */}
-          <TabsContent value="settings">
-            <div className="max-w-2xl">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CreditCard className="h-5 w-5 text-primary" />
-                    Payment Settings
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {isLoadingSettings ? (
-                    <div className="flex items-center justify-center py-8">
-                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                      <span className="ml-2 text-muted-foreground">Loading settings...</span>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="space-y-3">
-                        <Label htmlFor="razorpay-key" className="text-base font-medium">
-                          Razorpay Key ID
-                        </Label>
-                        <p className="text-sm text-muted-foreground">
-                          Enter your Razorpay Key ID to enable payment processing. You can find this in your{" "}
-                          <a 
-                            href="https://dashboard.razorpay.com/app/keys" 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-primary underline hover:no-underline"
-                          >
-                            Razorpay Dashboard → API Keys
-                          </a>.
-                        </p>
-                        <Input
-                          id="razorpay-key"
-                          type="text"
-                          placeholder="rzp_live_xxxxxxxxxxxxxx or rzp_test_xxxxxxxxxxxxxx"
-                          value={razorpayKeyId}
-                          onChange={(e) => setRazorpayKeyId(e.target.value)}
-                          className="font-mono"
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          Use <code className="bg-muted px-1 rounded">rzp_test_</code> keys for testing, 
-                          <code className="bg-muted px-1 rounded ml-1">rzp_live_</code> for production.
-                        </p>
-                      </div>
-
-                      <Button 
-                        onClick={saveRazorpayKey} 
-                        disabled={isSavingSettings}
-                        className="w-full sm:w-auto"
-                      >
-                        {isSavingSettings ? (
-                          <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Saving...
-                          </>
-                        ) : (
-                          <>
-                            <Save className="h-4 w-4 mr-2" />
-                            Save Razorpay Key
-                          </>
-                        )}
-                      </Button>
-
-                      {!razorpayKeyId && (
-                        <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg">
-                          <p className="text-amber-600 dark:text-amber-400 text-sm flex items-start gap-2">
-                            <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                            <span>
-                              <strong>Payment not configured.</strong> Customers will not be able to complete bookings until you add your Razorpay Key ID.
-                            </span>
-                          </p>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
           </TabsContent>
         </Tabs>
 

@@ -14,7 +14,7 @@ import Footer from "@/components/Footer";
 const BookingCheckout = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { bookingData, updateBookingData, termsAccepted } = useBooking();
+  const { bookingData, updateBookingData, termsAccepted, resetBooking } = useBooking();
   const [depositType, setDepositType] = useState<"cash" | "bike">("cash");
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -125,12 +125,12 @@ const BookingCheckout = () => {
 
     try {
       // Save enquiry to database
-      const { error: insertError } = await supabase.from('booking_enquiries').insert({
+      await supabase.from('booking_enquiries').insert({
         customer_name: bookingData.customerName,
         customer_phone: bookingData.customerPhone,
         pickup_date: `${bookingData.pickupDate}T${bookingData.pickupTime}:00`,
         drop_date: `${bookingData.dropDate}T${bookingData.dropTime}:00`,
-        pickup_location: bookingData.pickupLocation || null,
+        pickup_location: bookingData.pickupLocation || 'Not selected',
         car_name: `${bookingData.carBrand} ${bookingData.carName}`.trim(),
         total_days: bookingData.totalDays,
         total_hours: bookingData.extraHours,
@@ -139,10 +139,6 @@ const BookingCheckout = () => {
         booking_id: bookingId,
         deposit_type: depositType,
       });
-
-      if (insertError) {
-        console.error('Error saving enquiry:', insertError);
-      }
 
       // Send email notification
       try {
@@ -167,22 +163,10 @@ const BookingCheckout = () => {
       console.error('Error saving enquiry:', err);
     }
 
-    // Update booking context and navigate to confirmation
-    updateBookingData({
-      depositType,
-      depositAmount,
-      totalAmount: estimatedBasePrice,
-      bookingId,
-    });
+    // Build WhatsApp message and redirect directly
+    const whatsappMessage = `Hi Vikas, I want to book a car from Key2Go.
 
-    setIsProcessing(false);
-    navigate("/booking/confirmation");
-  };
-
-  const today = new Date().toISOString().split("T")[0];
-
-  // WhatsApp message
-  const whatsappMessage = `Hi Vikas, I want to book a car from Key2Go.
+📋 Booking ID: ${bookingId}
 
 🚗 Car: ${bookingData.carBrand} ${bookingData.carName}
 💰 Estimated Price: ₹${estimatedBasePrice.toLocaleString()} (${bookingData.totalDays} days)
@@ -197,9 +181,26 @@ const BookingCheckout = () => {
 
 🔒 Deposit: ${depositType === "cash" ? "₹10,000 Refundable" : "Bike with RC"}
 
-Please confirm availability and exact pickup location.`;
+Please confirm availability and exact pickup location. I have my original Aadhaar and DL ready.`;
 
-  const whatsappLink = `https://wa.me/919448277091?text=${encodeURIComponent(whatsappMessage)}`;
+    const whatsappLink = `https://wa.me/919448277091?text=${encodeURIComponent(whatsappMessage)}`;
+    
+    setIsProcessing(false);
+    resetBooking();
+    
+    // Open WhatsApp directly
+    window.open(whatsappLink, '_blank');
+    
+    toast({
+      title: "Booking Sent! ✅",
+      description: "Your booking details have been sent via WhatsApp. We'll confirm shortly.",
+    });
+    
+    // Navigate home
+    navigate("/");
+  };
+
+  const today = new Date().toISOString().split("T")[0];
 
   return (
     <div className="min-h-screen bg-background">
@@ -220,13 +221,13 @@ Please confirm availability and exact pickup location.`;
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-full px-4 py-2 mb-4">
               <MessageCircle className="w-4 h-4 text-primary" />
-              <span className="text-sm font-semibold text-primary">Step 3 of 4</span>
+              <span className="text-sm font-semibold text-primary">Step 3 of 3</span>
             </div>
             <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-3">
-              Review & Confirm Booking
+              Review & Confirm on WhatsApp
             </h1>
             <p className="text-muted-foreground">
-              Review your booking details and confirm on WhatsApp
+              Review your details and confirm directly on WhatsApp
             </p>
           </div>
 
@@ -462,7 +463,7 @@ Please confirm availability and exact pickup location.`;
                   {isProcessing ? (
                     <>
                       <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      Processing...
+                      Sending...
                     </>
                   ) : (
                     <>

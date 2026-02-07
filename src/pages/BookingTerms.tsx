@@ -20,8 +20,8 @@ const termsItems = [
   },
   {
     icon: Gauge,
-    title: "Speed Limit: 80 km/hr",
-    description: "For safety, the maximum speed limit is 80 km/hr. Any traffic violations, challans, or fines during the rental period are the customer's responsibility.",
+    title: "Speed Limit: 100 km/hr",
+    description: "For safety, the maximum speed limit is 100 km/hr. Any traffic violations, challans, or fines during the rental period are the customer's responsibility.",
   },
   {
     icon: Fuel,
@@ -90,7 +90,7 @@ const BookingTerms = () => {
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-full px-4 py-2 mb-4">
               <Shield className="w-4 h-4 text-primary" />
-              <span className="text-sm font-semibold text-primary">Step 2 of 4</span>
+              <span className="text-sm font-semibold text-primary">Step 2 of 3</span>
             </div>
             <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-3">
               Rental Terms & Conditions
