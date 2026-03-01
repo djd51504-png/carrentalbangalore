@@ -736,9 +736,32 @@ const Admin = () => {
     }
   };
 
-  const openWhatsApp = (enquiry: BookingEnquiry) => {
-    const message = `Hi ${enquiry.customer_name}, regarding your booking enquiry for ${enquiry.car_name} from ${formatDate(enquiry.pickup_date)} to ${formatDate(enquiry.drop_date)}. Total: ₹${enquiry.estimated_price.toLocaleString()}. Please confirm your booking.`;
+  const [whatsappMenuOpen, setWhatsappMenuOpen] = useState<string | null>(null);
+
+  const getWhatsAppMessages = (enquiry: BookingEnquiry) => {
+    const pickupDate = formatDate(enquiry.pickup_date);
+    const dropDate = formatDate(enquiry.drop_date);
+    return [
+      {
+        label: "✅ Confirm Booking",
+        message: `Hi ${enquiry.customer_name}! 🚗\n\nYour booking for *${enquiry.car_name}* is confirmed!\n\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n📍 Location: ${enquiry.pickup_location}\n💰 Total: ₹${enquiry.estimated_price.toLocaleString()}\n⏱ Duration: ${enquiry.total_days} day(s)\n\nPlease carry your original driving license & Aadhar card at the time of pickup.\n\nThank you for choosing us! 🙏`,
+      },
+      {
+        label: "💰 Negotiate Price",
+        message: `Hi ${enquiry.customer_name},\n\nThank you for your interest in *${enquiry.car_name}*.\n\nThe estimated amount for your trip (${pickupDate} to ${dropDate}) is ₹${enquiry.estimated_price.toLocaleString()}.\n\nWe can discuss a better rate depending on your trip duration. Could you share your budget or preferred dates so we can work something out?\n\nLooking forward to hearing from you! 😊`,
+      },
+      {
+        label: "📅 Confirm Dates",
+        message: `Hi ${enquiry.customer_name},\n\nThanks for enquiring about *${enquiry.car_name}*.\n\nCould you please confirm your exact pickup and drop-off dates? Once finalized, we'll share the best pricing and availability.\n\nCurrent dates on file:\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n\nPlease reply with updated dates if needed. Thank you! 🙏`,
+      },
+    ];
+  };
+
+  const openWhatsApp = (enquiry: BookingEnquiry, messageIndex: number = 0) => {
+    const messages = getWhatsAppMessages(enquiry);
+    const message = messages[messageIndex]?.message || messages[0].message;
     window.open(`https://api.whatsapp.com/send?phone=91${enquiry.customer_phone}&text=${encodeURIComponent(message)}`, '_blank');
+    setWhatsappMenuOpen(null);
   };
 
   const callCustomer = (phone: string) => {
@@ -893,9 +916,14 @@ const Admin = () => {
               <Car className="h-4 w-4" />
               Fleet ({cars.length})
             </TabsTrigger>
-            <TabsTrigger value="enquiries" className="flex items-center gap-2">
+            <TabsTrigger value="enquiries" className="flex items-center gap-2 relative">
               <ClipboardList className="h-4 w-4" />
               Enquiries ({enquiries.length})
+              {enquiries.filter(e => e.status === 'pending').length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full h-5 min-w-[20px] flex items-center justify-center px-1 animate-pulse">
+                  {enquiries.filter(e => e.status === 'pending').length}
+                </span>
+              )}
             </TabsTrigger>
           </TabsList>
 
@@ -1410,15 +1438,30 @@ const Admin = () => {
                             {formatDate(enquiry.created_at)}
                           </p>
                           <div className="flex flex-wrap gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="bg-whatsapp/10 border-whatsapp text-whatsapp hover:bg-whatsapp hover:text-white"
-                              onClick={() => openWhatsApp(enquiry)}
-                            >
-                              <MessageCircle className="h-4 w-4 mr-1" />
-                              WhatsApp
-                            </Button>
+                            <div className="relative">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="bg-whatsapp/10 border-whatsapp text-whatsapp hover:bg-whatsapp hover:text-white"
+                                onClick={() => setWhatsappMenuOpen(whatsappMenuOpen === enquiry.id ? null : enquiry.id)}
+                              >
+                                <MessageCircle className="h-4 w-4 mr-1" />
+                                WhatsApp ▾
+                              </Button>
+                              {whatsappMenuOpen === enquiry.id && (
+                                <div className="absolute top-full left-0 mt-1 z-50 w-56 rounded-md border bg-popover p-1 shadow-md">
+                                  {getWhatsAppMessages(enquiry).map((msg, idx) => (
+                                    <button
+                                      key={idx}
+                                      className="w-full text-left px-3 py-2 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                                      onClick={() => openWhatsApp(enquiry, idx)}
+                                    >
+                                      {msg.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
                             <Button
                               size="sm"
                               variant="outline"
