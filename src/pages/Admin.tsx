@@ -100,6 +100,17 @@ const Admin = () => {
   const [enquiries, setEnquiries] = useState<BookingEnquiry[]>([]);
   const [isLoadingEnquiries, setIsLoadingEnquiries] = useState(false);
   const [activeTab, setActiveTab] = useState("fleet");
+  const [lastSeenAt, setLastSeenAt] = useState<string>(() => {
+    return localStorage.getItem('admin_last_seen_enquiries') || '2000-01-01T00:00:00Z';
+  });
+
+  const unseenCount = enquiries.filter(e => new Date(e.created_at) > new Date(lastSeenAt)).length;
+
+  const markEnquiriesSeen = () => {
+    const now = new Date().toISOString();
+    localStorage.setItem('admin_last_seen_enquiries', now);
+    setLastSeenAt(now);
+  };
 
   // Settings state
   const [razorpayKeyId, setRazorpayKeyId] = useState("");
@@ -722,7 +733,7 @@ const Admin = () => {
   };
 
   const getStatusBadge = (status: string) => {
-    switch (status) {
+    switch (status.toLowerCase()) {
       case 'pending':
         return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Pending</Badge>;
       case 'confirmed':
@@ -741,18 +752,22 @@ const Admin = () => {
   const getWhatsAppMessages = (enquiry: BookingEnquiry) => {
     const pickupDate = formatDate(enquiry.pickup_date);
     const dropDate = formatDate(enquiry.drop_date);
+    const carDisplay = enquiry.car_name === 'Checking availability' ? 'a self-drive car' : `*${enquiry.car_name}*`;
+    const priceInfo = enquiry.estimated_price > 0 ? `\n💰 Estimated: ₹${enquiry.estimated_price.toLocaleString()}` : '';
+    const durationText = `${enquiry.total_days} day(s)${enquiry.total_hours ? ` + ${enquiry.total_hours}h` : ''}`;
+    const locationText = enquiry.pickup_location && enquiry.pickup_location !== 'Not selected' ? enquiry.pickup_location : 'To be decided';
     return [
       {
         label: "✅ Confirm Booking",
-        message: `Hi ${enquiry.customer_name}! 🚗\n\nYour booking for *${enquiry.car_name}* is confirmed!\n\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n📍 Location: ${enquiry.pickup_location}\n💰 Total: ₹${enquiry.estimated_price.toLocaleString()}\n⏱ Duration: ${enquiry.total_days} day(s)\n\nPlease carry your original driving license & Aadhar card at the time of pickup.\n\nThank you for choosing us! 🙏`,
+        message: `Hi ${enquiry.customer_name}! 🚗\n\nYour booking for ${carDisplay} is confirmed!\n\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n📍 Location: ${locationText}${priceInfo}\n⏱ Duration: ${durationText}\n\nPlease carry your *original Driving License & Aadhaar card* at the time of pickup.\n\nThank you for choosing Key2Go! 🙏`,
       },
       {
         label: "💰 Negotiate Price",
-        message: `Hi ${enquiry.customer_name},\n\nThank you for your interest in *${enquiry.car_name}*.\n\nThe estimated amount for your trip (${pickupDate} to ${dropDate}) is ₹${enquiry.estimated_price.toLocaleString()}.\n\nWe can discuss a better rate depending on your trip duration. Could you share your budget or preferred dates so we can work something out?\n\nLooking forward to hearing from you! 😊`,
+        message: `Hi ${enquiry.customer_name},\n\nThank you for your interest in ${carDisplay}.\n\nYour trip dates: ${pickupDate} → ${dropDate} (${durationText})${priceInfo}\n\nWe can discuss a better rate based on your trip duration. Could you share your budget so we can work something out?\n\nLooking forward to hearing from you! 😊`,
       },
       {
         label: "📅 Confirm Dates",
-        message: `Hi ${enquiry.customer_name},\n\nThanks for enquiring about *${enquiry.car_name}*.\n\nCould you please confirm your exact pickup and drop-off dates? Once finalized, we'll share the best pricing and availability.\n\nCurrent dates on file:\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n\nPlease reply with updated dates if needed. Thank you! 🙏`,
+        message: `Hi ${enquiry.customer_name},\n\nThanks for your enquiry about ${carDisplay}.\n\nCould you please confirm your exact pickup and drop-off dates & times?\n\nDates on file:\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n📍 Location: ${locationText}\n\nOnce confirmed, we'll share the best pricing. Thank you! 🙏`,
       },
     ];
   };
@@ -916,12 +931,12 @@ const Admin = () => {
               <Car className="h-4 w-4" />
               Fleet ({cars.length})
             </TabsTrigger>
-            <TabsTrigger value="enquiries" className="flex items-center gap-2 relative">
+            <TabsTrigger value="enquiries" className="flex items-center gap-2 relative" onClick={() => markEnquiriesSeen()}>
               <ClipboardList className="h-4 w-4" />
               Enquiries ({enquiries.length})
-              {enquiries.filter(e => e.status === 'pending').length > 0 && (
+              {unseenCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full h-5 min-w-[20px] flex items-center justify-center px-1 animate-pulse">
-                  {enquiries.filter(e => e.status === 'pending').length}
+                  {unseenCount}
                 </span>
               )}
             </TabsTrigger>
@@ -1371,19 +1386,19 @@ const Admin = () => {
                   </Card>
                   <Card>
                     <CardContent className="py-4 text-center">
-                      <p className="text-2xl font-bold text-yellow-600">{enquiries.filter(e => e.status === 'pending' || e.status === 'Pending').length}</p>
+                      <p className="text-2xl font-bold text-yellow-600">{enquiries.filter(e => e.status.toLowerCase() === 'pending').length}</p>
                       <p className="text-xs text-muted-foreground">Pending</p>
                     </CardContent>
                   </Card>
                   <Card>
                     <CardContent className="py-4 text-center">
-                      <p className="text-2xl font-bold text-blue-600">{enquiries.filter(e => e.status === 'confirmed' || e.status === 'Confirmed').length}</p>
+                      <p className="text-2xl font-bold text-blue-600">{enquiries.filter(e => e.status.toLowerCase() === 'confirmed').length}</p>
                       <p className="text-xs text-muted-foreground">Confirmed</p>
                     </CardContent>
                   </Card>
                   <Card>
                     <CardContent className="py-4 text-center">
-                      <p className="text-2xl font-bold text-green-600">{enquiries.filter(e => e.status === 'completed' || e.status === 'Completed').length}</p>
+                      <p className="text-2xl font-bold text-green-600">{enquiries.filter(e => e.status.toLowerCase() === 'completed').length}</p>
                       <p className="text-xs text-muted-foreground">Completed</p>
                     </CardContent>
                   </Card>
