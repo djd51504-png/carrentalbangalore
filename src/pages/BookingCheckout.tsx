@@ -135,7 +135,7 @@ const BookingCheckout = () => {
         total_days: bookingData.totalDays,
         total_hours: bookingData.extraHours,
         estimated_price: Math.round(estimatedBasePrice),
-        status: 'Pending',
+        status: 'pending',
         booking_id: bookingId,
         deposit_type: depositType,
       });

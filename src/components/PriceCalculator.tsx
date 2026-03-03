@@ -259,7 +259,7 @@ const PriceCalculator = ({
         total_days: calculation.fullDays,
         total_hours: calculation.extraHours,
         estimated_price: 0,
-        status: 'Pending',
+        status: 'pending',
       } as any);
 
       // Send email notification to admin about availability check
