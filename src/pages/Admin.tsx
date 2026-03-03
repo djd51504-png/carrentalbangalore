@@ -1404,14 +1404,77 @@ const Admin = () => {
                   </Card>
                 </div>
 
-                {enquiries.map((enquiry) => (
-                  <Card key={enquiry.id} className="hover:shadow-md transition-shadow">
+              {/* Upcoming Bookings Section */}
+              {(() => {
+                const now = new Date();
+                const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+                const upcomingEnquiries = enquiries.filter(e => {
+                  const pickupDate = new Date(e.pickup_date);
+                  return pickupDate >= now && pickupDate <= sevenDaysFromNow && e.status.toLowerCase() !== 'completed' && e.status.toLowerCase() !== 'cancelled';
+                });
+                
+                if (upcomingEnquiries.length === 0) return null;
+                
+                return (
+                  <div className="mb-8">
+                    <h3 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
+                      <Calendar className="h-5 w-5 text-primary" />
+                      Upcoming Pickups (Next 7 Days)
+                      <Badge className="bg-primary/10 text-primary border-primary/20">{upcomingEnquiries.length}</Badge>
+                    </h3>
+                    <div className="space-y-3">
+                      {upcomingEnquiries.map((enquiry) => {
+                        const pickupDate = new Date(enquiry.pickup_date);
+                        const daysUntil = Math.ceil((pickupDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                        return (
+                          <Card key={`upcoming-${enquiry.id}`} className="border-l-4 border-l-primary bg-primary/5">
+                            <CardContent className="py-3">
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2">
+                                    <h4 className="font-semibold text-foreground">{enquiry.customer_name}</h4>
+                                    <Badge className="bg-primary text-primary-foreground text-[10px]">
+                                      {daysUntil === 0 ? 'Today' : daysUntil === 1 ? 'Tomorrow' : `In ${daysUntil} days`}
+                                    </Badge>
+                                    {getStatusBadge(enquiry.status)}
+                                  </div>
+                                  <p className="text-sm text-muted-foreground mt-1">
+                                    🚗 {enquiry.car_name} • 📅 {formatDate(enquiry.pickup_date)} • 📍 {enquiry.pickup_location || 'TBD'}
+                                  </p>
+                                </div>
+                                <div className="flex gap-2">
+                                  <Button size="sm" variant="outline" className="bg-whatsapp/10 border-whatsapp text-whatsapp hover:bg-whatsapp hover:text-white" onClick={() => openWhatsApp(enquiry, 0)}>
+                                    <MessageCircle className="h-4 w-4" />
+                                  </Button>
+                                  <Button size="sm" variant="outline" onClick={() => callCustomer(enquiry.customer_phone)}>
+                                    <Phone className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* All Enquiries */}
+              <h3 className="text-lg font-bold text-foreground mb-3">All Enquiries</h3>
+              {enquiries.map((enquiry) => {
+                const isNew = (new Date().getTime() - new Date(enquiry.created_at).getTime()) < 24 * 60 * 60 * 1000;
+                return (
+                  <Card key={enquiry.id} className={`hover:shadow-md transition-shadow ${isNew ? 'ring-2 ring-primary/30' : ''}`}>
                     <CardContent className="py-4">
                       <div className="flex flex-col lg:flex-row lg:items-center gap-4">
                         {/* Customer Info */}
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
                             <h3 className="font-semibold text-foreground text-lg">{enquiry.customer_name}</h3>
+                            {isNew && (
+                              <Badge className="bg-green-500 text-white text-[10px] animate-pulse">NEW</Badge>
+                            )}
                             {getStatusBadge(enquiry.status)}
                           </div>
                           <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
@@ -1505,7 +1568,8 @@ const Admin = () => {
                       </div>
                     </CardContent>
                   </Card>
-                ))}
+                );
+              })}
               </div>
             )}
           </TabsContent>

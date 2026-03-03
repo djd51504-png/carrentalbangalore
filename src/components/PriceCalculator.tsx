@@ -70,6 +70,8 @@ interface Car {
   price7Days: number | null;
   price15Days: number | null;
   price30Days: number | null;
+  locations: string[];
+  isAvailable: boolean;
 }
 
 const locations = [
@@ -131,7 +133,7 @@ const PriceCalculator = ({
         
         if (error) throw error;
         
-        setCars(data.map(car => ({
+        setCars(data.filter(car => car.is_available !== false).map(car => ({
           id: car.id,
           name: car.name,
           brand: car.brand,
@@ -145,6 +147,8 @@ const PriceCalculator = ({
           price7Days: car.price_7_days,
           price15Days: car.price_15_days,
           price30Days: car.price_30_days,
+          locations: (car as any).locations || [],
+          isAvailable: car.is_available ?? true,
         })));
       } catch (error) {
         console.error('Error fetching cars:', error);
@@ -186,9 +190,16 @@ const PriceCalculator = ({
     
     let filteredCars = cars;
     
+    // Filter by location if selected
+    if (pickupLocation) {
+      filteredCars = filteredCars.filter(car => 
+        car.locations.length === 0 || car.locations.includes(pickupLocation)
+      );
+    }
+    
     // Filter by transmission
     if (transmissionFilter !== "all") {
-      filteredCars = cars.filter(car => 
+      filteredCars = filteredCars.filter(car => 
         car.transmission === transmissionFilter || car.transmission === "Manual & Automatic"
       );
     }
@@ -221,7 +232,7 @@ const PriceCalculator = ({
         extraHours: calculation.extraHours,
       };
     });
-  }, [calculation, transmissionFilter, cars]);
+  }, [calculation, transmissionFilter, pickupLocation, cars]);
 
   const handleCheckAvailability = async () => {
     if (!calculation || calculation.error) return;
