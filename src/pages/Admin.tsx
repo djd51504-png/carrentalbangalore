@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { Plus, Trash2, Car, AlertTriangle, ArrowLeft, ImageIcon, Loader2, Pencil, Lock, LogOut, Mail, ClipboardList, Phone, Calendar, Clock, CheckCircle, XCircle, MessageCircle, Eye, EyeOff, MapPin, CalendarDays, Settings, CreditCard, Save } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -169,6 +169,65 @@ const Admin = () => {
       setIsCheckingAuth(false);
     }
   };
+
+  // Realtime subscription for new enquiries
+  const prevEnquiryCountRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    const channel = supabase
+      .channel('enquiries-realtime')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'booking_enquiries' },
+        (payload) => {
+          const newEnquiry = payload.new as BookingEnquiry;
+          setEnquiries(prev => [newEnquiry, ...prev]);
+
+          // Play notification sound
+          try {
+            const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
+            oscillator.frequency.setValueAtTime(1100, audioCtx.currentTime + 0.1);
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime + 0.2);
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+            oscillator.start(audioCtx.currentTime);
+            oscillator.stop(audioCtx.currentTime + 0.4);
+          } catch (e) {
+            console.log('Audio notification failed:', e);
+          }
+
+          // Browser notification
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('🚗 New Booking Enquiry!', {
+              body: `${newEnquiry.customer_name} - ${newEnquiry.car_name}`,
+              icon: '/favicon.ico',
+            });
+          }
+
+          toast({
+            title: "🔔 New Enquiry!",
+            description: `${newEnquiry.customer_name} enquired about ${newEnquiry.car_name}`,
+          });
+        }
+      )
+      .subscribe();
+
+    // Request notification permission
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [isAdmin]);
 
   // Fetch cars when authenticated as admin
   useEffect(() => {
@@ -1423,9 +1482,23 @@ const Admin = () => {
                       <Badge className="bg-primary/10 text-primary border-primary/20">{upcomingEnquiries.length}</Badge>
                     </h3>
                     <div className="space-y-3">
-                      {upcomingEnquiries.map((enquiry) => {
+              {upcomingEnquiries.map((enquiry) => {
                         const pickupDate = new Date(enquiry.pickup_date);
                         const daysUntil = Math.ceil((pickupDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                        const upcomingWhatsAppMessages = [
+                          {
+                            label: "✅ Confirm Booking",
+                            message: `Hi ${enquiry.customer_name}! 🚗\n\nYour booking for *${enquiry.car_name}* is confirmed!\n\n📅 Pickup: ${formatDate(enquiry.pickup_date)}\n📅 Drop: ${formatDate(enquiry.drop_date)}\n📍 Location: ${enquiry.pickup_location || 'TBD'}\n💰 Amount: ₹${enquiry.estimated_price.toLocaleString()}\n\nPlease carry your *original Driving License & Aadhaar card*.\n\nThank you for choosing Key2Go! 🙏`,
+                          },
+                          {
+                            label: "💰 Confirm Budget",
+                            message: `Hi ${enquiry.customer_name},\n\nThank you for your interest in *${enquiry.car_name}*.\n\nYour trip: ${formatDate(enquiry.pickup_date)} → ${formatDate(enquiry.drop_date)}\n💰 Estimated: ₹${enquiry.estimated_price.toLocaleString()}\n\nCould you please confirm if this budget works for you? We can discuss the best pricing for your trip duration.\n\nLooking forward to hearing from you! 😊`,
+                          },
+                          {
+                            label: "❓ Any Queries?",
+                            message: `Hi ${enquiry.customer_name},\n\nThis is a reminder about your upcoming booking:\n🚗 ${enquiry.car_name}\n📅 ${formatDate(enquiry.pickup_date)}\n📍 ${enquiry.pickup_location || 'TBD'}\n\nPlease let me know if you have any queries or need any changes to your booking.\n\nWe're here to help! 🙏`,
+                          },
+                        ];
                         return (
                           <Card key={`upcoming-${enquiry.id}`} className="border-l-4 border-l-primary bg-primary/5">
                             <CardContent className="py-3">
@@ -1443,9 +1516,33 @@ const Admin = () => {
                                   </p>
                                 </div>
                                 <div className="flex gap-2">
-                                  <Button size="sm" variant="outline" className="bg-whatsapp/10 border-whatsapp text-whatsapp hover:bg-whatsapp hover:text-white" onClick={() => openWhatsApp(enquiry, 0)}>
-                                    <MessageCircle className="h-4 w-4" />
-                                  </Button>
+                                  <div className="relative">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="bg-whatsapp/10 border-whatsapp text-whatsapp hover:bg-whatsapp hover:text-white"
+                                      onClick={() => setWhatsappMenuOpen(whatsappMenuOpen === `upcoming-${enquiry.id}` ? null : `upcoming-${enquiry.id}`)}
+                                    >
+                                      <MessageCircle className="h-4 w-4 mr-1" />
+                                      WhatsApp ▾
+                                    </Button>
+                                    {whatsappMenuOpen === `upcoming-${enquiry.id}` && (
+                                      <div className="absolute top-full right-0 mt-1 z-50 w-56 rounded-md border bg-popover p-1 shadow-md">
+                                        {upcomingWhatsAppMessages.map((msg, idx) => (
+                                          <button
+                                            key={idx}
+                                            className="w-full text-left px-3 py-2 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                                            onClick={() => {
+                                              window.open(`https://api.whatsapp.com/send?phone=91${enquiry.customer_phone}&text=${encodeURIComponent(msg.message)}`, '_blank');
+                                              setWhatsappMenuOpen(null);
+                                            }}
+                                          >
+                                            {msg.label}
+                                          </button>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
                                   <Button size="sm" variant="outline" onClick={() => callCustomer(enquiry.customer_phone)}>
                                     <Phone className="h-4 w-4" />
                                   </Button>
