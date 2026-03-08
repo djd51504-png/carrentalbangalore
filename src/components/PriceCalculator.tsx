@@ -170,9 +170,18 @@ const PriceCalculator = ({
     const diffMs = drop.getTime() - pickup.getTime();
     const totalHours = Math.floor(diffMs / (1000 * 60 * 60));
 
-    // Minimum 48 hours (2 days)
-    if (totalHours < 48) {
-      return { error: "Minimum rental period is 2 days (48 hours). Please adjust your dates." };
+    // Check if pickup day is weekend (Saturday=6, Sunday=0)
+    const pickupDay = pickup.getDay();
+    const isWeekend = pickupDay === 0 || pickupDay === 6;
+    const minHours = isWeekend ? 48 : 24;
+    const minDays = isWeekend ? 2 : 1;
+
+    if (totalHours < minHours) {
+      return { 
+        error: isWeekend 
+          ? "⚠️ Weekend bookings require minimum 2 days (48 hours). Please adjust your dates." 
+          : "Minimum rental period is 1 day (24 hours). Please adjust your dates." 
+      };
     }
 
     const fullDays = Math.floor(totalHours / 24);
@@ -481,6 +490,12 @@ const PriceCalculator = ({
                   className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50 text-sm"
                 />
               </div>
+            </div>
+
+            {/* Weekend minimum note */}
+            <div className="mt-3 flex items-center gap-2 text-primary-foreground/60 text-xs">
+              <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>Weekday bookings: minimum 1 day · Weekend (Sat & Sun) bookings: minimum 2 days</span>
             </div>
 
             {/* Error Message */}
