@@ -6,7 +6,7 @@ const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 interface AvailabilityNotificationRequest {
@@ -24,12 +24,38 @@ function sanitize(str: string, maxLen = 200): string {
   return String(str || "").replace(/[<>&"']/g, "").trim().slice(0, maxLen);
 }
 
+// Simple in-memory IP rate limiter
+const ipRequestLog = new Map<string, number[]>();
+const IP_RATE_LIMIT = 10; // max requests per IP per hour
+const IP_RATE_WINDOW = 3600000; // 1 hour in ms
+
+function checkIpRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const timestamps = ipRequestLog.get(ip) || [];
+  const recent = timestamps.filter(t => now - t < IP_RATE_WINDOW);
+  if (recent.length >= IP_RATE_LIMIT) {
+    return false;
+  }
+  recent.push(now);
+  ipRequestLog.set(ip, recent);
+  return true;
+}
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // IP-based rate limiting
+    const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    if (!checkIpRateLimit(clientIp)) {
+      return new Response(
+        JSON.stringify({ error: "Too many requests. Please try again later." }),
+        { status: 429, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     const body = await req.json();
     const {
       customerName,
@@ -61,13 +87,13 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const days = Number(totalDays);
-    if (!Number.isFinite(days) || days < 2) {
+    if (!Number.isFinite(days) || days < 1) {
       return new Response(JSON.stringify({ error: "Invalid rental duration" }), {
         status: 400, headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
 
-    // Rate limiting: max 5 notifications per phone per hour
+    // Phone-based rate limiting: max 5 notifications per phone per hour
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
@@ -87,7 +113,7 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    console.log("Sending availability notification for:", name, phone);
+    console.log("Sending availability notification for:", name);
 
     const formatDate = (dateStr: string) => {
       const date = new Date(dateStr);
