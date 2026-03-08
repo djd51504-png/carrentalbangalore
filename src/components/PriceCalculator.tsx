@@ -492,6 +492,12 @@ const PriceCalculator = ({
               </div>
             </div>
 
+            {/* Weekend minimum note */}
+            <div className="mt-3 flex items-center gap-2 text-primary-foreground/60 text-xs">
+              <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>Weekday bookings: minimum 1 day · Weekend (Sat & Sun) bookings: minimum 2 days</span>
+            </div>
+
             {/* Error Message */}
             {calculation?.error && (
               <div className="mt-4 md:mt-6 flex items-center gap-3 text-amber-400 bg-amber-500/10 rounded-xl p-3 md:p-4 text-sm">
