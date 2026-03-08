@@ -355,10 +355,6 @@ const PriceCalculator = ({
     navigate("/booking/terms");
   };
 
-  // today variable no longer needed - calendar handles min date internally
-
-  return (
-
   return (
     <section id="calculator" className="py-12 md:py-24 bg-charcoal">
       <div className="container px-4 md:px-6">
