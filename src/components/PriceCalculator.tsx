@@ -587,7 +587,7 @@ const PriceCalculator = ({
             {/* Empty State */}
             {!calculation && (
               <div className="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-primary-foreground/10 text-center text-primary-foreground/50">
-                <Calendar className="w-10 md:w-12 h-10 md:h-12 mx-auto mb-3 opacity-50" />
+                <CalendarIcon className="w-10 md:w-12 h-10 md:h-12 mx-auto mb-3 opacity-50" />
                 <p className="text-sm">Select pickup and drop dates to check availability</p>
               </div>
             )}
