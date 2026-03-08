@@ -381,17 +381,40 @@ const PriceCalculator = ({
               {/* Pickup Date & Time */}
               <div className="space-y-2">
                 <Label className="text-primary-foreground font-medium flex items-center gap-2 text-sm">
-                  <Calendar className="w-4 h-4 text-electric-light" />
+                  <CalendarIcon className="w-4 h-4 text-electric-light" />
                   Pickup Date & Time
                 </Label>
                 <div className="flex gap-2">
-                  <Input
-                    type="date"
-                    value={pickupDate}
-                    onChange={(e) => { setPickupDate(e.target.value); setShowCars(false); }}
-                    min={today}
-                    className="flex-1 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground text-sm"
-                  />
+                  <Popover open={pickupDateOpen} onOpenChange={setPickupDateOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "flex-1 justify-start text-left font-normal bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground text-sm hover:bg-primary-foreground/20",
+                          !pickupDate && "text-primary-foreground/50"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {pickupDate ? format(new Date(pickupDate + "T00:00:00"), "dd MMM yyyy") : "Select date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={pickupDate ? new Date(pickupDate + "T00:00:00") : undefined}
+                        onSelect={(date) => {
+                          if (date) {
+                            setPickupDate(format(date, "yyyy-MM-dd"));
+                            setShowCars(false);
+                          }
+                          setPickupDateOpen(false);
+                        }}
+                        disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                        initialFocus
+                        className="p-3 pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
                   <Input
                     type="time"
                     value={pickupTime}
@@ -408,13 +431,39 @@ const PriceCalculator = ({
                   Drop Date & Time
                 </Label>
                 <div className="flex gap-2">
-                  <Input
-                    type="date"
-                    value={dropDate}
-                    onChange={(e) => { setDropDate(e.target.value); setShowCars(false); }}
-                    min={pickupDate || today}
-                    className="flex-1 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground text-sm"
-                  />
+                  <Popover open={dropDateOpen} onOpenChange={setDropDateOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "flex-1 justify-start text-left font-normal bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground text-sm hover:bg-primary-foreground/20",
+                          !dropDate && "text-primary-foreground/50"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {dropDate ? format(new Date(dropDate + "T00:00:00"), "dd MMM yyyy") : "Select date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={dropDate ? new Date(dropDate + "T00:00:00") : undefined}
+                        onSelect={(date) => {
+                          if (date) {
+                            setDropDate(format(date, "yyyy-MM-dd"));
+                            setShowCars(false);
+                          }
+                          setDropDateOpen(false);
+                        }}
+                        disabled={(date) => {
+                          const minDate = pickupDate ? new Date(pickupDate + "T00:00:00") : new Date(new Date().setHours(0, 0, 0, 0));
+                          return date < minDate;
+                        }}
+                        initialFocus
+                        className="p-3 pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
                   <Input
                     type="time"
                     value={dropTime}
