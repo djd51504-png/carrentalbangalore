@@ -105,8 +105,17 @@ const BookingCheckout = () => {
     const drop = new Date(`${editDropDate}T${editDropTime}`);
     const diffMs = drop.getTime() - pickup.getTime();
     const totalHours = Math.floor(diffMs / (1000 * 60 * 60));
-    if (totalHours < 48) {
-      toast({ title: "Minimum 2 Days", description: "Minimum rental period is 2 days (48 hours).", variant: "destructive" });
+    const pickupDay = pickup.getDay();
+    const isWeekend = pickupDay === 0 || pickupDay === 6;
+    const minHours = isWeekend ? 48 : 24;
+    if (totalHours < minHours) {
+      toast({ 
+        title: isWeekend ? "Weekend: Minimum 2 Days" : "Minimum 1 Day", 
+        description: isWeekend 
+          ? "Weekend bookings require minimum 2 days (48 hours)." 
+          : "Minimum rental period is 1 day (24 hours).", 
+        variant: "destructive" 
+      });
       return;
     }
     const fullDays = Math.floor(totalHours / 24);
