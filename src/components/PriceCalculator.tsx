@@ -141,7 +141,7 @@ const CarImageCarousel = ({ images, name, categoryLabel }: { images: string[]; n
   );
 };
 
-
+const PriceCalculator = ({ 
   pickupDate: initialPickupDate = "",
   pickupTime: initialPickupTime = "10:00",
   dropDate: initialDropDate = "",
