@@ -101,7 +101,47 @@ interface PriceCalculatorProps {
   pickupLocation?: string;
 }
 
-const PriceCalculator = ({ 
+// Simple image carousel for car cards
+const CarImageCarousel = ({ images, name, categoryLabel }: { images: string[]; name: string; categoryLabel: string }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const hasMultiple = images.length > 1;
+
+  return (
+    <div className="relative bg-gradient-to-br from-secondary/30 to-secondary/60 p-3 md:p-6">
+      <img
+        src={images[currentIndex]}
+        alt={`${name} ${currentIndex + 1}`}
+        className="w-full h-32 md:h-48 object-contain mix-blend-multiply transition-opacity duration-300"
+      />
+      <span className="absolute top-2 left-2 text-[10px] md:text-xs font-bold px-2 py-1 rounded-full bg-primary/90 text-primary-foreground">
+        {categoryLabel}
+      </span>
+      {hasMultiple && (
+        <>
+          <button
+            onClick={(e) => { e.stopPropagation(); setCurrentIndex(i => (i - 1 + images.length) % images.length); }}
+            className="absolute left-1 top-1/2 -translate-y-1/2 bg-background/70 hover:bg-background rounded-full p-1 shadow"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); setCurrentIndex(i => (i + 1) % images.length); }}
+            className="absolute right-1 top-1/2 -translate-y-1/2 bg-background/70 hover:bg-background rounded-full p-1 shadow"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1">
+            {images.map((_, i) => (
+              <span key={i} className={`w-1.5 h-1.5 rounded-full ${i === currentIndex ? 'bg-primary' : 'bg-muted-foreground/40'}`} />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+
   pickupDate: initialPickupDate = "",
   pickupTime: initialPickupTime = "10:00",
   dropDate: initialDropDate = "",

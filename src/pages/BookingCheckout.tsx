@@ -30,8 +30,8 @@ const BookingCheckout = () => {
 
   const depositAmount = depositType === "cash" ? 10000 : 0;
   const estimatedBasePrice = bookingData.basePrice || (bookingData.totalDays * 2500);
-  const kmLimit = bookingData.totalDays * 300;
-  const extraKmCharge = 10;
+  const kmLimit = bookingData.totalDays * (bookingData.kmLimit || 300);
+  const extraKmCharge = bookingData.extraKmCharge || 10;
 
   useEffect(() => {
     if (!bookingData.customerName || !bookingData.pickupDate) {
