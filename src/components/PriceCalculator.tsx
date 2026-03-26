@@ -349,6 +349,8 @@ const PriceCalculator = ({
       carName: car.name,
       carBrand: car.brand,
       carImage: car.image,
+      kmLimit: car.kmLimit,
+      extraKmCharge: car.extraKmCharge,
       totalDays: car.fullDays,
       extraHours: car.extraHours,
       basePrice: car.totalPrice,
