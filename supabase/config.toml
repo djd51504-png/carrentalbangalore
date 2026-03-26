@@ -3,8 +3,6 @@ project_id = "pjtbttkluluwbwuiqwjy"
 [functions.send-booking-email]
 verify_jwt = false
 
-[functions.create-razorpay-order]
-verify_jwt = false
 
 [functions.send-availability-notification]
 verify_jwt = false
