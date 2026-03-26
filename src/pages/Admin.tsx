@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { Plus, Trash2, Car, AlertTriangle, ArrowLeft, ImageIcon, Loader2, Pencil, Lock, LogOut, Mail, ClipboardList, Phone, Calendar, Clock, CheckCircle, XCircle, MessageCircle, Eye, EyeOff, MapPin, CalendarDays, Settings, CreditCard, Save } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -104,13 +104,16 @@ const Admin = () => {
     return localStorage.getItem('admin_last_seen_enquiries') || '2000-01-01T00:00:00Z';
   });
 
-  const unseenCount = enquiries.filter(e => new Date(e.created_at) > new Date(lastSeenAt)).length;
+  const unseenCount = useMemo(() => 
+    enquiries.filter(e => new Date(e.created_at) > new Date(lastSeenAt)).length,
+    [enquiries, lastSeenAt]
+  );
 
-  const markEnquiriesSeen = () => {
+  const markEnquiriesSeen = useCallback(() => {
     const now = new Date().toISOString();
     localStorage.setItem('admin_last_seen_enquiries', now);
     setLastSeenAt(now);
-  };
+  }, []);
 
   // Settings state
   const [razorpayKeyId, setRazorpayKeyId] = useState("");
@@ -352,7 +355,7 @@ const Admin = () => {
     }
   };
 
-  const updateEnquiryStatus = async (id: string, newStatus: string) => {
+  const updateEnquiryStatus = useCallback(async (id: string, newStatus: string) => {
     try {
       const { error } = await supabase
         .from('booking_enquiries')
@@ -361,7 +364,7 @@ const Admin = () => {
       
       if (error) throw error;
       
-      setEnquiries(enquiries.map(e => 
+      setEnquiries(prev => prev.map(e => 
         e.id === id ? { ...e, status: newStatus } : e
       ));
       
@@ -377,9 +380,9 @@ const Admin = () => {
         variant: "destructive",
       });
     }
-  };
+  }, [toast]);
 
-  const toggleCarAvailability = async (carId: string, currentStatus: boolean) => {
+  const toggleCarAvailability = useCallback(async (carId: string, currentStatus: boolean) => {
     try {
       const { error } = await supabase
         .from('cars')
@@ -388,7 +391,7 @@ const Admin = () => {
       
       if (error) throw error;
       
-      setCars(cars.map(car => 
+      setCars(prev => prev.map(car => 
         car.id === carId ? { ...car, isAvailable: !currentStatus } : car
       ));
       
@@ -406,7 +409,7 @@ const Admin = () => {
         variant: "destructive",
       });
     }
-  };
+  }, [toast]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -780,7 +783,7 @@ const Admin = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = useCallback((dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-IN', { 
       day: 'numeric', 
@@ -789,9 +792,9 @@ const Admin = () => {
       hour: '2-digit',
       minute: '2-digit'
     });
-  };
+  }, []);
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = useCallback((status: string) => {
     switch (status.toLowerCase()) {
       case 'pending':
         return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Pending</Badge>;
@@ -804,43 +807,65 @@ const Admin = () => {
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
-  };
+  }, []);
 
   const [whatsappMenuOpen, setWhatsappMenuOpen] = useState<string | null>(null);
 
-  const getWhatsAppMessages = (enquiry: BookingEnquiry) => {
+  // Memoize WhatsApp message generation
+  const getWhatsAppMessages = useCallback((enquiry: BookingEnquiry) => {
     const pickupDate = formatDate(enquiry.pickup_date);
     const dropDate = formatDate(enquiry.drop_date);
     const carDisplay = enquiry.car_name === 'Checking availability' ? 'a self-drive car' : `*${enquiry.car_name}*`;
     const priceInfo = enquiry.estimated_price > 0 ? `\n💰 Estimated: ₹${enquiry.estimated_price.toLocaleString()}` : '';
     const durationText = `${enquiry.total_days} day(s)${enquiry.total_hours ? ` + ${enquiry.total_hours}h` : ''}`;
     const locationText = enquiry.pickup_location && enquiry.pickup_location !== 'Not selected' ? enquiry.pickup_location : 'To be decided';
+    const totalKm = enquiry.total_days * 300;
     return [
       {
         label: "✅ Confirm Booking",
-        message: `Hi ${enquiry.customer_name}! 🚗\n\nYour booking for ${carDisplay} is confirmed!\n\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n📍 Location: ${locationText}${priceInfo}\n⏱ Duration: ${durationText}\n\nPlease carry your *original Driving License & Aadhaar card* at the time of pickup.\n\nThank you for choosing Key2Go! 🙏`,
+        message: `Hi ${enquiry.customer_name}! 🚗\n\nYour booking for ${carDisplay} is confirmed!\n\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n📍 Location: ${locationText}${priceInfo}\n⏱ Duration: ${durationText}\n🛣️ KM Limit: ${totalKm}km (₹10/extra km)\n\nPlease carry your *original Driving License & Aadhaar card* at the time of pickup.\n\nThank you for choosing Key2Go! 🙏`,
       },
       {
         label: "💰 Negotiate Price",
-        message: `Hi ${enquiry.customer_name},\n\nThank you for your interest in ${carDisplay}.\n\nYour trip dates: ${pickupDate} → ${dropDate} (${durationText})${priceInfo}\n\nWe can discuss a better rate based on your trip duration. Could you share your budget so we can work something out?\n\nLooking forward to hearing from you! 😊`,
+        message: `Hi ${enquiry.customer_name},\n\nThank you for your interest in ${carDisplay}.\n\nYour trip: ${pickupDate} → ${dropDate} (${durationText})${priceInfo}\n🛣️ KM Limit: ${totalKm}km (₹10/extra km)\n\nWe can discuss a better rate based on your trip duration. Could you share your budget so we can work something out?\n\nLooking forward to hearing from you! 😊`,
       },
       {
         label: "📅 Confirm Dates",
-        message: `Hi ${enquiry.customer_name},\n\nThanks for your enquiry about ${carDisplay}.\n\nCould you please confirm your exact pickup and drop-off dates & times?\n\nDates on file:\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n📍 Location: ${locationText}\n\nOnce confirmed, we'll share the best pricing. Thank you! 🙏`,
+        message: `Hi ${enquiry.customer_name},\n\nThanks for your enquiry about ${carDisplay}.\n\nCould you please confirm your exact pickup and drop-off dates & times?\n\nDates on file:\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n📍 Location: ${locationText}\n🛣️ KM Limit: ${totalKm}km (₹10/extra km)\n\nOnce confirmed, we'll share the best pricing. Thank you! 🙏`,
       },
     ];
-  };
+  }, [formatDate]);
 
-  const openWhatsApp = (enquiry: BookingEnquiry, messageIndex: number = 0) => {
+  // Pre-compute WhatsApp URLs to avoid work on click
+  const openWhatsApp = useCallback((enquiry: BookingEnquiry, messageIndex: number = 0) => {
     const messages = getWhatsAppMessages(enquiry);
     const message = messages[messageIndex]?.message || messages[0].message;
-    window.open(`https://api.whatsapp.com/send?phone=91${enquiry.customer_phone}&text=${encodeURIComponent(message)}`, '_blank');
+    const url = `https://api.whatsapp.com/send?phone=91${enquiry.customer_phone}&text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
     setWhatsappMenuOpen(null);
-  };
+  }, [getWhatsAppMessages]);
 
-  const callCustomer = (phone: string) => {
+  const callCustomer = useCallback((phone: string) => {
     window.open(`tel:+91${phone}`, '_self');
-  };
+  }, []);
+
+  // Memoize stats
+  const enquiryStats = useMemo(() => ({
+    total: enquiries.length,
+    pending: enquiries.filter(e => e.status.toLowerCase() === 'pending').length,
+    confirmed: enquiries.filter(e => e.status.toLowerCase() === 'confirmed').length,
+    completed: enquiries.filter(e => e.status.toLowerCase() === 'completed').length,
+  }), [enquiries]);
+
+  // Memoize upcoming enquiries
+  const upcomingEnquiries = useMemo(() => {
+    const now = new Date();
+    const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    return enquiries.filter(e => {
+      const pickupDate = new Date(e.pickup_date);
+      return pickupDate >= now && pickupDate <= sevenDaysFromNow && e.status.toLowerCase() !== 'completed' && e.status.toLowerCase() !== 'cancelled';
+    });
+  }, [enquiries]);
 
   // Loading state
   if (isCheckingAuth) {
@@ -1258,41 +1283,40 @@ const Admin = () => {
 
                 {/* Inventory List */}
                 <div className="lg:col-span-2 space-y-4">
-                  {/* Bulk Actions */}
                   <Card>
                     <CardContent className="py-4">
                       <div className="flex items-center justify-between flex-wrap gap-4">
                         <div className="flex items-center gap-3">
                           <Checkbox
-                            id="selectAll"
-                            checked={cars.length > 0 && selectedCars.length === cars.length}
-                            onCheckedChange={handleSelectAll}
-                            disabled={cars.length === 0}
+                            checked={selectedCars.length === cars.length && cars.length > 0}
+                            onCheckedChange={(checked) => handleSelectAll(checked as boolean)}
                           />
-                          <Label htmlFor="selectAll" className="text-sm font-medium">
-                            Select All ({selectedCars.length}/{cars.length})
-                          </Label>
+                          <span className="text-sm text-muted-foreground">
+                            {selectedCars.length > 0
+                              ? `${selectedCars.length} selected`
+                              : `${cars.length} vehicles`}
+                          </span>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex gap-2">
                           {selectedCars.length > 0 && (
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <Button variant="outline" size="sm" className="text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground">
+                                <Button variant="destructive" size="sm">
                                   <Trash2 className="h-4 w-4 mr-2" />
-                                  Delete Selected ({selectedCars.length})
+                                  Delete ({selectedCars.length})
                                 </Button>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>Delete Selected Cars?</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    This will remove {selectedCars.length} car(s) from your inventory. This action cannot be undone.
+                                    Are you sure you want to delete {selectedCars.length} selected car(s)? This action cannot be undone.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                                   <AlertDialogAction onClick={handleDeleteSelected} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                                    Delete
+                                    Delete Selected
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
                               </AlertDialogContent>
@@ -1439,128 +1463,125 @@ const Admin = () => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                   <Card>
                     <CardContent className="py-4 text-center">
-                      <p className="text-2xl font-bold text-foreground">{enquiries.length}</p>
+                      <p className="text-2xl font-bold text-foreground">{enquiryStats.total}</p>
                       <p className="text-xs text-muted-foreground">Total Enquiries</p>
                     </CardContent>
                   </Card>
                   <Card>
                     <CardContent className="py-4 text-center">
-                      <p className="text-2xl font-bold text-yellow-600">{enquiries.filter(e => e.status.toLowerCase() === 'pending').length}</p>
+                      <p className="text-2xl font-bold text-yellow-600">{enquiryStats.pending}</p>
                       <p className="text-xs text-muted-foreground">Pending</p>
                     </CardContent>
                   </Card>
                   <Card>
                     <CardContent className="py-4 text-center">
-                      <p className="text-2xl font-bold text-blue-600">{enquiries.filter(e => e.status.toLowerCase() === 'confirmed').length}</p>
+                      <p className="text-2xl font-bold text-blue-600">{enquiryStats.confirmed}</p>
                       <p className="text-xs text-muted-foreground">Confirmed</p>
                     </CardContent>
                   </Card>
                   <Card>
                     <CardContent className="py-4 text-center">
-                      <p className="text-2xl font-bold text-green-600">{enquiries.filter(e => e.status.toLowerCase() === 'completed').length}</p>
+                      <p className="text-2xl font-bold text-green-600">{enquiryStats.completed}</p>
                       <p className="text-xs text-muted-foreground">Completed</p>
                     </CardContent>
                   </Card>
                 </div>
 
               {/* Upcoming Bookings Section */}
-              {(() => {
-                const now = new Date();
-                const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-                const upcomingEnquiries = enquiries.filter(e => {
-                  const pickupDate = new Date(e.pickup_date);
-                  return pickupDate >= now && pickupDate <= sevenDaysFromNow && e.status.toLowerCase() !== 'completed' && e.status.toLowerCase() !== 'cancelled';
-                });
-                
-                if (upcomingEnquiries.length === 0) return null;
-                
-                return (
-                  <div className="mb-8">
-                    <h3 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
-                      <Calendar className="h-5 w-5 text-primary" />
-                      Upcoming Pickups (Next 7 Days)
-                      <Badge className="bg-primary/10 text-primary border-primary/20">{upcomingEnquiries.length}</Badge>
-                    </h3>
-                    <div className="space-y-3">
-              {upcomingEnquiries.map((enquiry) => {
-                        const pickupDate = new Date(enquiry.pickup_date);
-                        const daysUntil = Math.ceil((pickupDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-                        const upcomingWhatsAppMessages = [
-                          {
-                            label: "✅ Confirm Booking",
-                            message: `Hi ${enquiry.customer_name}! 🚗\n\nYour booking for *${enquiry.car_name}* is confirmed!\n\n📅 Pickup: ${formatDate(enquiry.pickup_date)}\n📅 Drop: ${formatDate(enquiry.drop_date)}\n📍 Location: ${enquiry.pickup_location || 'TBD'}\n💰 Amount: ₹${enquiry.estimated_price.toLocaleString()}\n\nPlease carry your *original Driving License & Aadhaar card*.\n\nThank you for choosing Key2Go! 🙏`,
-                          },
-                          {
-                            label: "💰 Confirm Budget",
-                            message: `Hi ${enquiry.customer_name},\n\nThank you for your interest in *${enquiry.car_name}*.\n\nYour trip: ${formatDate(enquiry.pickup_date)} → ${formatDate(enquiry.drop_date)}\n💰 Estimated: ₹${enquiry.estimated_price.toLocaleString()}\n\nCould you please confirm if this budget works for you? We can discuss the best pricing for your trip duration.\n\nLooking forward to hearing from you! 😊`,
-                          },
-                          {
-                            label: "❓ Any Queries?",
-                            message: `Hi ${enquiry.customer_name},\n\nThis is a reminder about your upcoming booking:\n🚗 ${enquiry.car_name}\n📅 ${formatDate(enquiry.pickup_date)}\n📍 ${enquiry.pickup_location || 'TBD'}\n\nPlease let me know if you have any queries or need any changes to your booking.\n\nWe're here to help! 🙏`,
-                          },
-                        ];
-                        return (
-                          <Card key={`upcoming-${enquiry.id}`} className="border-l-4 border-l-primary bg-primary/5">
-                            <CardContent className="py-3">
-                              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2">
-                                    <h4 className="font-semibold text-foreground">{enquiry.customer_name}</h4>
-                                    <Badge className="bg-primary text-primary-foreground text-[10px]">
-                                      {daysUntil === 0 ? 'Today' : daysUntil === 1 ? 'Tomorrow' : `In ${daysUntil} days`}
-                                    </Badge>
-                                    {getStatusBadge(enquiry.status)}
-                                  </div>
-                                  <p className="text-sm text-muted-foreground mt-1">
-                                    🚗 {enquiry.car_name} • 📅 {formatDate(enquiry.pickup_date)} • 📍 {enquiry.pickup_location || 'TBD'}
-                                  </p>
+              {upcomingEnquiries.length > 0 && (
+                <div className="mb-8">
+                  <h3 className="text-lg font-bold text-foreground mb-3 flex items-center gap-2">
+                    <Calendar className="h-5 w-5 text-primary" />
+                    Upcoming Pickups (Next 7 Days)
+                    <Badge className="bg-primary/10 text-primary border-primary/20">{upcomingEnquiries.length}</Badge>
+                  </h3>
+                  <div className="space-y-3">
+                    {upcomingEnquiries.map((enquiry) => {
+                      const now = new Date();
+                      const pickupDate = new Date(enquiry.pickup_date);
+                      const daysUntil = Math.ceil((pickupDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                      const totalKm = enquiry.total_days * 300;
+                      const upcomingWhatsAppMessages = [
+                        {
+                          label: "✅ Confirm Booking",
+                          message: `Hi ${enquiry.customer_name}! 🚗\n\nYour booking for *${enquiry.car_name}* is confirmed!\n\n📅 Pickup: ${formatDate(enquiry.pickup_date)}\n📅 Drop: ${formatDate(enquiry.drop_date)}\n📍 Location: ${enquiry.pickup_location || 'TBD'}\n💰 Amount: ₹${enquiry.estimated_price.toLocaleString()}\n🛣️ KM Limit: ${totalKm}km (₹10/extra km)\n\nPlease carry your *original Driving License & Aadhaar card*.\n\nThank you for choosing Key2Go! 🙏`,
+                        },
+                        {
+                          label: "💰 Confirm Budget",
+                          message: `Hi ${enquiry.customer_name},\n\nThank you for your interest in *${enquiry.car_name}*.\n\nYour trip: ${formatDate(enquiry.pickup_date)} → ${formatDate(enquiry.drop_date)}\n💰 Estimated: ₹${enquiry.estimated_price.toLocaleString()}\n🛣️ KM Limit: ${totalKm}km (₹10/extra km)\n\nCould you please confirm if this budget works for you? We can discuss the best pricing for your trip duration.\n\nLooking forward to hearing from you! 😊`,
+                        },
+                        {
+                          label: "❓ Any Queries?",
+                          message: `Hi ${enquiry.customer_name},\n\nThis is a reminder about your upcoming booking:\n🚗 ${enquiry.car_name}\n📅 ${formatDate(enquiry.pickup_date)}\n📍 ${enquiry.pickup_location || 'TBD'}\n🛣️ KM Limit: ${totalKm}km (₹10/extra km)\n\nPlease let me know if you have any queries or need any changes to your booking.\n\nWe're here to help! 🙏`,
+                        },
+                      ];
+                      return (
+                        <Card key={`upcoming-${enquiry.id}`} className="border-l-4 border-l-primary bg-primary/5">
+                          <CardContent className="py-3">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <h4 className="font-semibold text-foreground">{enquiry.customer_name}</h4>
+                                  <Badge className="bg-primary text-primary-foreground text-[10px]">
+                                    {daysUntil === 0 ? 'Today' : daysUntil === 1 ? 'Tomorrow' : `In ${daysUntil} days`}
+                                  </Badge>
+                                  {getStatusBadge(enquiry.status)}
                                 </div>
-                                <div className="flex gap-2">
-                                  <div className="relative">
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      className="bg-whatsapp/10 border-whatsapp text-whatsapp hover:bg-whatsapp hover:text-white"
-                                      onClick={() => setWhatsappMenuOpen(whatsappMenuOpen === `upcoming-${enquiry.id}` ? null : `upcoming-${enquiry.id}`)}
-                                    >
-                                      <MessageCircle className="h-4 w-4 mr-1" />
-                                      WhatsApp ▾
-                                    </Button>
-                                    {whatsappMenuOpen === `upcoming-${enquiry.id}` && (
-                                      <div className="absolute top-full right-0 mt-1 z-50 w-56 rounded-md border bg-popover p-1 shadow-md">
-                                        {upcomingWhatsAppMessages.map((msg, idx) => (
-                                          <button
-                                            key={idx}
-                                            className="w-full text-left px-3 py-2 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors"
-                                            onClick={() => {
-                                              window.open(`https://api.whatsapp.com/send?phone=91${enquiry.customer_phone}&text=${encodeURIComponent(msg.message)}`, '_blank');
-                                              setWhatsappMenuOpen(null);
-                                            }}
-                                          >
-                                            {msg.label}
-                                          </button>
-                                        ))}
-                                      </div>
-                                    )}
-                                  </div>
-                                  <Button size="sm" variant="outline" onClick={() => callCustomer(enquiry.customer_phone)}>
+                                <p className="text-sm text-muted-foreground mt-1">
+                                  🚗 {enquiry.car_name} • 📅 {formatDate(enquiry.pickup_date)} • 📍 {enquiry.pickup_location || 'TBD'}
+                                </p>
+                                <p className="text-xs text-muted-foreground mt-0.5">
+                                  🛣️ {totalKm}km limit • ₹10/extra km
+                                </p>
+                              </div>
+                              <div className="flex gap-2">
+                                <div className="relative">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="bg-whatsapp/10 border-whatsapp text-whatsapp hover:bg-whatsapp hover:text-white"
+                                    onClick={() => setWhatsappMenuOpen(whatsappMenuOpen === `upcoming-${enquiry.id}` ? null : `upcoming-${enquiry.id}`)}
+                                  >
+                                    <MessageCircle className="h-4 w-4 mr-1" />
+                                    WhatsApp ▾
+                                  </Button>
+                                  {whatsappMenuOpen === `upcoming-${enquiry.id}` && (
+                                    <div className="absolute top-full right-0 mt-1 z-50 w-56 rounded-md border bg-popover p-1 shadow-md">
+                                      {upcomingWhatsAppMessages.map((msg, idx) => (
+                                        <button
+                                          key={idx}
+                                          className="w-full text-left px-3 py-2 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                                          onClick={() => {
+                                            window.open(`https://api.whatsapp.com/send?phone=91${enquiry.customer_phone}&text=${encodeURIComponent(msg.message)}`, '_blank');
+                                            setWhatsappMenuOpen(null);
+                                          }}
+                                        >
+                                          {msg.label}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                                <a href={`tel:+91${enquiry.customer_phone}`}>
+                                  <Button size="sm" variant="outline">
                                     <Phone className="h-4 w-4" />
                                   </Button>
-                                </div>
+                                </a>
                               </div>
-                            </CardContent>
-                          </Card>
-                        );
-                      })}
-                    </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
                   </div>
-                );
-              })()}
+                </div>
+              )}
 
               {/* All Enquiries */}
               <h3 className="text-lg font-bold text-foreground mb-3">All Enquiries</h3>
               {enquiries.map((enquiry) => {
                 const isNew = (new Date().getTime() - new Date(enquiry.created_at).getTime()) < 24 * 60 * 60 * 1000;
+                const totalKm = enquiry.total_days * 300;
                 return (
                   <Card key={enquiry.id} className={`hover:shadow-md transition-shadow ${isNew ? 'ring-2 ring-primary/30' : ''}`}>
                     <CardContent className="py-4">
@@ -1602,6 +1623,9 @@ const Admin = () => {
                               📍 {enquiry.pickup_location}
                             </p>
                           )}
+                          <p className="text-xs text-muted-foreground mt-1">
+                            🛣️ {totalKm}km limit • ₹10/extra km
+                          </p>
                         </div>
 
                         {/* Price & Actions */}
@@ -1637,15 +1661,16 @@ const Admin = () => {
                                 </div>
                               )}
                             </div>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="bg-primary/10 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                              onClick={() => callCustomer(enquiry.customer_phone)}
-                            >
-                              <Phone className="h-4 w-4 mr-1" />
-                              Call
-                            </Button>
+                            <a href={`tel:+91${enquiry.customer_phone}`}>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="bg-primary/10 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                              >
+                                <Phone className="h-4 w-4 mr-1" />
+                                Call
+                              </Button>
+                            </a>
                             <Select
                               value={enquiry.status}
                               onValueChange={(value) => updateEnquiryStatus(enquiry.id, value)}

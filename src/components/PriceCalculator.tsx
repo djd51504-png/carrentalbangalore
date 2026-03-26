@@ -1,6 +1,6 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar as CalendarIcon, Clock, MapPin, Search, AlertCircle, Loader2, Settings2, User, Phone, ArrowRight, Fuel, Cog, Gauge, MessageCircle } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, MapPin, Search, AlertCircle, Loader2, Settings2, User, Phone, ArrowRight, Fuel, Cog, Gauge, MessageCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -66,10 +66,12 @@ interface Car {
   brand: string;
   price: number;
   image: string;
+  images: string[];
   categoryLabel: string;
   transmission: string;
   fuel: string;
   kmLimit: number;
+  extraKmCharge: number;
   price3Days: number | null;
   price7Days: number | null;
   price15Days: number | null;
@@ -98,6 +100,46 @@ interface PriceCalculatorProps {
   dropTime?: string;
   pickupLocation?: string;
 }
+
+// Simple image carousel for car cards
+const CarImageCarousel = ({ images, name, categoryLabel }: { images: string[]; name: string; categoryLabel: string }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const hasMultiple = images.length > 1;
+
+  return (
+    <div className="relative bg-gradient-to-br from-secondary/30 to-secondary/60 p-3 md:p-6">
+      <img
+        src={images[currentIndex]}
+        alt={`${name} ${currentIndex + 1}`}
+        className="w-full h-32 md:h-48 object-contain mix-blend-multiply transition-opacity duration-300"
+      />
+      <span className="absolute top-2 left-2 text-[10px] md:text-xs font-bold px-2 py-1 rounded-full bg-primary/90 text-primary-foreground">
+        {categoryLabel}
+      </span>
+      {hasMultiple && (
+        <>
+          <button
+            onClick={(e) => { e.stopPropagation(); setCurrentIndex(i => (i - 1 + images.length) % images.length); }}
+            className="absolute left-1 top-1/2 -translate-y-1/2 bg-background/70 hover:bg-background rounded-full p-1 shadow"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); setCurrentIndex(i => (i + 1) % images.length); }}
+            className="absolute right-1 top-1/2 -translate-y-1/2 bg-background/70 hover:bg-background rounded-full p-1 shadow"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1">
+            {images.map((_, i) => (
+              <span key={i} className={`w-1.5 h-1.5 rounded-full ${i === currentIndex ? 'bg-primary' : 'bg-muted-foreground/40'}`} />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
 
 const PriceCalculator = ({ 
   pickupDate: initialPickupDate = "",
@@ -145,10 +187,12 @@ const PriceCalculator = ({
           brand: car.brand,
           price: car.price,
           image: car.image || fallbackImages[car.name] || swiftImg,
+          images: (car as any).images || [],
           categoryLabel: car.category_label || 'Hatchback',
           transmission: car.transmission,
           fuel: car.fuel,
           kmLimit: car.km_limit,
+          extraKmCharge: car.extra_km_charge,
           price3Days: car.price_3_days,
           price7Days: car.price_7_days,
           price15Days: car.price_15_days,
@@ -345,6 +389,8 @@ const PriceCalculator = ({
       carName: car.name,
       carBrand: car.brand,
       carImage: car.image,
+      kmLimit: car.kmLimit,
+      extraKmCharge: car.extraKmCharge,
       totalDays: car.fullDays,
       extraHours: car.extraHours,
       basePrice: car.totalPrice,
@@ -655,23 +701,16 @@ const PriceCalculator = ({
                   data-aos="fade-up"
                   data-aos-delay={index * 50}
                 >
-                  {/* Image Container */}
-                  <div className="relative bg-gradient-to-br from-secondary/30 to-secondary/60 p-3 md:p-6">
-                    <img
-                      src={car.image}
-                      alt={car.name}
-                      className="w-full h-32 md:h-48 object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500"
-                    />
-                    {/* Category Badge */}
-                    <span className="absolute top-2 left-2 text-[10px] md:text-xs font-bold px-2 py-1 rounded-full bg-primary/90 text-primary-foreground">
-                      {car.categoryLabel}
-                    </span>
-                  </div>
+                  {/* Image Container with carousel */}
+                  <CarImageCarousel images={car.images.length > 0 ? car.images : [car.image]} name={car.name} categoryLabel={car.categoryLabel} />
 
                   {/* Content */}
                   <div className="p-3 md:p-5">
                     <div className="flex items-start justify-between gap-2 mb-3">
-                      <h3 className="font-heading font-bold text-base md:text-xl text-foreground leading-tight">{car.name}</h3>
+                      <div>
+                        <h3 className="font-heading font-bold text-base md:text-xl text-foreground leading-tight">{car.brand}</h3>
+                        <p className="text-xs md:text-sm text-muted-foreground">{car.name}</p>
+                      </div>
                       <div className="text-right flex-shrink-0">
                         <p className="font-heading font-bold text-lg md:text-2xl text-primary">₹{car.totalPrice.toLocaleString()}</p>
                         <p className="text-[10px] md:text-xs text-muted-foreground">
@@ -696,13 +735,13 @@ const PriceCalculator = ({
                       </span>
                       <span className="flex flex-col items-center gap-0.5 text-[9px] md:text-xs font-semibold px-1 py-1.5 md:py-2 rounded-lg bg-gradient-to-br from-purple-100 to-purple-200 text-purple-900 dark:from-purple-900/40 dark:to-purple-900/20 dark:text-purple-300">
                         <Gauge className="w-3 h-3 md:w-4 md:h-4" />
-                        {car.fullDays * 300}km
+                        {car.fullDays * car.kmLimit}km
                       </span>
                     </div>
 
                     {/* KM Limit Info */}
                     <p className="text-[9px] md:text-xs text-muted-foreground text-center mb-3 md:mb-4">
-                      Total KM limit: {car.fullDays * 300}km • Extra: ₹10/km
+                      {car.kmLimit}km/day • Total: {car.fullDays * car.kmLimit}km • Extra: ₹{car.extraKmCharge}/km
                     </p>
 
                     {/* Book Buttons */}
@@ -735,7 +774,7 @@ const PriceCalculator = ({
                           `👤 Name: ${customerName}\n` +
                           `📞 Phone: ${customerPhone}\n\n` +
                           `💰 Price: ₹${car.totalPrice.toLocaleString()}\n` +
-                          `🛣️ KM Limit: ${car.fullDays * 300}km (₹10/extra km)\n\n` +
+                          `🛣️ KM Limit: ${car.fullDays * car.kmLimit}km (₹${car.extraKmCharge}/extra km)\n\n` +
                           `Please confirm availability.`
                         )}`}
                         target="_blank"

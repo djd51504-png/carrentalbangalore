@@ -16,6 +16,10 @@ export interface BookingData {
   carBrand: string;
   carImage: string;
   
+  // KM details
+  kmLimit: number;
+  extraKmCharge: number;
+  
   // Calculated values
   totalDays: number;
   extraHours: number;
@@ -50,6 +54,8 @@ const initialBookingData: BookingData = {
   carName: "",
   carBrand: "",
   carImage: "",
+  kmLimit: 300,
+  extraKmCharge: 10,
   totalDays: 0,
   extraHours: 0,
   basePrice: 0,
