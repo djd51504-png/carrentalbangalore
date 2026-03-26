@@ -661,23 +661,16 @@ const PriceCalculator = ({
                   data-aos="fade-up"
                   data-aos-delay={index * 50}
                 >
-                  {/* Image Container */}
-                  <div className="relative bg-gradient-to-br from-secondary/30 to-secondary/60 p-3 md:p-6">
-                    <img
-                      src={car.image}
-                      alt={car.name}
-                      className="w-full h-32 md:h-48 object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500"
-                    />
-                    {/* Category Badge */}
-                    <span className="absolute top-2 left-2 text-[10px] md:text-xs font-bold px-2 py-1 rounded-full bg-primary/90 text-primary-foreground">
-                      {car.categoryLabel}
-                    </span>
-                  </div>
+                  {/* Image Container with carousel */}
+                  <CarImageCarousel images={car.images.length > 0 ? car.images : [car.image]} name={car.name} categoryLabel={car.categoryLabel} />
 
                   {/* Content */}
                   <div className="p-3 md:p-5">
                     <div className="flex items-start justify-between gap-2 mb-3">
-                      <h3 className="font-heading font-bold text-base md:text-xl text-foreground leading-tight">{car.name}</h3>
+                      <div>
+                        <h3 className="font-heading font-bold text-base md:text-xl text-foreground leading-tight">{car.brand}</h3>
+                        <p className="text-xs md:text-sm text-muted-foreground">{car.name}</p>
+                      </div>
                       <div className="text-right flex-shrink-0">
                         <p className="font-heading font-bold text-lg md:text-2xl text-primary">₹{car.totalPrice.toLocaleString()}</p>
                         <p className="text-[10px] md:text-xs text-muted-foreground">
@@ -702,13 +695,13 @@ const PriceCalculator = ({
                       </span>
                       <span className="flex flex-col items-center gap-0.5 text-[9px] md:text-xs font-semibold px-1 py-1.5 md:py-2 rounded-lg bg-gradient-to-br from-purple-100 to-purple-200 text-purple-900 dark:from-purple-900/40 dark:to-purple-900/20 dark:text-purple-300">
                         <Gauge className="w-3 h-3 md:w-4 md:h-4" />
-                        {car.fullDays * 300}km
+                        {car.fullDays * car.kmLimit}km
                       </span>
                     </div>
 
                     {/* KM Limit Info */}
                     <p className="text-[9px] md:text-xs text-muted-foreground text-center mb-3 md:mb-4">
-                      Total KM limit: {car.fullDays * 300}km • Extra: ₹10/km
+                      {car.kmLimit}km/day • Total: {car.fullDays * car.kmLimit}km • Extra: ₹{car.extraKmCharge}/km
                     </p>
 
                     {/* Book Buttons */}
@@ -741,7 +734,7 @@ const PriceCalculator = ({
                           `👤 Name: ${customerName}\n` +
                           `📞 Phone: ${customerPhone}\n\n` +
                           `💰 Price: ₹${car.totalPrice.toLocaleString()}\n` +
-                          `🛣️ KM Limit: ${car.fullDays * 300}km (₹10/extra km)\n\n` +
+                          `🛣️ KM Limit: ${car.fullDays * car.kmLimit}km (₹${car.extraKmCharge}/extra km)\n\n` +
                           `Please confirm availability.`
                         )}`}
                         target="_blank"
