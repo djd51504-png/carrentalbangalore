@@ -66,10 +66,12 @@ interface Car {
   brand: string;
   price: number;
   image: string;
+  images: string[];
   categoryLabel: string;
   transmission: string;
   fuel: string;
   kmLimit: number;
+  extraKmCharge: number;
   price3Days: number | null;
   price7Days: number | null;
   price15Days: number | null;
