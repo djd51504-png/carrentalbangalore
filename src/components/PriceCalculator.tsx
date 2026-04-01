@@ -82,7 +82,7 @@ interface Car {
 
 const locations = [
   "Hebbal", "Thanisandra", "KR Puram", "Bellandur", 
-  "Hongasandra", "Kengeri", "Nagarabhavi", "Kadugodi"
+  "Hongasandra", "Kengeri", "Chikabanavara", "Kadugodi"
 ];
 
 type TransmissionFilter = "all" | "Manual" | "Automatic";
@@ -107,11 +107,13 @@ const CarImageCarousel = ({ images, name, categoryLabel }: { images: string[]; n
   const hasMultiple = images.length > 1;
 
   return (
-    <div className="relative bg-gradient-to-br from-secondary/30 to-secondary/60 p-3 md:p-6">
+    <div className="relative aspect-[4/3] bg-gradient-to-br from-secondary/30 to-secondary/60 overflow-hidden">
       <img
         src={images[currentIndex]}
         alt={`${name} ${currentIndex + 1}`}
-        className="w-full h-32 md:h-48 object-contain mix-blend-multiply transition-opacity duration-300"
+        loading="lazy"
+        decoding="async"
+        className="w-full h-full object-cover transition-opacity duration-300"
       />
       <span className="absolute top-2 left-2 text-[10px] md:text-xs font-bold px-2 py-1 rounded-full bg-primary/90 text-primary-foreground">
         {categoryLabel}

@@ -11,7 +11,7 @@ const locations = [
   { name: "Bellandur", address: "Bellandur Junction", lat: 12.9261, lng: 77.6763 },
   { name: "Hongasandra", address: "Hongasandra Main Road", lat: 12.8897, lng: 77.6350 },
   { name: "Kengeri", address: "Kengeri Satellite Town", lat: 12.9036, lng: 77.4830 },
-  { name: "Nagarabhavi", address: "Nagarabhavi Circle", lat: 12.9600, lng: 77.5100 },
+  { name: "Chikabanavara", address: "Chikabanavara Main Road", lat: 13.0370, lng: 77.5120 },
   { name: "Kadugodi", address: "Near Kadugodi Bus Stop", lat: 12.9942, lng: 77.7614 },
 ];
 

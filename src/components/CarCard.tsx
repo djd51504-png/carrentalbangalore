@@ -40,11 +40,13 @@ const CarCard = ({
       onMouseLeave={() => setShowDetails(false)}
     >
       {/* Image Container */}
-      <div className="relative bg-gradient-to-br from-secondary/30 to-secondary/60 p-4 md:p-8 overflow-hidden">
+      <div className="relative aspect-[4/3] bg-gradient-to-br from-secondary/30 to-secondary/60 overflow-hidden">
         <img
           src={image}
           alt={name}
-          className="w-full h-40 md:h-52 object-contain mix-blend-multiply transition-all duration-700 ease-out group-hover:scale-110 group-hover:rotate-1"
+          loading="lazy"
+          decoding="async"
+          className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-105"
         />
         {/* Category Badge */}
         <span className="absolute top-3 left-3 inline-flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full bg-primary/90 text-primary-foreground shadow-lg transition-transform duration-300 group-hover:scale-105">

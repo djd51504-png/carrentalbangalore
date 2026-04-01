@@ -7,7 +7,7 @@ const locations = [
   { name: "Bellandur", landmark: "Bellandur Junction" },
   { name: "Hongasandra", landmark: "Near Bommanahalli" },
   { name: "Kengeri", landmark: "Kengeri Satellite Town" },
-  { name: "Nagarabhavi", landmark: "Nagarabhavi Circle" },
+  { name: "Chikabanavara", landmark: "Chikabanavara Main Road" },
   { name: "Kadugodi", landmark: "Near ITPL" },
 ];
 

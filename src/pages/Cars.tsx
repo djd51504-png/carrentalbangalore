@@ -100,7 +100,7 @@ const AVAILABLE_LOCATIONS = [
   "Bellandur",
   "Hongasandra",
   "Kengeri",
-  "Nagarabhavi",
+  "Chikabanavara",
   "Kadugodi",
 ];
 
