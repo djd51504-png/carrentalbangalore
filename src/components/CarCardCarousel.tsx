@@ -76,7 +76,7 @@ const CarCardCarousel = ({
       )}
 
       {/* Image Container */}
-      <div className="relative aspect-[16/9] overflow-hidden bg-muted">
+      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
         {allImages.length > 0 ? (
           <div className="overflow-hidden h-full" ref={emblaRef}>
             <div className="flex h-full">

@@ -10,7 +10,7 @@ import { useBooking } from "@/contexts/BookingContext";
 
 const locations = [
   "Hebbal", "Thanisandra", "KR Puram", "Bellandur", 
-  "Hongasandra", "Kengeri", "Nagarabhavi", "Kadugodi"
+  "Hongasandra", "Kengeri", "Chikabanavara", "Kadugodi"
 ];
 
 interface BookingModalProps {
