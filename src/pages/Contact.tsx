@@ -36,21 +36,58 @@ const Contact = () => {
           </div>
         </section>
 
-        {/* Map Section */}
+        {/* Maps Section - Two Locations */}
         <section className="container mx-auto px-4 mb-16">
-          <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xl">
-            <div className="aspect-video w-full">
-              <iframe
-                src={mapSrc}
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Key2Go Bangalore Locations"
-                className="w-full h-full"
-              />
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-8 text-center">
+            Find Us on <span className="text-gold">Maps</span>
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Chikabanavara Location */}
+            <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xl">
+              <div className="p-4 border-b border-border">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-primary" />
+                  <h3 className="font-semibold text-foreground">Chikabanavara Branch</h3>
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">Chikabanavara Main Road, Bangalore</p>
+              </div>
+              <div className="aspect-[4/3] w-full">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3887.1!2d77.512!3d13.037!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae1670c9b44e6d%3A0xf8dfc3e8517e4fe0!2sBengaluru%2C%20Karnataka!5e0!3m2!1sen!2sin!4v1704067200000!5m2!1sen!2sin"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Key2Go Chikabanavara Location"
+                  className="w-full h-full"
+                />
+              </div>
+            </div>
+
+            {/* Kengeri Location */}
+            <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xl">
+              <div className="p-4 border-b border-border">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-primary" />
+                  <h3 className="font-semibold text-foreground">Kengeri Branch</h3>
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">Duvasapalya, Kengeri Satellite Town, Bangalore 560060</p>
+              </div>
+              <div className="aspect-[4/3] w-full">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3888.5!2d77.483!3d12.9036!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae3f1b0f3f1b0f%3A0x1234567890abcdef!2sReady2Rent%20Self%20Drive%20Car%20Rentals%20Bangalore!5e0!3m2!1sen!2sin!4v1704067200000!5m2!1sen!2sin"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Key2Go Kengeri Location"
+                  className="w-full h-full"
+                />
+              </div>
             </div>
           </div>
         </section>
