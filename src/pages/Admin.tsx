@@ -1499,19 +1499,18 @@ const Admin = () => {
                       const now = new Date();
                       const pickupDate = new Date(enquiry.pickup_date);
                       const daysUntil = Math.ceil((pickupDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-                      const totalKm = enquiry.total_days * 300;
                       const upcomingWhatsAppMessages = [
                         {
                           label: "✅ Confirm Booking",
-                          message: `Hi ${enquiry.customer_name}! 🚗\n\nYour booking for *${enquiry.car_name}* is confirmed!\n\n📅 Pickup: ${formatDate(enquiry.pickup_date)}\n📅 Drop: ${formatDate(enquiry.drop_date)}\n📍 Location: ${enquiry.pickup_location || 'TBD'}\n💰 Amount: ₹${enquiry.estimated_price.toLocaleString()}\n🛣️ KM Limit: ${totalKm}km (₹10/extra km)\n\nPlease carry your *original Driving License & Aadhaar card*.\n\nThank you for choosing Key2Go! 🙏`,
+                          message: `Hi ${enquiry.customer_name}! 🚗\n\nYour booking for *${enquiry.car_name}* is confirmed!\n\n📅 Pickup: ${formatDate(enquiry.pickup_date)}\n📅 Drop: ${formatDate(enquiry.drop_date)}\n📍 Location: ${enquiry.pickup_location || 'TBD'}\n💰 Amount: ₹${enquiry.estimated_price.toLocaleString()}\n\nPlease carry your *original Driving License & Aadhaar card*.\n\nThank you for choosing Key2Go! 🙏`,
                         },
                         {
                           label: "💰 Confirm Budget",
-                          message: `Hi ${enquiry.customer_name},\n\nThank you for your interest in *${enquiry.car_name}*.\n\nYour trip: ${formatDate(enquiry.pickup_date)} → ${formatDate(enquiry.drop_date)}\n💰 Estimated: ₹${enquiry.estimated_price.toLocaleString()}\n🛣️ KM Limit: ${totalKm}km (₹10/extra km)\n\nCould you please confirm if this budget works for you? We can discuss the best pricing for your trip duration.\n\nLooking forward to hearing from you! 😊`,
+                          message: `Hi ${enquiry.customer_name},\n\nThank you for your interest in *${enquiry.car_name}*.\n\nYour trip: ${formatDate(enquiry.pickup_date)} → ${formatDate(enquiry.drop_date)}\n💰 Estimated: ₹${enquiry.estimated_price.toLocaleString()}\n\nCould you please confirm if this budget works for you? We can discuss the best pricing for your trip duration.\n\nLooking forward to hearing from you! 😊`,
                         },
                         {
                           label: "❓ Any Queries?",
-                          message: `Hi ${enquiry.customer_name},\n\nThis is a reminder about your upcoming booking:\n🚗 ${enquiry.car_name}\n📅 ${formatDate(enquiry.pickup_date)}\n📍 ${enquiry.pickup_location || 'TBD'}\n🛣️ KM Limit: ${totalKm}km (₹10/extra km)\n\nPlease let me know if you have any queries or need any changes to your booking.\n\nWe're here to help! 🙏`,
+                          message: `Hi ${enquiry.customer_name},\n\nThis is a reminder about your upcoming booking:\n🚗 ${enquiry.car_name}\n📅 ${formatDate(enquiry.pickup_date)}\n📍 ${enquiry.pickup_location || 'TBD'}\n\nPlease let me know if you have any queries or need any changes to your booking.\n\nWe're here to help! 🙏`,
                         },
                       ];
                       return (
