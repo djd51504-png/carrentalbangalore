@@ -1622,7 +1622,7 @@ const Admin = () => {
                             </p>
                           )}
                           <p className="text-xs text-muted-foreground mt-1">
-                            🛣️ {totalKm}km limit • ₹10/extra km
+                            ⏱ {enquiry.total_days} day(s){enquiry.total_hours ? ` + ${enquiry.total_hours}h` : ''}
                           </p>
                         </div>
 
