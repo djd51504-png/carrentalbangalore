@@ -819,19 +819,18 @@ const Admin = () => {
     const priceInfo = enquiry.estimated_price > 0 ? `\n💰 Estimated: ₹${enquiry.estimated_price.toLocaleString()}` : '';
     const durationText = `${enquiry.total_days} day(s)${enquiry.total_hours ? ` + ${enquiry.total_hours}h` : ''}`;
     const locationText = enquiry.pickup_location && enquiry.pickup_location !== 'Not selected' ? enquiry.pickup_location : 'To be decided';
-    const totalKm = enquiry.total_days * 300;
     return [
       {
         label: "✅ Confirm Booking",
-        message: `Hi ${enquiry.customer_name}! 🚗\n\nYour booking for ${carDisplay} is confirmed!\n\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n📍 Location: ${locationText}${priceInfo}\n⏱ Duration: ${durationText}\n🛣️ KM Limit: ${totalKm}km (₹10/extra km)\n\nPlease carry your *original Driving License & Aadhaar card* at the time of pickup.\n\nThank you for choosing Key2Go! 🙏`,
+        message: `Hi ${enquiry.customer_name}! 🚗\n\nYour booking for ${carDisplay} is confirmed!\n\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n📍 Location: ${locationText}${priceInfo}\n⏱ Duration: ${durationText}\n\nPlease carry your *original Driving License & Aadhaar card* at the time of pickup.\n\nThank you for choosing Key2Go! 🙏`,
       },
       {
         label: "💰 Negotiate Price",
-        message: `Hi ${enquiry.customer_name},\n\nThank you for your interest in ${carDisplay}.\n\nYour trip: ${pickupDate} → ${dropDate} (${durationText})${priceInfo}\n🛣️ KM Limit: ${totalKm}km (₹10/extra km)\n\nWe can discuss a better rate based on your trip duration. Could you share your budget so we can work something out?\n\nLooking forward to hearing from you! 😊`,
+        message: `Hi ${enquiry.customer_name},\n\nThank you for your interest in ${carDisplay}.\n\nYour trip: ${pickupDate} → ${dropDate} (${durationText})${priceInfo}\n\nWe can discuss a better rate based on your trip duration. Could you share your budget so we can work something out?\n\nLooking forward to hearing from you! 😊`,
       },
       {
         label: "📅 Confirm Dates",
-        message: `Hi ${enquiry.customer_name},\n\nThanks for your enquiry about ${carDisplay}.\n\nCould you please confirm your exact pickup and drop-off dates & times?\n\nDates on file:\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n📍 Location: ${locationText}\n🛣️ KM Limit: ${totalKm}km (₹10/extra km)\n\nOnce confirmed, we'll share the best pricing. Thank you! 🙏`,
+        message: `Hi ${enquiry.customer_name},\n\nThanks for your enquiry about ${carDisplay}.\n\nCould you please confirm your exact pickup and drop-off dates & times?\n\nDates on file:\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n📍 Location: ${locationText}\n\nOnce confirmed, we'll share the best pricing. Thank you! 🙏`,
       },
     ];
   }, [formatDate]);
