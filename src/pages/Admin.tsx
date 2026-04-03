@@ -1529,7 +1529,7 @@ const Admin = () => {
                                   🚗 {enquiry.car_name} • 📅 {formatDate(enquiry.pickup_date)} • 📍 {enquiry.pickup_location || 'TBD'}
                                 </p>
                                 <p className="text-xs text-muted-foreground mt-0.5">
-                                  🛣️ {totalKm}km limit • ₹10/extra km
+                                  ⏱ {enquiry.total_days} day(s){enquiry.total_hours ? ` + ${enquiry.total_hours}h` : ''}
                                 </p>
                               </div>
                               <div className="flex gap-2">
