@@ -1579,7 +1579,7 @@ const Admin = () => {
               <h3 className="text-lg font-bold text-foreground mb-3">All Enquiries</h3>
               {enquiries.map((enquiry) => {
                 const isNew = (new Date().getTime() - new Date(enquiry.created_at).getTime()) < 24 * 60 * 60 * 1000;
-                const totalKm = enquiry.total_days * 300;
+                
                 return (
                   <Card key={enquiry.id} className={`hover:shadow-md transition-shadow ${isNew ? 'ring-2 ring-primary/30' : ''}`}>
                     <CardContent className="py-4">
