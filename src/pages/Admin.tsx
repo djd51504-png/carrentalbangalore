@@ -819,19 +819,18 @@ const Admin = () => {
     const priceInfo = enquiry.estimated_price > 0 ? `\n💰 Estimated: ₹${enquiry.estimated_price.toLocaleString()}` : '';
     const durationText = `${enquiry.total_days} day(s)${enquiry.total_hours ? ` + ${enquiry.total_hours}h` : ''}`;
     const locationText = enquiry.pickup_location && enquiry.pickup_location !== 'Not selected' ? enquiry.pickup_location : 'To be decided';
-    const totalKm = enquiry.total_days * 300;
     return [
       {
         label: "✅ Confirm Booking",
-        message: `Hi ${enquiry.customer_name}! 🚗\n\nYour booking for ${carDisplay} is confirmed!\n\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n📍 Location: ${locationText}${priceInfo}\n⏱ Duration: ${durationText}\n🛣️ KM Limit: ${totalKm}km (₹10/extra km)\n\nPlease carry your *original Driving License & Aadhaar card* at the time of pickup.\n\nThank you for choosing Key2Go! 🙏`,
+        message: `Hi ${enquiry.customer_name}! 🚗\n\nYour booking for ${carDisplay} is confirmed!\n\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n📍 Location: ${locationText}${priceInfo}\n⏱ Duration: ${durationText}\n\nPlease carry your *original Driving License & Aadhaar card* at the time of pickup.\n\nThank you for choosing Key2Go! 🙏`,
       },
       {
         label: "💰 Negotiate Price",
-        message: `Hi ${enquiry.customer_name},\n\nThank you for your interest in ${carDisplay}.\n\nYour trip: ${pickupDate} → ${dropDate} (${durationText})${priceInfo}\n🛣️ KM Limit: ${totalKm}km (₹10/extra km)\n\nWe can discuss a better rate based on your trip duration. Could you share your budget so we can work something out?\n\nLooking forward to hearing from you! 😊`,
+        message: `Hi ${enquiry.customer_name},\n\nThank you for your interest in ${carDisplay}.\n\nYour trip: ${pickupDate} → ${dropDate} (${durationText})${priceInfo}\n\nWe can discuss a better rate based on your trip duration. Could you share your budget so we can work something out?\n\nLooking forward to hearing from you! 😊`,
       },
       {
         label: "📅 Confirm Dates",
-        message: `Hi ${enquiry.customer_name},\n\nThanks for your enquiry about ${carDisplay}.\n\nCould you please confirm your exact pickup and drop-off dates & times?\n\nDates on file:\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n📍 Location: ${locationText}\n🛣️ KM Limit: ${totalKm}km (₹10/extra km)\n\nOnce confirmed, we'll share the best pricing. Thank you! 🙏`,
+        message: `Hi ${enquiry.customer_name},\n\nThanks for your enquiry about ${carDisplay}.\n\nCould you please confirm your exact pickup and drop-off dates & times?\n\nDates on file:\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n📍 Location: ${locationText}\n\nOnce confirmed, we'll share the best pricing. Thank you! 🙏`,
       },
     ];
   }, [formatDate]);
@@ -1500,19 +1499,18 @@ const Admin = () => {
                       const now = new Date();
                       const pickupDate = new Date(enquiry.pickup_date);
                       const daysUntil = Math.ceil((pickupDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-                      const totalKm = enquiry.total_days * 300;
                       const upcomingWhatsAppMessages = [
                         {
                           label: "✅ Confirm Booking",
-                          message: `Hi ${enquiry.customer_name}! 🚗\n\nYour booking for *${enquiry.car_name}* is confirmed!\n\n📅 Pickup: ${formatDate(enquiry.pickup_date)}\n📅 Drop: ${formatDate(enquiry.drop_date)}\n📍 Location: ${enquiry.pickup_location || 'TBD'}\n💰 Amount: ₹${enquiry.estimated_price.toLocaleString()}\n🛣️ KM Limit: ${totalKm}km (₹10/extra km)\n\nPlease carry your *original Driving License & Aadhaar card*.\n\nThank you for choosing Key2Go! 🙏`,
+                          message: `Hi ${enquiry.customer_name}! 🚗\n\nYour booking for *${enquiry.car_name}* is confirmed!\n\n📅 Pickup: ${formatDate(enquiry.pickup_date)}\n📅 Drop: ${formatDate(enquiry.drop_date)}\n📍 Location: ${enquiry.pickup_location || 'TBD'}\n💰 Amount: ₹${enquiry.estimated_price.toLocaleString()}\n\nPlease carry your *original Driving License & Aadhaar card*.\n\nThank you for choosing Key2Go! 🙏`,
                         },
                         {
                           label: "💰 Confirm Budget",
-                          message: `Hi ${enquiry.customer_name},\n\nThank you for your interest in *${enquiry.car_name}*.\n\nYour trip: ${formatDate(enquiry.pickup_date)} → ${formatDate(enquiry.drop_date)}\n💰 Estimated: ₹${enquiry.estimated_price.toLocaleString()}\n🛣️ KM Limit: ${totalKm}km (₹10/extra km)\n\nCould you please confirm if this budget works for you? We can discuss the best pricing for your trip duration.\n\nLooking forward to hearing from you! 😊`,
+                          message: `Hi ${enquiry.customer_name},\n\nThank you for your interest in *${enquiry.car_name}*.\n\nYour trip: ${formatDate(enquiry.pickup_date)} → ${formatDate(enquiry.drop_date)}\n💰 Estimated: ₹${enquiry.estimated_price.toLocaleString()}\n\nCould you please confirm if this budget works for you? We can discuss the best pricing for your trip duration.\n\nLooking forward to hearing from you! 😊`,
                         },
                         {
                           label: "❓ Any Queries?",
-                          message: `Hi ${enquiry.customer_name},\n\nThis is a reminder about your upcoming booking:\n🚗 ${enquiry.car_name}\n📅 ${formatDate(enquiry.pickup_date)}\n📍 ${enquiry.pickup_location || 'TBD'}\n🛣️ KM Limit: ${totalKm}km (₹10/extra km)\n\nPlease let me know if you have any queries or need any changes to your booking.\n\nWe're here to help! 🙏`,
+                          message: `Hi ${enquiry.customer_name},\n\nThis is a reminder about your upcoming booking:\n🚗 ${enquiry.car_name}\n📅 ${formatDate(enquiry.pickup_date)}\n📍 ${enquiry.pickup_location || 'TBD'}\n\nPlease let me know if you have any queries or need any changes to your booking.\n\nWe're here to help! 🙏`,
                         },
                       ];
                       return (
@@ -1531,7 +1529,7 @@ const Admin = () => {
                                   🚗 {enquiry.car_name} • 📅 {formatDate(enquiry.pickup_date)} • 📍 {enquiry.pickup_location || 'TBD'}
                                 </p>
                                 <p className="text-xs text-muted-foreground mt-0.5">
-                                  🛣️ {totalKm}km limit • ₹10/extra km
+                                  ⏱ {enquiry.total_days} day(s){enquiry.total_hours ? ` + ${enquiry.total_hours}h` : ''}
                                 </p>
                               </div>
                               <div className="flex gap-2">
@@ -1581,7 +1579,7 @@ const Admin = () => {
               <h3 className="text-lg font-bold text-foreground mb-3">All Enquiries</h3>
               {enquiries.map((enquiry) => {
                 const isNew = (new Date().getTime() - new Date(enquiry.created_at).getTime()) < 24 * 60 * 60 * 1000;
-                const totalKm = enquiry.total_days * 300;
+                
                 return (
                   <Card key={enquiry.id} className={`hover:shadow-md transition-shadow ${isNew ? 'ring-2 ring-primary/30' : ''}`}>
                     <CardContent className="py-4">
@@ -1624,7 +1622,7 @@ const Admin = () => {
                             </p>
                           )}
                           <p className="text-xs text-muted-foreground mt-1">
-                            🛣️ {totalKm}km limit • ₹10/extra km
+                            ⏱ {enquiry.total_days} day(s){enquiry.total_hours ? ` + ${enquiry.total_hours}h` : ''}
                           </p>
                         </div>
 
