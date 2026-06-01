@@ -404,17 +404,20 @@ const PriceCalculator = ({
   };
 
   return (
-    <section id="calculator" className="py-12 md:py-24 bg-charcoal">
-      <div className="container px-4 md:px-6">
+    <section id="calculator" className="relative py-12 md:py-24 bg-charcoal overflow-hidden">
+      {/* Decorative background */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,hsl(var(--primary)/0.18),transparent_40%),radial-gradient(circle_at_80%_90%,hsl(var(--gold)/0.15),transparent_45%)] pointer-events-none" />
+      <div className="absolute inset-0 opacity-[0.06] pointer-events-none" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
+      <div className="container px-4 md:px-6 relative z-10">
         {/* Section Header */}
         <div className="text-center mb-8 md:mb-12" data-aos="fade-down">
-          <span className="inline-block text-xs md:text-sm font-semibold text-electric-light uppercase tracking-wider mb-2 md:mb-3">
+          <span className="inline-block text-xs font-semibold text-electric-light uppercase tracking-wider mb-2">
             Transparent Pricing
           </span>
-          <h2 className="font-heading text-2xl md:text-4xl font-bold text-primary-foreground mb-3 md:mb-4">
+          <h2 className="font-heading text-xl md:text-3xl font-bold text-primary-foreground mb-2">
             Check Availability & Price
           </h2>
-          <p className="text-primary-foreground/70 text-sm md:text-base max-w-2xl mx-auto">
+          <p className="text-primary-foreground/70 text-xs md:text-sm max-w-2xl mx-auto">
             Calculate your rental cost instantly. No hidden charges.
           </p>
         </div>
@@ -695,7 +698,7 @@ const PriceCalculator = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
+            <div className="grid grid-cols-1 gap-6 max-w-xl mx-auto">
               {carsWithPrices.map((car, index) => (
                 <div 
                   key={car.id} 

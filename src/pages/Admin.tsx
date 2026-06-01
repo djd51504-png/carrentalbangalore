@@ -1008,6 +1008,57 @@ const Admin = () => {
       </header>
 
       <div className="container mx-auto px-4 py-8">
+        {/* Quick Access Dashboard */}
+        <div className="mb-6 grid grid-cols-2 md:grid-cols-4 gap-3">
+          <button
+            onClick={() => setActiveTab("fleet")}
+            className="text-left bg-background border border-border rounded-xl p-4 hover:border-primary hover:shadow-md transition-all"
+          >
+            <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider mb-1">
+              <Car className="h-3.5 w-3.5" /> Fleet
+            </div>
+            <div className="text-2xl font-bold text-foreground">{cars.length}</div>
+            <div className="text-xs text-muted-foreground">{cars.filter(c => c.isAvailable).length} available</div>
+          </button>
+          <button
+            onClick={() => { setActiveTab("enquiries"); markEnquiriesSeen(); }}
+            className="relative text-left bg-background border border-border rounded-xl p-4 hover:border-primary hover:shadow-md transition-all"
+          >
+            <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider mb-1">
+              <ClipboardList className="h-3.5 w-3.5" /> Enquiries
+            </div>
+            <div className="text-2xl font-bold text-foreground">{enquiries.length}</div>
+            <div className="text-xs text-muted-foreground">{enquiries.filter(e => e.status === 'pending').length} pending</div>
+            {unseenCount > 0 && (
+              <span className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full h-5 min-w-[20px] flex items-center justify-center px-1 animate-pulse">
+                {unseenCount} new
+              </span>
+            )}
+          </button>
+          <a
+            href="https://wa.me/919448277091"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-left bg-background border border-border rounded-xl p-4 hover:border-primary hover:shadow-md transition-all"
+          >
+            <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider mb-1">
+              <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
+            </div>
+            <div className="text-base font-bold text-foreground">Open Chat</div>
+            <div className="text-xs text-muted-foreground">+91 9448277091</div>
+          </a>
+          <Link
+            to="/"
+            className="text-left bg-background border border-border rounded-xl p-4 hover:border-primary hover:shadow-md transition-all"
+          >
+            <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider mb-1">
+              <Eye className="h-3.5 w-3.5" /> Site
+            </div>
+            <div className="text-base font-bold text-foreground">View Live</div>
+            <div className="text-xs text-muted-foreground">Open homepage</div>
+          </Link>
+        </div>
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full max-w-md grid-cols-2">
             <TabsTrigger value="fleet" className="flex items-center gap-2">
