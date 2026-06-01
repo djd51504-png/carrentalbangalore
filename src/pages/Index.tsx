@@ -6,6 +6,7 @@ import LocationsSection from "@/components/LocationsSection";
 import PriceCalculator from "@/components/PriceCalculator";
 import FleetSection from "@/components/FleetSection";
 import GoogleReviews from "@/components/GoogleReviews";
+import InstagramHighlights from "@/components/InstagramHighlights";
 import TermsSection from "@/components/TermsSection";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -30,6 +31,7 @@ const Index = () => {
       <LocationsSection />
       <PriceCalculator />
       <FleetSection />
+      <InstagramHighlights />
       <GoogleReviews />
       <TermsSection />
       <Footer />
