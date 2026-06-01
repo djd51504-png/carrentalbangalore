@@ -1,43 +1,46 @@
-import { Instagram, Car, Heart, Calendar, MapPin, Star, Award } from "lucide-react";
+import { useState } from "react";
+import { Instagram, Car, Heart, Calendar, MapPin, Star, Award, ExternalLink } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 const INSTAGRAM_URL = "https://www.instagram.com/car._.rental._.bengaluru?igsh=MTFpZXBjdGE0am5tbg==";
 
 const highlights = [
-  { label: "Bookings", icon: Calendar, gradient: "from-pink-500 via-red-500 to-yellow-500" },
-  { label: "Happy Customers", icon: Heart, gradient: "from-purple-500 via-pink-500 to-orange-400" },
-  { label: "Our Fleet", icon: Car, gradient: "from-blue-500 via-purple-500 to-pink-500" },
-  { label: "Reviews", icon: Star, gradient: "from-yellow-400 via-orange-500 to-red-500" },
-  { label: "Trips", icon: MapPin, gradient: "from-green-400 via-teal-500 to-blue-500" },
-  { label: "Awards", icon: Award, gradient: "from-amber-400 via-orange-500 to-pink-500" },
+  { label: "Bookings", icon: Calendar, gradient: "from-pink-500 via-red-500 to-yellow-500", description: "Latest bookings and confirmed trips by our happy renters across Bangalore." },
+  { label: "Happy Customers", icon: Heart, gradient: "from-purple-500 via-pink-500 to-orange-400", description: "Real stories and smiles from customers who enjoyed our self-drive cars." },
+  { label: "Our Fleet", icon: Car, gradient: "from-blue-500 via-purple-500 to-pink-500", description: "Showcase of our well-maintained hatchbacks, sedans, and SUVs." },
+  { label: "Reviews", icon: Star, gradient: "from-yellow-400 via-orange-500 to-red-500", description: "Glowing reviews and testimonials shared by our community." },
+  { label: "Trips", icon: MapPin, gradient: "from-green-400 via-teal-500 to-blue-500", description: "Memorable road trips and getaways with Car Rental Bangalore." },
+  { label: "Awards", icon: Award, gradient: "from-amber-400 via-orange-500 to-pink-500", description: "Recognition and milestones we've achieved as a trusted rental partner." },
 ];
 
 const InstagramHighlights = () => {
+  const [active, setActive] = useState<typeof highlights[number] | null>(null);
+
   return (
     <section className="py-12 md:py-16 bg-background border-y border-border">
       <div className="container">
         <div className="text-center mb-8" data-aos="fade-down">
-          <div className="inline-flex items-center gap-2 text-sm font-semibold text-primary uppercase tracking-wider mb-3">
+          <div className="inline-flex items-center gap-2 text-xs font-semibold text-primary uppercase tracking-wider mb-3">
             <Instagram className="w-4 h-4" />
             Follow Us On Instagram
           </div>
-          <h2 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-2">
+          <h2 className="font-heading text-xl md:text-2xl font-bold text-foreground mb-1">
             @car._.rental._.bengaluru
           </h2>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted-foreground text-xs">
             Tap a highlight to view our stories
           </p>
         </div>
 
-        <div className="flex flex-wrap items-start justify-center gap-6 md:gap-8">
+        <div className="flex flex-wrap items-start justify-center gap-5 md:gap-7">
           {highlights.map((h, i) => {
             const Icon = h.icon;
             return (
-              <a
+              <button
                 key={h.label}
-                href={INSTAGRAM_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex flex-col items-center gap-2 w-20 md:w-24"
+                type="button"
+                onClick={() => setActive(h)}
+                className="group flex flex-col items-center gap-2 w-20 md:w-24 focus:outline-none"
                 data-aos="zoom-in"
                 data-aos-delay={i * 80}
               >
@@ -48,10 +51,10 @@ const InstagramHighlights = () => {
                     </div>
                   </div>
                 </div>
-                <span className="text-xs md:text-sm font-medium text-foreground text-center truncate w-full">
+                <span className="text-[11px] md:text-xs font-medium text-foreground text-center truncate w-full">
                   {h.label}
                 </span>
-              </a>
+              </button>
             );
           })}
         </div>
@@ -61,13 +64,45 @@ const InstagramHighlights = () => {
             href={INSTAGRAM_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
           >
-            <Instagram className="w-5 h-5" />
+            <Instagram className="w-4 h-4" />
             Follow @car._.rental._.bengaluru
           </a>
         </div>
       </div>
+
+      <Dialog open={!!active} onOpenChange={(o) => !o && setActive(null)}>
+        <DialogContent className="max-w-sm">
+          {active && (
+            <>
+              <div className={`mx-auto p-[3px] rounded-full bg-gradient-to-tr ${active.gradient}`}>
+                <div className="bg-background p-[2px] rounded-full">
+                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-muted to-secondary flex items-center justify-center">
+                    <active.icon className="w-10 h-10 text-foreground" />
+                  </div>
+                </div>
+              </div>
+              <DialogHeader className="text-center sm:text-center">
+                <DialogTitle className="text-center text-xl">{active.label}</DialogTitle>
+                <DialogDescription className="text-center">
+                  {active.description}
+                </DialogDescription>
+              </DialogHeader>
+              <a
+                href={INSTAGRAM_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-flex items-center justify-center gap-2 w-full bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white px-5 py-3 rounded-xl text-sm font-semibold shadow-lg hover:scale-[1.02] transition-all"
+              >
+                <Instagram className="w-4 h-4" />
+                View on Instagram
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };
