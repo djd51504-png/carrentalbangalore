@@ -785,47 +785,37 @@ const PriceCalculator = ({
                       {car.kmLimit}km/day • Total: {car.fullDays * car.kmLimit}km • Extra: ₹{car.extraKmCharge}/km
                     </p>
 
-                    {/* Book Buttons */}
-                    <div className="space-y-2">
-                      <Button
-                        onClick={() => handleBookCar(car)}
-                        disabled={isSelectingCar === car.id}
-                        className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-primary via-purple to-pink hover:from-primary/90 hover:via-purple/90 hover:to-pink/90 text-primary-foreground py-2.5 md:py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] text-sm md:text-base"
-                      >
-                        {isSelectingCar === car.id ? (
-                          <>
-                            <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
-                            Loading...
-                          </>
-                        ) : (
-                          <>
-                            <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
-                            Book Now
-                          </>
-                        )}
-                      </Button>
+                    {/* Book on WhatsApp Only */}
+                    {(() => {
+                      const pickupDT = new Date(`${pickupDate}T${pickupTime}`);
+                      const dropDT = new Date(`${dropDate}T${dropTime}`);
+                      const pickupStr = format(pickupDT, "EEE, dd MMM yyyy hh:mm a");
+                      const dropStr = format(dropDT, "EEE, dd MMM yyyy hh:mm a");
+                      const durationStr = `${car.fullDays} day${car.fullDays !== 1 ? 's' : ''}${car.extraHours > 0 ? ` ${car.extraHours} hour${car.extraHours !== 1 ? 's' : ''}` : ''}`;
+                      const waMsg =
+                        `Hi Vikas, I want to book the ${car.brand} ${car.name}.\n\n` +
+                        `📅 Pickup: ${pickupStr}\n` +
+                        `📅 Drop: ${dropStr}\n` +
+                        `⏱️ Duration: ${durationStr}\n` +
+                        `📍 Location: ${pickupLocation || "To be decided"}\n\n` +
+                        `👤 Name: ${customerName}\n` +
+                        `📞 Phone: ${customerPhone}\n\n` +
+                        `💰 Price: ₹${car.totalPrice.toLocaleString()}\n` +
+                        `🛣️ KM Limit: ${car.fullDays * car.kmLimit}km (₹${car.extraKmCharge}/extra km)\n\n` +
+                        `Please confirm availability.`;
+                      return (
+                        <a
+                          href={`https://wa.me/919448277091?text=${encodeURIComponent(waMsg)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2 w-full bg-whatsapp hover:bg-whatsapp/90 text-white py-3 md:py-3.5 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] text-sm md:text-base"
+                        >
+                          <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
+                          Book on WhatsApp
+                        </a>
+                      );
+                    })()}
 
-                      {/* WhatsApp Booking Option */}
-                      <a
-                        href={`https://wa.me/919448277091?text=${encodeURIComponent(
-                          `Hi Vikas, I want to book the ${car.brand} ${car.name}.\n\n` +
-                          `📅 Pickup: ${pickupDate} ${pickupTime}\n` +
-                          `📅 Drop: ${dropDate} ${dropTime}\n` +
-                          `📍 Location: ${pickupLocation || "To be decided"}\n\n` +
-                          `👤 Name: ${customerName}\n` +
-                          `📞 Phone: ${customerPhone}\n\n` +
-                          `💰 Price: ₹${car.totalPrice.toLocaleString()}\n` +
-                          `🛣️ KM Limit: ${car.fullDays * car.kmLimit}km (₹${car.extraKmCharge}/extra km)\n\n` +
-                          `Please confirm availability.`
-                        )}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 w-full bg-whatsapp hover:bg-whatsapp/90 text-white py-2.5 md:py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] text-sm md:text-base"
-                      >
-                        <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
-                        Book on WhatsApp
-                      </a>
-                    </div>
                   </div>
                 </div>
               ))}
