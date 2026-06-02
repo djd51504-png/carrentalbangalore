@@ -44,10 +44,11 @@ const InstagramHighlights = () => {
           {highlights.map((h, i) => {
             const Icon = h.icon;
             return (
-              <button
+              <a
                 key={h.label}
-                type="button"
-                onClick={() => setActive(h)}
+                href={h.url}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="group flex flex-col items-center gap-2 w-24 focus:outline-none"
                 data-aos="zoom-in"
                 data-aos-delay={i * 80}
@@ -62,7 +63,7 @@ const InstagramHighlights = () => {
                 <span className="text-xs font-medium text-foreground text-center leading-tight">
                   {h.label}
                 </span>
-              </button>
+              </a>
             );
           })}
         </div>

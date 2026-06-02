@@ -5,7 +5,7 @@ const locations = [
   "Thanisandra",
   "KR Puram",
   "Bellandur",
-  "Hongasandra",
+  "Bommanahalli",
   "Kengeri",
   "Chikabanavara",
   "Kadugodi",
