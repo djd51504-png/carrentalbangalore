@@ -68,6 +68,7 @@ interface Car {
   kmLimit: number;
   extraKmCharge: number;
   isAvailable: boolean;
+  locations: string[];
 }
 
 const FleetSection = () => {
@@ -99,6 +100,7 @@ const FleetSection = () => {
           kmLimit: car.km_limit,
           extraKmCharge: car.extra_km_charge,
           isAvailable: (car as any).is_available ?? true,
+          locations: (car as any).locations || [],
         })));
       } catch (error) {
         console.error('Error fetching cars:', error);
@@ -166,7 +168,7 @@ const FleetSection = () => {
             <span className="ml-3 text-muted-foreground">Loading cars...</span>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 gap-4 md:gap-5 max-w-2xl mx-auto">
             {filteredCars.slice(0, 9).map((car, index) => (
               <div key={car.id} data-aos="fade-up" data-aos-delay={index * 40}>
                 <CarCardCarousel
@@ -180,6 +182,7 @@ const FleetSection = () => {
                   kmLimit={car.kmLimit}
                   extraKmCharge={car.extraKmCharge}
                   isAvailable={car.isAvailable}
+                  locations={car.locations}
                 />
               </div>
             ))}
