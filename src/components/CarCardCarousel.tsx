@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { MessageCircle, Fuel, Cog, ChevronLeft, ChevronRight, Gauge } from "lucide-react";
+import { MessageCircle, Fuel, Cog, ChevronLeft, ChevronRight, Gauge, MapPin } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 
 interface CarCardCarouselProps {
@@ -13,6 +13,7 @@ interface CarCardCarouselProps {
   kmLimit?: number;
   extraKmCharge?: number;
   isAvailable?: boolean;
+  locations?: string[];
 }
 
 const CarCardCarousel = ({ 
@@ -25,7 +26,8 @@ const CarCardCarousel = ({
   fuel,
   kmLimit = 300,
   extraKmCharge = 10,
-  isAvailable = true
+  isAvailable = true,
+  locations = [],
 }: CarCardCarouselProps) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const whatsappLink = `https://wa.me/919448277091?text=Hi%20Vikas,%20I%20want%20to%20book%20the%20${encodeURIComponent(brand ? brand + ' ' + name : name)}%20from%20Key2Go.%0A%0A🚗%20Car:%20${encodeURIComponent(brand ? brand + ' ' + name : name)}%0A💰%20Price:%20₹${price}/day%0A🛣️%20KM%20Limit:%20${kmLimit}km/day%20(₹${extraKmCharge}/extra%20km)%0A%0APlease%20confirm%20availability.`;
@@ -149,15 +151,22 @@ const CarCardCarousel = ({
       {/* Card Content */}
       <div className="relative p-3 md:p-4 space-y-2 md:space-y-3">
         {/* Car Name + Price */}
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="font-heading font-bold text-sm md:text-lg text-foreground leading-tight tracking-tight">
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="font-heading font-bold text-sm md:text-base text-foreground leading-tight tracking-tight whitespace-nowrap truncate flex-1 min-w-0">
             {brand} {name}
           </h3>
           <div className="text-right flex-shrink-0">
-            <div className="font-heading font-bold text-base md:text-xl text-primary leading-none">₹{price.toLocaleString()}</div>
-            <div className="text-muted-foreground text-[10px] md:text-xs">/day</div>
+            <div className="font-heading font-bold text-sm md:text-base text-primary leading-none whitespace-nowrap">₹{price.toLocaleString()}<span className="text-muted-foreground text-[10px] md:text-xs font-normal">/day</span></div>
           </div>
         </div>
+
+        {/* Location */}
+        {locations.length > 0 && (
+          <div className="flex items-center gap-1 text-[10px] md:text-xs text-muted-foreground">
+            <MapPin className="w-3 h-3 text-primary flex-shrink-0" />
+            <span className="truncate">{locations.join(" · ")}</span>
+          </div>
+        )}
 
         {/* Specs Row */}
         <div className="flex items-center gap-1.5 flex-wrap">

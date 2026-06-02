@@ -10,14 +10,14 @@ const highlights = [
     icon: Calendar,
     gradient: "from-pink-500 via-red-500 to-yellow-500",
     description: "See our latest confirmed bookings and advance receipts from happy customers.",
-    url: "https://www.instagram.com/s/aGlnaGxpZ2h0OjE4MTEyNjIyMzkyODU4MDg1?story_media_id=3906325008647227959_50484247995&igsh=MTg4bm8ya2pmdWxuZw==",
+    url: "https://www.instagram.com/stories/highlights/18112622392858085/",
   },
   {
     label: "Happy Customers",
     icon: Heart,
     gradient: "from-purple-500 via-pink-500 to-orange-400",
     description: "Real stories and smiles from customers who enjoyed our self-drive cars.",
-    url: "https://www.instagram.com/s/aGlnaGxpZ2h0OjE3ODg1ODg2ODUyNTA3NTI2?story_media_id=3888207354055486118_50484247995&igsh=MXdxZzg4czBodWU1Zg==",
+    url: "https://www.instagram.com/stories/highlights/17885886852507526/",
   },
 ];
 
