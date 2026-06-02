@@ -100,6 +100,7 @@ interface PriceCalculatorProps {
   dropDate?: string;
   dropTime?: string;
   pickupLocation?: string;
+  onResultsToggle?: (showing: boolean) => void;
 }
 
 // Swipeable image carousel (Embla) for car cards in results
@@ -184,7 +185,8 @@ const PriceCalculator = ({
   pickupTime: initialPickupTime = "10:00",
   dropDate: initialDropDate = "",
   dropTime: initialDropTime = "10:00",
-  pickupLocation: initialLocation = ""
+  pickupLocation: initialLocation = "",
+  onResultsToggle,
 }: PriceCalculatorProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -390,6 +392,7 @@ const PriceCalculator = ({
     setTimeout(() => {
       setIsLoading(false);
       setShowCars(true);
+      onResultsToggle?.(true);
     }, 500);
   };
 
@@ -440,20 +443,20 @@ const PriceCalculator = ({
   };
 
   return (
-    <section id="calculator" className="relative py-12 md:py-24 bg-charcoal overflow-hidden">
+    <section id="calculator" className="relative py-8 md:py-14 bg-charcoal overflow-hidden">
       {/* Decorative background */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,hsl(var(--primary)/0.18),transparent_40%),radial-gradient(circle_at_80%_90%,hsl(var(--gold)/0.15),transparent_45%)] pointer-events-none" />
       <div className="absolute inset-0 opacity-[0.06] pointer-events-none" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
       <div className="container px-4 md:px-6 relative z-10">
         {/* Section Header */}
-        <div className="text-center mb-8 md:mb-12" data-aos="fade-down">
-          <span className="inline-block text-xs font-semibold text-electric-light uppercase tracking-wider mb-2">
+        <div className="text-center mb-5 md:mb-8" data-aos="fade-down">
+          <span className="inline-block text-[10px] md:text-xs font-semibold text-electric-light uppercase tracking-wider mb-1.5">
             Transparent Pricing
           </span>
-          <h2 className="font-heading text-xl md:text-3xl font-bold text-primary-foreground mb-2">
+          <h2 className="font-heading text-lg md:text-2xl font-bold text-primary-foreground mb-1.5">
             Check Availability & Price
           </h2>
-          <p className="text-primary-foreground/70 text-xs md:text-sm max-w-2xl mx-auto">
+          <p className="text-primary-foreground/70 text-xs max-w-xl mx-auto">
             Calculate your rental cost instantly. No hidden charges.
           </p>
         </div>
