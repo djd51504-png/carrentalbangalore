@@ -166,9 +166,9 @@ const FleetSection = () => {
             <span className="ml-3 text-muted-foreground">Loading cars...</span>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 max-w-xl mx-auto">
-            {filteredCars.slice(0, 8).map((car, index) => (
-              <div key={car.id} data-aos="fade-up" data-aos-delay={index * 50}>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5 max-w-6xl mx-auto">
+            {filteredCars.slice(0, 9).map((car, index) => (
+              <div key={car.id} data-aos="fade-up" data-aos-delay={index * 40}>
                 <CarCardCarousel
                   name={car.name}
                   brand={car.brand}
@@ -184,6 +184,7 @@ const FleetSection = () => {
               </div>
             ))}
           </div>
+
         )}
 
         {/* View All Cars Link */}
