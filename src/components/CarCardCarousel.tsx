@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { MessageCircle, Fuel, Cog, ChevronLeft, ChevronRight, Gauge, CreditCard } from "lucide-react";
+import { MessageCircle, Fuel, Cog, ChevronLeft, ChevronRight, Gauge } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 
 interface CarCardCarouselProps {
