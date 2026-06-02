@@ -76,16 +76,16 @@ const CarCardCarousel = ({
       )}
 
       {/* Image Container */}
-      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+      <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-muted to-secondary/40">
         {allImages.length > 0 ? (
           <div className="overflow-hidden h-full" ref={emblaRef}>
             <div className="flex h-full">
               {allImages.map((img, index) => (
-                <div key={index} className="flex-[0_0_100%] min-w-0 h-full">
+                <div key={index} className="flex-[0_0_100%] min-w-0 h-full flex items-center justify-center">
                   <img
                     src={img}
                     alt={`${name} - View ${index + 1}`}
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    className="w-full h-full object-contain transition-transform duration-700 ease-out group-hover:scale-105"
                   />
                 </div>
               ))}
@@ -102,14 +102,14 @@ const CarCardCarousel = ({
           <>
             <button
               onClick={scrollPrev}
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center text-foreground opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-background shadow-md"
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center text-foreground md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 hover:bg-background shadow-md"
               aria-label="Previous image"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
             <button
               onClick={scrollNext}
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center text-foreground opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-background shadow-md"
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center text-foreground md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 hover:bg-background shadow-md"
               aria-label="Next image"
             >
               <ChevronRight className="w-4 h-4" />
@@ -138,15 +138,8 @@ const CarCardCarousel = ({
             ))}
           </div>
         )}
-
-        {/* Verified Badge Only */}
-        <div className="absolute top-2 right-2 z-10">
-          <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-full bg-background/90 backdrop-blur-sm text-foreground shadow-sm">
-            <Shield className="w-3 h-3 text-primary" />
-            Verified
-          </span>
-        </div>
       </div>
+
 
       {/* Decorative Background Pattern */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
