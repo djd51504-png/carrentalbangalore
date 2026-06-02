@@ -1,38 +1,46 @@
 import { useState } from "react";
-import { Instagram, Car, Heart, Calendar, MapPin, Star, Award, ExternalLink } from "lucide-react";
+import { Instagram, Heart, Calendar, ExternalLink } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 const INSTAGRAM_URL = "https://www.instagram.com/car._.rental._.bengaluru?igsh=MTFpZXBjdGE0am5tbg==";
 
 const highlights = [
-  { label: "Bookings", icon: Calendar, gradient: "from-pink-500 via-red-500 to-yellow-500", description: "Latest bookings and confirmed trips by our happy renters across Bangalore." },
-  { label: "Happy Customers", icon: Heart, gradient: "from-purple-500 via-pink-500 to-orange-400", description: "Real stories and smiles from customers who enjoyed our self-drive cars." },
-  { label: "Our Fleet", icon: Car, gradient: "from-blue-500 via-purple-500 to-pink-500", description: "Showcase of our well-maintained hatchbacks, sedans, and SUVs." },
-  { label: "Reviews", icon: Star, gradient: "from-yellow-400 via-orange-500 to-red-500", description: "Glowing reviews and testimonials shared by our community." },
-  { label: "Trips", icon: MapPin, gradient: "from-green-400 via-teal-500 to-blue-500", description: "Memorable road trips and getaways with Car Rental Bangalore." },
-  { label: "Awards", icon: Award, gradient: "from-amber-400 via-orange-500 to-pink-500", description: "Recognition and milestones we've achieved as a trusted rental partner." },
+  {
+    label: "Bookings & Advance",
+    icon: Calendar,
+    gradient: "from-pink-500 via-red-500 to-yellow-500",
+    description: "See our latest confirmed bookings and advance receipts from happy customers.",
+    url: "https://www.instagram.com/s/aGlnaGxpZ2h0OjE4MTEyNjIyMzkyODU4MDg1?story_media_id=3906325008647227959_50484247995&igsh=MTg4bm8ya2pmdWxuZw==",
+  },
+  {
+    label: "Happy Customers",
+    icon: Heart,
+    gradient: "from-purple-500 via-pink-500 to-orange-400",
+    description: "Real stories and smiles from customers who enjoyed our self-drive cars.",
+    url: "https://www.instagram.com/s/aGlnaGxpZ2h0OjE3ODg1ODg2ODUyNTA3NTI2?story_media_id=3888207354055486118_50484247995&igsh=MXdxZzg4czBodWU1Zg==",
+  },
 ];
 
 const InstagramHighlights = () => {
   const [active, setActive] = useState<typeof highlights[number] | null>(null);
 
   return (
-    <section className="py-12 md:py-16 bg-background border-y border-border">
+    <section className="py-10 md:py-14 bg-background border-y border-border">
       <div className="container">
-        <div className="text-center mb-8" data-aos="fade-down">
-          <div className="inline-flex items-center gap-2 text-xs font-semibold text-primary uppercase tracking-wider mb-3">
+        <div className="text-center mb-6" data-aos="fade-down">
+          <div className="inline-flex items-center gap-2 text-xs font-semibold text-primary uppercase tracking-wider mb-2">
             <Instagram className="w-4 h-4" />
             Follow Us On Instagram
           </div>
-          <h2 className="font-heading text-xl md:text-2xl font-bold text-foreground mb-1">
+          <h2 className="font-heading text-lg md:text-xl font-bold text-foreground">
             @car._.rental._.bengaluru
           </h2>
-          <p className="text-muted-foreground text-xs">
+          <p className="text-muted-foreground text-xs mt-1">
             Tap a highlight to view our stories
           </p>
         </div>
 
-        <div className="flex flex-wrap items-start justify-center gap-5 md:gap-7">
+        <div className="flex items-start justify-center gap-8">
           {highlights.map((h, i) => {
             const Icon = h.icon;
             return (
@@ -40,18 +48,18 @@ const InstagramHighlights = () => {
                 key={h.label}
                 type="button"
                 onClick={() => setActive(h)}
-                className="group flex flex-col items-center gap-2 w-20 md:w-24 focus:outline-none"
+                className="group flex flex-col items-center gap-2 w-24 focus:outline-none"
                 data-aos="zoom-in"
                 data-aos-delay={i * 80}
               >
                 <div className={`p-[3px] rounded-full bg-gradient-to-tr ${h.gradient} group-hover:scale-110 transition-transform duration-300`}>
                   <div className="bg-background p-[2px] rounded-full">
-                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-muted to-secondary flex items-center justify-center">
-                      <Icon className="w-7 h-7 md:w-8 md:h-8 text-foreground" />
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-muted to-secondary flex items-center justify-center">
+                      <Icon className="w-8 h-8 text-foreground" />
                     </div>
                   </div>
                 </div>
-                <span className="text-[11px] md:text-xs font-medium text-foreground text-center truncate w-full">
+                <span className="text-xs font-medium text-foreground text-center leading-tight">
                   {h.label}
                 </span>
               </button>
@@ -59,7 +67,7 @@ const InstagramHighlights = () => {
           })}
         </div>
 
-        <div className="text-center mt-8" data-aos="fade-up">
+        <div className="text-center mt-7" data-aos="fade-up">
           <a
             href={INSTAGRAM_URL}
             target="_blank"
@@ -90,7 +98,7 @@ const InstagramHighlights = () => {
                 </DialogDescription>
               </DialogHeader>
               <a
-                href={INSTAGRAM_URL}
+                href={active.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-2 inline-flex items-center justify-center gap-2 w-full bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white px-5 py-3 rounded-xl text-sm font-semibold shadow-lg hover:scale-[1.02] transition-all"

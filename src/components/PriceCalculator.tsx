@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Calendar as CalendarIcon, Clock, MapPin, Search, AlertCircle, Loader2, Settings2, User, Phone, ArrowRight, Fuel, Cog, Gauge, MessageCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
+import useEmblaCarousel from "embla-carousel-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
@@ -101,40 +102,74 @@ interface PriceCalculatorProps {
   pickupLocation?: string;
 }
 
-// Simple image carousel for car cards
+// Swipeable image carousel (Embla) for car cards in results
 const CarImageCarousel = ({ images, name, categoryLabel }: { images: string[]; name: string; categoryLabel: string }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const hasMultiple = images.length > 1;
+
+  const scrollPrev = useCallback((e: React.MouseEvent) => {
+    e.preventDefault(); e.stopPropagation();
+    emblaApi?.scrollPrev();
+  }, [emblaApi]);
+
+  const scrollNext = useCallback((e: React.MouseEvent) => {
+    e.preventDefault(); e.stopPropagation();
+    emblaApi?.scrollNext();
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    const onSel = () => setSelectedIndex(emblaApi.selectedScrollSnap());
+    emblaApi.on('select', onSel);
+    onSel();
+    return () => { emblaApi.off('select', onSel); };
+  }, [emblaApi]);
 
   return (
     <div className="relative aspect-[4/3] bg-gradient-to-br from-secondary/30 to-secondary/60 overflow-hidden">
-      <img
-        src={images[currentIndex]}
-        alt={`${name} ${currentIndex + 1}`}
-        loading="lazy"
-        decoding="async"
-        className="w-full h-full object-cover transition-opacity duration-300"
-      />
-      <span className="absolute top-2 left-2 text-[10px] md:text-xs font-bold px-2 py-1 rounded-full bg-primary/90 text-primary-foreground">
+      <div className="overflow-hidden h-full" ref={emblaRef}>
+        <div className="flex h-full">
+          {images.map((img, i) => (
+            <div key={i} className="flex-[0_0_100%] min-w-0 h-full flex items-center justify-center">
+              <img
+                src={img}
+                alt={`${name} ${i + 1}`}
+                loading="lazy"
+                decoding="async"
+                className="w-full h-full object-contain"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+      <span className="absolute top-2 left-2 z-10 text-[10px] md:text-xs font-bold px-2 py-1 rounded-full bg-primary/90 text-primary-foreground">
         {categoryLabel}
       </span>
       {hasMultiple && (
         <>
           <button
-            onClick={(e) => { e.stopPropagation(); setCurrentIndex(i => (i - 1 + images.length) % images.length); }}
-            className="absolute left-1 top-1/2 -translate-y-1/2 bg-background/70 hover:bg-background rounded-full p-1 shadow"
+            onClick={scrollPrev}
+            className="absolute left-1 top-1/2 -translate-y-1/2 z-20 bg-background/70 hover:bg-background rounded-full p-1 shadow"
+            aria-label="Previous image"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           <button
-            onClick={(e) => { e.stopPropagation(); setCurrentIndex(i => (i + 1) % images.length); }}
-            className="absolute right-1 top-1/2 -translate-y-1/2 bg-background/70 hover:bg-background rounded-full p-1 shadow"
+            onClick={scrollNext}
+            className="absolute right-1 top-1/2 -translate-y-1/2 z-20 bg-background/70 hover:bg-background rounded-full p-1 shadow"
+            aria-label="Next image"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
-          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1">
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 flex gap-1 bg-charcoal/40 backdrop-blur-sm rounded-full px-2 py-1">
             {images.map((_, i) => (
-              <span key={i} className={`w-1.5 h-1.5 rounded-full ${i === currentIndex ? 'bg-primary' : 'bg-muted-foreground/40'}`} />
+              <button
+                key={i}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); emblaApi?.scrollTo(i); }}
+                className={`h-1.5 rounded-full transition-all ${i === selectedIndex ? 'bg-primary w-4' : 'bg-primary-foreground/60 w-1.5'}`}
+                aria-label={`Go to image ${i + 1}`}
+              />
             ))}
           </div>
         </>
@@ -142,6 +177,7 @@ const CarImageCarousel = ({ images, name, categoryLabel }: { images: string[]; n
     </div>
   );
 };
+
 
 const PriceCalculator = ({ 
   pickupDate: initialPickupDate = "",
@@ -749,47 +785,37 @@ const PriceCalculator = ({
                       {car.kmLimit}km/day • Total: {car.fullDays * car.kmLimit}km • Extra: ₹{car.extraKmCharge}/km
                     </p>
 
-                    {/* Book Buttons */}
-                    <div className="space-y-2">
-                      <Button
-                        onClick={() => handleBookCar(car)}
-                        disabled={isSelectingCar === car.id}
-                        className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-primary via-purple to-pink hover:from-primary/90 hover:via-purple/90 hover:to-pink/90 text-primary-foreground py-2.5 md:py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] text-sm md:text-base"
-                      >
-                        {isSelectingCar === car.id ? (
-                          <>
-                            <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
-                            Loading...
-                          </>
-                        ) : (
-                          <>
-                            <ArrowRight className="w-4 h-4 md:w-5 md:h-5" />
-                            Book Now
-                          </>
-                        )}
-                      </Button>
+                    {/* Book on WhatsApp Only */}
+                    {(() => {
+                      const pickupDT = new Date(`${pickupDate}T${pickupTime}`);
+                      const dropDT = new Date(`${dropDate}T${dropTime}`);
+                      const pickupStr = format(pickupDT, "EEE, dd MMM yyyy hh:mm a");
+                      const dropStr = format(dropDT, "EEE, dd MMM yyyy hh:mm a");
+                      const durationStr = `${car.fullDays} day${car.fullDays !== 1 ? 's' : ''}${car.extraHours > 0 ? ` ${car.extraHours} hour${car.extraHours !== 1 ? 's' : ''}` : ''}`;
+                      const waMsg =
+                        `Hi Vikas, I want to book the ${car.brand} ${car.name}.\n\n` +
+                        `📅 Pickup: ${pickupStr}\n` +
+                        `📅 Drop: ${dropStr}\n` +
+                        `⏱️ Duration: ${durationStr}\n` +
+                        `📍 Location: ${pickupLocation || "To be decided"}\n\n` +
+                        `👤 Name: ${customerName}\n` +
+                        `📞 Phone: ${customerPhone}\n\n` +
+                        `💰 Price: ₹${car.totalPrice.toLocaleString()}\n` +
+                        `🛣️ KM Limit: ${car.fullDays * car.kmLimit}km (₹${car.extraKmCharge}/extra km)\n\n` +
+                        `Please confirm availability.`;
+                      return (
+                        <a
+                          href={`https://wa.me/919448277091?text=${encodeURIComponent(waMsg)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2 w-full bg-whatsapp hover:bg-whatsapp/90 text-white py-3 md:py-3.5 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] text-sm md:text-base"
+                        >
+                          <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
+                          Book on WhatsApp
+                        </a>
+                      );
+                    })()}
 
-                      {/* WhatsApp Booking Option */}
-                      <a
-                        href={`https://wa.me/919448277091?text=${encodeURIComponent(
-                          `Hi Vikas, I want to book the ${car.brand} ${car.name}.\n\n` +
-                          `📅 Pickup: ${pickupDate} ${pickupTime}\n` +
-                          `📅 Drop: ${dropDate} ${dropTime}\n` +
-                          `📍 Location: ${pickupLocation || "To be decided"}\n\n` +
-                          `👤 Name: ${customerName}\n` +
-                          `📞 Phone: ${customerPhone}\n\n` +
-                          `💰 Price: ₹${car.totalPrice.toLocaleString()}\n` +
-                          `🛣️ KM Limit: ${car.fullDays * car.kmLimit}km (₹${car.extraKmCharge}/extra km)\n\n` +
-                          `Please confirm availability.`
-                        )}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 w-full bg-whatsapp hover:bg-whatsapp/90 text-white py-2.5 md:py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] text-sm md:text-base"
-                      >
-                        <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
-                        Book on WhatsApp
-                      </a>
-                    </div>
                   </div>
                 </div>
               ))}
