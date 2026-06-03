@@ -20,10 +20,10 @@ const Header = () => {
       <div className="container flex items-center justify-between h-16 md:h-20">
         {/* Logo with tagline */}
         <Link to="/" className="flex items-center gap-2 md:gap-3">
-          <img src={logo} alt="Key2Go Logo" className="h-10 md:h-14 w-auto" />
+          <img src={logo} alt="Car Rental Bengaluru Logo" className="h-10 md:h-14 w-auto" />
           <div>
             <h1 className="font-heading font-bold text-sm md:text-xl text-foreground leading-tight">
-              Car Rental Bangalore
+              Car Rental Bengaluru
             </h1>
             <p className="text-[10px] md:text-xs text-gold font-medium">Nimma Trip Namma Car</p>
           </div>
