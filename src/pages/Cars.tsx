@@ -98,7 +98,7 @@ const AVAILABLE_LOCATIONS = [
   "Thanisandra",
   "KR Puram",
   "Bellandur",
-  "Hongasandra",
+  "Bommanahalli",
   "Kengeri",
   "Chikabanavara",
   "Kadugodi",

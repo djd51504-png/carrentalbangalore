@@ -44,7 +44,7 @@ const Hero = () => {
             <h1 data-aos="fade-up" data-aos-delay="200" className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-primary-foreground mb-4 leading-tight">
               <span className="bg-gradient-to-r from-primary via-purple to-pink bg-clip-text text-transparent">Luxury on Demand.</span>
               <br />
-              <span className="text-primary-foreground">Keys to Bangalore's</span>
+              <span className="text-primary-foreground">Keys to Bengaluru's</span>
               <br />
               <span className="bg-gradient-to-r from-gold via-orange to-gold-light bg-clip-text text-transparent">Finest Cars.</span>
             </h1>

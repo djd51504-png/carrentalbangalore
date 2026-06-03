@@ -83,7 +83,7 @@ interface Car {
 
 const locations = [
   "Hebbal", "Thanisandra", "KR Puram", "Bellandur", 
-  "Hongasandra", "Kengeri", "Chikabanavara", "Kadugodi"
+  "Bommanahalli", "Kengeri", "Chikabanavara", "Kadugodi"
 ];
 
 type TransmissionFilter = "all" | "Manual" | "Automatic";
