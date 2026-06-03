@@ -173,7 +173,7 @@ const BookingCheckout = () => {
     }
 
     // Build WhatsApp message and redirect directly
-    const whatsappMessage = `Hi Vikas, I want to book a car from Key2Go.
+    const whatsappMessage = `Hi Vikas, I want to book a car from Car Rental Bengaluru.
 
 📋 Booking ID: ${bookingId}
 

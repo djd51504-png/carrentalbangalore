@@ -822,7 +822,7 @@ const Admin = () => {
     return [
       {
         label: "✅ Confirm Booking",
-        message: `Hi ${enquiry.customer_name}! 🚗\n\nYour booking for ${carDisplay} is confirmed!\n\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n📍 Location: ${locationText}${priceInfo}\n⏱ Duration: ${durationText}\n\nPlease carry your *original Driving License & Aadhaar card* at the time of pickup.\n\nThank you for choosing Key2Go! 🙏`,
+        message: `Hi ${enquiry.customer_name}! 🚗\n\nYour booking for ${carDisplay} is confirmed!\n\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n📍 Location: ${locationText}${priceInfo}\n⏱ Duration: ${durationText}\n\nPlease carry your *original Driving License & Aadhaar card* at the time of pickup.\n\nThank you for choosing Car Rental Bengaluru! 🙏`,
       },
       {
         label: "💰 Negotiate Price",
@@ -1553,7 +1553,7 @@ const Admin = () => {
                       const upcomingWhatsAppMessages = [
                         {
                           label: "✅ Confirm Booking",
-                          message: `Hi ${enquiry.customer_name}! 🚗\n\nYour booking for *${enquiry.car_name}* is confirmed!\n\n📅 Pickup: ${formatDate(enquiry.pickup_date)}\n📅 Drop: ${formatDate(enquiry.drop_date)}\n📍 Location: ${enquiry.pickup_location || 'TBD'}\n💰 Amount: ₹${enquiry.estimated_price.toLocaleString()}\n\nPlease carry your *original Driving License & Aadhaar card*.\n\nThank you for choosing Key2Go! 🙏`,
+                          message: `Hi ${enquiry.customer_name}! 🚗\n\nYour booking for *${enquiry.car_name}* is confirmed!\n\n📅 Pickup: ${formatDate(enquiry.pickup_date)}\n📅 Drop: ${formatDate(enquiry.drop_date)}\n📍 Location: ${enquiry.pickup_location || 'TBD'}\n💰 Amount: ₹${enquiry.estimated_price.toLocaleString()}\n\nPlease carry your *original Driving License & Aadhaar card*.\n\nThank you for choosing Car Rental Bengaluru! 🙏`,
                         },
                         {
                           label: "💰 Confirm Budget",

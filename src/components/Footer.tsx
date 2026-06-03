@@ -94,7 +94,7 @@ const Footer = () => {
               Ready to hit the road? Book your car instantly on WhatsApp!
             </p>
             <a
-              href="https://wa.me/919448277091?text=Hi%20Vikas,%20I%20want%20to%20book%20a%20car%20from%20Key2Go."
+              href="https://wa.me/919448277091?text=Hi%20Vikas,%20I%20want%20to%20book%20a%20car%20from%20Car Rental Bengaluru."
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-whatsapp hover:bg-whatsapp/90 text-primary-foreground px-6 py-3 rounded-xl font-semibold transition-colors"
@@ -108,7 +108,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="border-t border-primary-foreground/10 pt-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-primary-foreground/60">
-            <p>© {new Date().getFullYear()} Key2Go Self Drive Car Rentals. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} Car Rental Bengaluru Self Drive Car Rentals. All rights reserved.</p>
             <p className="flex items-center gap-2">
               Made with <span className="text-electric-light">❤</span> in Bengaluru
             </p>

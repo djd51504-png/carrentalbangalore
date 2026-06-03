@@ -46,7 +46,7 @@ const Header = () => {
             </Link>
           ))}
           <a
-            href="https://wa.me/919448277091?text=Hi%20Vikas,%20I%20want%20to%20know%20more%20about%20Key2Go%20car%20rentals."
+            href="https://wa.me/919448277091?text=Hi%20Vikas,%20I%20want%20to%20know%20more%20about%20Car Rental Bengaluru%20car%20rentals."
             target="_blank"
             rel="noopener noreferrer"
             className="bg-gradient-button text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold shadow-button hover:opacity-90 transition-opacity"
@@ -88,7 +88,7 @@ const Header = () => {
             ))}
             <div className="pt-4 px-4">
               <a
-                href="https://wa.me/919448277091?text=Hi%20Vikas,%20I%20want%20to%20know%20more%20about%20Key2Go%20car%20rentals."
+                href="https://wa.me/919448277091?text=Hi%20Vikas,%20I%20want%20to%20know%20more%20about%20Car Rental Bengaluru%20car%20rentals."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center w-full bg-whatsapp text-primary-foreground py-4 rounded-xl text-lg font-semibold"
