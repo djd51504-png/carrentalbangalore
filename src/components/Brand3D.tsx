@@ -36,7 +36,7 @@ const Brand3D = () => {
               </div>
               {/* Right */}
               <div className="brand3d-face brand3d-right">
-                <span className="font-heading text-xl font-bold">Bangalore</span>
+                <span className="font-heading text-xl font-bold">Bengaluru</span>
                 <span className="text-white/70 text-xs mt-1">8 Pickup Locations</span>
               </div>
               {/* Left */}
