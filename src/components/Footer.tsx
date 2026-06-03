@@ -61,7 +61,7 @@ const Footer = () => {
                 <span className="text-sm font-medium">@car._.rental._.bengaluru</span>
               </a>
               <a
-                href="https://www.facebook.com/share/1FWBNYUoVX/"
+                href="https://www.facebook.com/share/17suAiWW35/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 text-primary-foreground/80 hover:text-blue-400 transition-colors group"
