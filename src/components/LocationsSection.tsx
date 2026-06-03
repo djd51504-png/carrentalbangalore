@@ -20,7 +20,7 @@ const LocationsSection = () => {
             Pickup Points
           </span>
           <h2 className="font-heading text-lg md:text-2xl font-bold text-foreground">
-            8 Locations Across Bangalore
+            8 Locations Across Bengaluru
           </h2>
         </div>
 
