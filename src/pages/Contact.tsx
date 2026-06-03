@@ -9,7 +9,7 @@ const locations = [
   { name: "Thanisandra", address: "Thanisandra Main Road", lat: 13.0674, lng: 77.6208 },
   { name: "KR Puram", address: "KR Puram Railway Station", lat: 13.0012, lng: 77.6968 },
   { name: "Bellandur", address: "Bellandur Junction", lat: 12.9261, lng: 77.6763 },
-  { name: "Hongasandra", address: "Hongasandra Main Road", lat: 12.8897, lng: 77.6350 },
+  { name: "Bommanahalli", address: "Bommanahalli Main Road", lat: 12.8897, lng: 77.6350 },
   { name: "Kengeri", address: "Kengeri Satellite Town", lat: 12.9036, lng: 77.4830 },
   { name: "Chikabanavara", address: "Chikabanavara Main Road", lat: 13.0370, lng: 77.5120 },
   { name: "Kadugodi", address: "Near Kadugodi Bus Stop", lat: 12.9942, lng: 77.7614 },
