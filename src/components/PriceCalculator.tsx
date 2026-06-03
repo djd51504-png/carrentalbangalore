@@ -104,7 +104,7 @@ interface PriceCalculatorProps {
 }
 
 // Swipeable image carousel (Embla) for car cards in results
-const CarImageCarousel = ({ images, name, categoryLabel }: { images: string[]; name: string; categoryLabel: string }) => {
+const CarImageCarousel = ({ images, name }: { images: string[]; name: string }) => {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const hasMultiple = images.length > 1;
@@ -144,9 +144,6 @@ const CarImageCarousel = ({ images, name, categoryLabel }: { images: string[]; n
           ))}
         </div>
       </div>
-      <span className="absolute top-2 left-2 z-10 text-[10px] md:text-xs font-bold px-2 py-1 rounded-full bg-primary/90 text-primary-foreground">
-        {categoryLabel}
-      </span>
       {hasMultiple && (
         <>
           <button
@@ -746,47 +743,54 @@ const PriceCalculator = ({
                   data-aos-delay={index * 50}
                 >
                   {/* Image Container with carousel */}
-                  <CarImageCarousel images={car.images.length > 0 ? car.images : [car.image]} name={car.name} categoryLabel={car.categoryLabel} />
+                  <CarImageCarousel images={car.images.length > 0 ? car.images : [car.image]} name={car.name} />
 
                   {/* Content */}
                   <div className="p-3 md:p-5">
-                    <div className="flex items-start justify-between gap-2 mb-3">
-                      <div>
-                        <h3 className="font-heading font-bold text-base md:text-xl text-foreground leading-tight">{car.brand}</h3>
-                        <p className="text-xs md:text-sm text-muted-foreground">{car.name}</p>
-                      </div>
+                    {/* Brand + Name (bold, matching size, single line) */}
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <h3 className="font-heading font-bold text-base md:text-lg text-foreground leading-tight tracking-tight truncate flex-1 min-w-0">
+                        {car.brand} {car.name}
+                      </h3>
                       <div className="text-right flex-shrink-0">
-                        <p className="font-heading font-bold text-lg md:text-2xl text-primary">₹{car.totalPrice.toLocaleString()}</p>
-                        <p className="text-[10px] md:text-xs text-muted-foreground">
+                        <p className="font-heading font-bold text-base md:text-lg text-primary leading-none whitespace-nowrap">
+                          ₹{car.totalPrice.toLocaleString()}
+                        </p>
+                        <p className="text-[10px] md:text-xs text-muted-foreground mt-0.5">
                           {car.fullDays}d{car.extraHours > 0 ? ` + ${car.extraHours}h` : ""}
                         </p>
                       </div>
                     </div>
-                    
-                    {/* Features Grid */}
-                    <div className="grid grid-cols-3 gap-1.5 md:gap-2 mb-2">
-                      <span className={`flex flex-col items-center gap-0.5 text-[9px] md:text-xs font-semibold px-1 py-1.5 md:py-2 rounded-lg ${
-                        car.fuel === "Diesel" 
-                          ? "bg-gradient-to-br from-amber-100 to-amber-200 text-amber-900 dark:from-amber-900/40 dark:to-amber-900/20 dark:text-amber-300" 
-                          : "bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-900 dark:from-emerald-900/40 dark:to-emerald-900/20 dark:text-emerald-300"
+
+                    {/* Compact specs row: fuel + transmission as small pills */}
+                    <div className="flex items-center gap-1.5 flex-wrap mb-2">
+                      <span className={`inline-flex items-center gap-1 text-[10px] md:text-xs font-semibold px-2 py-0.5 rounded-full ${
+                        car.fuel === "Diesel"
+                          ? "bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/20"
+                          : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20"
                       }`}>
-                        <Fuel className="w-3 h-3 md:w-4 md:h-4" />
+                        <Fuel className="w-3 h-3" />
                         {car.fuel}
                       </span>
-                      <span className="flex flex-col items-center gap-0.5 text-[9px] md:text-xs font-semibold px-1 py-1.5 md:py-2 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 text-blue-900 dark:from-blue-900/40 dark:to-blue-900/20 dark:text-blue-300">
-                        <Cog className="w-3 h-3 md:w-4 md:h-4" />
-                        {car.transmission.length > 6 ? car.transmission.split(' ')[0] : car.transmission}
-                      </span>
-                      <span className="flex flex-col items-center gap-0.5 text-[9px] md:text-xs font-semibold px-1 py-1.5 md:py-2 rounded-lg bg-gradient-to-br from-purple-100 to-purple-200 text-purple-900 dark:from-purple-900/40 dark:to-purple-900/20 dark:text-purple-300">
-                        <Gauge className="w-3 h-3 md:w-4 md:h-4" />
-                        {car.fullDays * car.kmLimit}km
+                      <span className="inline-flex items-center gap-1 text-[10px] md:text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-700 dark:text-blue-400 border border-blue-500/20">
+                        <Cog className="w-3 h-3" />
+                        {car.transmission.length > 8 ? car.transmission.split(' ')[0] : car.transmission}
                       </span>
                     </div>
 
-                    {/* KM Limit Info */}
-                    <p className="text-[9px] md:text-xs text-muted-foreground text-center mb-3 md:mb-4">
-                      {car.kmLimit}km/day • Total: {car.fullDays * car.kmLimit}km • Extra: ₹{car.extraKmCharge}/km
-                    </p>
+                    {/* Location + KM info — clean rows */}
+                    <div className="space-y-1 mb-3 md:mb-4 text-[11px] md:text-xs">
+                      {(pickupLocation || car.locations.length > 0) && (
+                        <div className="flex items-center gap-1.5 text-muted-foreground">
+                          <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                          <span className="truncate">{pickupLocation || car.locations.join(" · ")}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-1.5 text-muted-foreground">
+                        <Gauge className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                        <span>{car.kmLimit} km/day · Total {car.fullDays * car.kmLimit} km · Extra ₹{car.extraKmCharge}/km</span>
+                      </div>
+                    </div>
 
                     {/* Book on WhatsApp Only */}
                     {(() => {

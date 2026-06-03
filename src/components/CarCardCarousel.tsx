@@ -30,7 +30,7 @@ const CarCardCarousel = ({
   locations = [],
 }: CarCardCarouselProps) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const whatsappLink = `https://wa.me/919448277091?text=Hi%20Vikas,%20I%20want%20to%20book%20the%20${encodeURIComponent(brand ? brand + ' ' + name : name)}%20from%20Key2Go.%0A%0A🚗%20Car:%20${encodeURIComponent(brand ? brand + ' ' + name : name)}%0A💰%20Price:%20₹${price}/day%0A🛣️%20KM%20Limit:%20${kmLimit}km/day%20(₹${extraKmCharge}/extra%20km)%0A%0APlease%20confirm%20availability.`;
+  const whatsappLink = `https://wa.me/919448277091?text=Hi%20Vikas,%20I%20want%20to%20book%20the%20${encodeURIComponent(brand ? brand + ' ' + name : name)}%20from%20Car%20Rental%20Bengaluru.%0A%0A🚗%20Car:%20${encodeURIComponent(brand ? brand + ' ' + name : name)}%0A💰%20Price:%20₹${price}/day%0A🛣️%20KM%20Limit:%20${kmLimit}km/day%20(₹${extraKmCharge}/extra%20km)%0A%0APlease%20confirm%20availability.`;
 
   // Use images array if available, otherwise fallback to single image
   const allImages = images.length > 0 ? images : (image ? [image] : []);

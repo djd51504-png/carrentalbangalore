@@ -5,7 +5,7 @@ const reviews = [
     name: "Rahul Sharma",
     rating: 5,
     date: "2 weeks ago",
-    text: "Amazing experience with Key2Go! Rented a Swift for a weekend trip to Coorg. Car was in excellent condition and the booking process was super smooth through WhatsApp. Will definitely use again!",
+    text: "Amazing experience with Car Rental Bengaluru! Rented a Swift for a weekend trip to Coorg. Car was in excellent condition and the booking process was super smooth through WhatsApp. Will definitely use again!",
     avatar: "RS"
   },
   {
@@ -19,7 +19,7 @@ const reviews = [
     name: "Vikram Reddy",
     rating: 5,
     date: "3 weeks ago",
-    text: "Used Key2Go for a business trip. The Creta was spotless and well-maintained. 24/7 support is genuine - they helped me with a minor issue at midnight. Great service!",
+    text: "Used Car Rental Bengaluru for a business trip. The Creta was spotless and well-maintained. 24/7 support is genuine - they helped me with a minor issue at midnight. Great service!",
     avatar: "VR"
   },
   {
@@ -40,7 +40,7 @@ const reviews = [
     name: "Sneha Kulkarni",
     rating: 5,
     date: "1 month ago",
-    text: "First time using a self-drive service and Key2Go made it so easy! The pickup from Bellandur was quick and the car (i20) was perfect. Will be a regular customer now!",
+    text: "First time using a self-drive service and Car Rental Bengaluru made it so easy! The pickup from Bellandur was quick and the car (i20) was perfect. Will be a regular customer now!",
     avatar: "SK"
   }
 ];

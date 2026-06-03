@@ -13,7 +13,7 @@ const InstagramHighlights = () => {
             Follow Us On Social Media
           </div>
           <h2 className="font-heading text-lg md:text-xl font-bold text-foreground">
-            Stay Connected With Key2Go
+            Stay Connected With Car Rental Bengaluru
           </h2>
           <p className="text-muted-foreground text-xs mt-1">
             Follow us for latest cars, offers & happy customers

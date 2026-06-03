@@ -60,7 +60,7 @@ const Contact = () => {
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title="Key2Go Chikabanavara Location"
+                  title="Car Rental Bengaluru Chikabanavara Location"
                   className="w-full h-full"
                 />
               </div>
@@ -84,7 +84,7 @@ const Contact = () => {
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title="Key2Go Kengeri Location"
+                  title="Car Rental Bengaluru Kengeri Location"
                   className="w-full h-full"
                 />
               </div>
