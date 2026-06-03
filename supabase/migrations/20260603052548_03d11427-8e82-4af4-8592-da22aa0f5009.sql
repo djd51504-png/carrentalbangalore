@@ -1,0 +1,1 @@
+UPDATE public.cars SET locations = array_replace(locations, 'Hongasandra', 'Bommanahalli') WHERE 'Hongasandra' = ANY(locations);
