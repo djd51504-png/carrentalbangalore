@@ -9,14 +9,14 @@ const Footer = () => {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <img src={logo} alt="Key2Go Logo" className="h-14 w-auto" />
+              <img src={logo} alt="Car Rental Bengaluru Logo" className="h-14 w-auto" />
               <div>
-                <h3 className="font-heading font-bold text-xl">Key2Go</h3>
+                <h3 className="font-heading font-bold text-xl">Car Rental Bengaluru</h3>
                 <p className="text-sm text-primary-foreground/70">Self Drive Car Rentals</p>
               </div>
             </div>
             <p className="text-primary-foreground/70 text-sm leading-relaxed max-w-xs">
-              Your trusted partner for self-drive car rentals in Bangalore. Premium cars, transparent pricing, and exceptional service.
+              Your trusted partner for self-drive car rentals in Bengaluru. Premium cars, transparent pricing, and exceptional service.
             </p>
           </div>
 
