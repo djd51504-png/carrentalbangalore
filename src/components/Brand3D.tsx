@@ -20,7 +20,7 @@ const Brand3D = () => {
                 <Car className="w-10 h-10 mb-2 text-gold" />
                 <span className="font-heading text-base font-bold leading-tight">Car Rental</span>
                 <span className="font-heading text-2xl font-extrabold tracking-wide bg-gradient-to-r from-gold via-orange-400 to-gold bg-clip-text text-transparent">
-                  Bangalore
+                  Bengaluru
                 </span>
                 <span className="mt-2 inline-flex items-center gap-1 text-[10px] uppercase tracking-widest text-white/70">
                   <Sparkles className="w-3 h-3 text-gold" /> Nimma Trip Namma Car
