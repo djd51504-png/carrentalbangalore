@@ -29,7 +29,8 @@ const CarCard = ({
   extraKmCharge = 8
 }: CarCardProps) => {
   const [showDetails, setShowDetails] = useState(false);
-  const whatsappLink = `https://wa.me/919448277091?text=Hi%20Vikas,%20I%20want%20to%20book%20the%20${encodeURIComponent(name)}%20from%20Car Rental Bengaluru.`;
+  const waMessage = `Hi Vikas, I want to book the ${name} from Car Rental Bengaluru.\n\n🚗 Car: ${name}\n💰 Price: ₹${price}/day\n📍 Location: Bommanahalli\n\nPlease confirm availability.`;
+  const whatsappLink = `https://wa.me/919448277091?text=${encodeURIComponent(waMessage)}`;
 
   const hasPricingDetails = price3Days || price7Days || price15Days || price30Days;
 
