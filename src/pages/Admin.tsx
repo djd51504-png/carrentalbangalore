@@ -1567,33 +1567,15 @@ const Admin = () => {
                                 </p>
                               </div>
                               <div className="flex gap-2">
-                                <div className="relative">
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="bg-whatsapp/10 border-whatsapp text-whatsapp hover:bg-whatsapp hover:text-white"
-                                    onClick={() => setWhatsappMenuOpen(whatsappMenuOpen === `upcoming-${enquiry.id}` ? null : `upcoming-${enquiry.id}`)}
-                                  >
-                                    <MessageCircle className="h-4 w-4 mr-1" />
-                                    WhatsApp ▾
-                                  </Button>
-                                  {whatsappMenuOpen === `upcoming-${enquiry.id}` && (
-                                    <div className="absolute top-full right-0 mt-1 z-50 w-56 rounded-md border bg-popover p-1 shadow-md">
-                                      {upcomingWhatsAppMessages.map((msg, idx) => (
-                                        <button
-                                          key={idx}
-                                          className="w-full text-left px-3 py-2 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors"
-                                          onClick={() => {
-                                            window.open(`https://api.whatsapp.com/send?phone=91${enquiry.customer_phone}&text=${encodeURIComponent(msg.message)}`, '_blank');
-                                            setWhatsappMenuOpen(null);
-                                          }}
-                                        >
-                                          {msg.label}
-                                        </button>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="bg-whatsapp/10 border-whatsapp text-whatsapp hover:bg-whatsapp hover:text-white"
+                                  onClick={() => openWhatsApp(enquiry)}
+                                >
+                                  <MessageCircle className="h-4 w-4 mr-1" />
+                                  WhatsApp
+                                </Button>
                                 <a href={`tel:+91${enquiry.customer_phone}`}>
                                   <Button size="sm" variant="outline">
                                     <Phone className="h-4 w-4" />
