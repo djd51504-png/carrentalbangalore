@@ -811,38 +811,21 @@ const Admin = () => {
 
   const [whatsappMenuOpen, setWhatsappMenuOpen] = useState<string | null>(null);
 
-  // Memoize WhatsApp message generation
-  const getWhatsAppMessages = useCallback((enquiry: BookingEnquiry) => {
+  // Single consolidated WhatsApp message
+  const buildWhatsAppMessage = useCallback((enquiry: BookingEnquiry) => {
     const pickupDate = formatDate(enquiry.pickup_date);
     const dropDate = formatDate(enquiry.drop_date);
-    const carDisplay = enquiry.car_name === 'Checking availability' ? 'a self-drive car' : `*${enquiry.car_name}*`;
-    const priceInfo = enquiry.estimated_price > 0 ? `\n💰 Estimated: ₹${enquiry.estimated_price.toLocaleString()}` : '';
-    const durationText = `${enquiry.total_days} day(s)${enquiry.total_hours ? ` + ${enquiry.total_hours}h` : ''}`;
-    const locationText = enquiry.pickup_location && enquiry.pickup_location !== 'Not selected' ? enquiry.pickup_location : 'To be decided';
-    return [
-      {
-        label: "✅ Confirm Booking",
-        message: `Hi ${enquiry.customer_name}! 🚗\n\nYour booking for ${carDisplay} is confirmed!\n\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n📍 Location: ${locationText}${priceInfo}\n⏱ Duration: ${durationText}\n\nPlease carry your *original Driving License & Aadhaar card* at the time of pickup.\n\nThank you for choosing Car Rental Bengaluru! 🙏`,
-      },
-      {
-        label: "💰 Negotiate Price",
-        message: `Hi ${enquiry.customer_name},\n\nThank you for your interest in ${carDisplay}.\n\nYour trip: ${pickupDate} → ${dropDate} (${durationText})${priceInfo}\n\nWe can discuss a better rate based on your trip duration. Could you share your budget so we can work something out?\n\nLooking forward to hearing from you! 😊`,
-      },
-      {
-        label: "📅 Confirm Dates",
-        message: `Hi ${enquiry.customer_name},\n\nThanks for your enquiry about ${carDisplay}.\n\nCould you please confirm your exact pickup and drop-off dates & times?\n\nDates on file:\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n📍 Location: ${locationText}\n\nOnce confirmed, we'll share the best pricing. Thank you! 🙏`,
-      },
-    ];
+    const carDisplay = enquiry.car_name === 'Checking availability' ? 'a self-drive car' : enquiry.car_name;
+    const locationText = enquiry.pickup_location && enquiry.pickup_location !== 'Not selected' ? enquiry.pickup_location : 'Bommanahalli';
+    return `Hi ${enquiry.customer_name}, this is from Car Rental Bengaluru regarding your enquiry for ${carDisplay}.\n\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n📍 Location: ${locationText}\n\nIf you want to confirm the booking, let me know. Any queries, let me know or call 9448277091.`;
   }, [formatDate]);
 
-  // Pre-compute WhatsApp URLs to avoid work on click
-  const openWhatsApp = useCallback((enquiry: BookingEnquiry, messageIndex: number = 0) => {
-    const messages = getWhatsAppMessages(enquiry);
-    const message = messages[messageIndex]?.message || messages[0].message;
+  const openWhatsApp = useCallback((enquiry: BookingEnquiry) => {
+    const message = buildWhatsAppMessage(enquiry);
     const url = `https://api.whatsapp.com/send?phone=91${enquiry.customer_phone}&text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
     setWhatsappMenuOpen(null);
-  }, [getWhatsAppMessages]);
+  }, [buildWhatsAppMessage]);
 
   const callCustomer = useCallback((phone: string) => {
     window.open(`tel:+91${phone}`, '_self');
