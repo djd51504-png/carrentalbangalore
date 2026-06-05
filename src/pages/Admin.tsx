@@ -1637,30 +1637,15 @@ const Admin = () => {
                             {formatDate(enquiry.created_at)}
                           </p>
                           <div className="flex flex-wrap gap-2">
-                            <div className="relative">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="bg-whatsapp/10 border-whatsapp text-whatsapp hover:bg-whatsapp hover:text-white"
-                                onClick={() => setWhatsappMenuOpen(whatsappMenuOpen === enquiry.id ? null : enquiry.id)}
-                              >
-                                <MessageCircle className="h-4 w-4 mr-1" />
-                                WhatsApp ▾
-                              </Button>
-                              {whatsappMenuOpen === enquiry.id && (
-                                <div className="absolute top-full left-0 mt-1 z-50 w-56 rounded-md border bg-popover p-1 shadow-md">
-                                  {getWhatsAppMessages(enquiry).map((msg, idx) => (
-                                    <button
-                                      key={idx}
-                                      className="w-full text-left px-3 py-2 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors"
-                                      onClick={() => openWhatsApp(enquiry, idx)}
-                                    >
-                                      {msg.label}
-                                    </button>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="bg-whatsapp/10 border-whatsapp text-whatsapp hover:bg-whatsapp hover:text-white"
+                              onClick={() => openWhatsApp(enquiry)}
+                            >
+                              <MessageCircle className="h-4 w-4 mr-1" />
+                              WhatsApp
+                            </Button>
                             <a href={`tel:+91${enquiry.customer_phone}`}>
                               <Button
                                 size="sm"
