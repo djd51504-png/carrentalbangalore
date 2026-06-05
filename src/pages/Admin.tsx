@@ -1579,104 +1579,106 @@ const Admin = () => {
 
               {/* All Enquiries */}
               <h3 className="text-lg font-bold text-foreground mb-3">All Enquiries</h3>
+              <div className="space-y-3">
               {enquiries.map((enquiry) => {
                 const isNew = (new Date().getTime() - new Date(enquiry.created_at).getTime()) < 24 * 60 * 60 * 1000;
-                
+
                 return (
                   <Card key={enquiry.id} className={`hover:shadow-md transition-shadow ${isNew ? 'ring-2 ring-primary/30' : ''}`}>
-                    <CardContent className="py-4">
-                      <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-                        {/* Customer Info */}
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="font-semibold text-foreground text-lg">{enquiry.customer_name}</h3>
+                    <CardContent className="p-4 space-y-3">
+                      {/* Header: name + badges + price */}
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center flex-wrap gap-2">
+                            <h3 className="font-semibold text-foreground text-base sm:text-lg truncate">{enquiry.customer_name}</h3>
                             {isNew && (
                               <Badge className="bg-green-500 text-white text-[10px] animate-pulse">NEW</Badge>
                             )}
                             {getStatusBadge(enquiry.status)}
                           </div>
-                          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                            <a 
-                              href={`tel:+91${enquiry.customer_phone}`}
-                              className="flex items-center gap-1 text-primary hover:underline font-medium"
-                            >
-                              <Phone className="h-4 w-4" />
-                              +91 {enquiry.customer_phone}
-                            </a>
-                            <span className="flex items-center gap-1">
-                              <Car className="h-4 w-4" />
-                              {enquiry.car_name}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Clock className="h-4 w-4" />
-                              {enquiry.total_days} days {enquiry.total_hours ? `+ ${enquiry.total_hours}h` : ''}
-                            </span>
-                          </div>
-                          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mt-2">
-                            <span className="flex items-center gap-1">
-                              <Calendar className="h-4 w-4" />
-                              {formatDate(enquiry.pickup_date)} → {formatDate(enquiry.drop_date)}
-                            </span>
-                          </div>
-                          {enquiry.pickup_location && (
-                            <p className="text-sm text-muted-foreground mt-1">
-                              📍 {enquiry.pickup_location}
-                            </p>
-                          )}
-                          <p className="text-xs text-muted-foreground mt-1">
-                            ⏱ {enquiry.total_days} day(s){enquiry.total_hours ? ` + ${enquiry.total_hours}h` : ''}
-                          </p>
-                        </div>
-
-                        {/* Price & Actions */}
-                        <div className="flex flex-col items-end gap-3">
-                          {enquiry.estimated_price > 0 && (
-                            <p className="text-2xl font-bold text-primary">₹{enquiry.estimated_price.toLocaleString()}</p>
-                          )}
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-[11px] text-muted-foreground mt-0.5">
                             {formatDate(enquiry.created_at)}
                           </p>
-                          <div className="flex flex-wrap gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="bg-whatsapp/10 border-whatsapp text-whatsapp hover:bg-whatsapp hover:text-white"
-                              onClick={() => openWhatsApp(enquiry)}
-                            >
-                              <MessageCircle className="h-4 w-4 mr-1" />
-                              WhatsApp
-                            </Button>
-                            <a href={`tel:+91${enquiry.customer_phone}`}>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="bg-primary/10 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                              >
-                                <Phone className="h-4 w-4 mr-1" />
-                                Call
-                              </Button>
-                            </a>
-                            <Select
-                              value={enquiry.status}
-                              onValueChange={(value) => updateEnquiryStatus(enquiry.id, value)}
-                            >
-                              <SelectTrigger className="w-32 h-9">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="pending">Pending</SelectItem>
-                                <SelectItem value="confirmed">Confirmed</SelectItem>
-                                <SelectItem value="completed">Completed</SelectItem>
-                                <SelectItem value="cancelled">Cancelled</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
                         </div>
+                        {enquiry.estimated_price > 0 && (
+                          <div className="text-right shrink-0">
+                            <p className="text-lg sm:text-xl font-bold text-primary leading-tight">
+                              ₹{enquiry.estimated_price.toLocaleString()}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Details grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
+                        <a
+                          href={`tel:+91${enquiry.customer_phone}`}
+                          className="flex items-center gap-2 text-primary hover:underline font-medium"
+                        >
+                          <Phone className="h-4 w-4 shrink-0" />
+                          <span className="truncate">+91 {enquiry.customer_phone}</span>
+                        </a>
+                        <span className="flex items-center gap-2 text-muted-foreground">
+                          <Car className="h-4 w-4 shrink-0" />
+                          <span className="truncate">{enquiry.car_name}</span>
+                        </span>
+                        <span className="flex items-center gap-2 text-muted-foreground">
+                          <Calendar className="h-4 w-4 shrink-0" />
+                          <span className="truncate">{formatDate(enquiry.pickup_date)} → {formatDate(enquiry.drop_date)}</span>
+                        </span>
+                        <span className="flex items-center gap-2 text-muted-foreground">
+                          <Clock className="h-4 w-4 shrink-0" />
+                          {enquiry.total_days} day(s){enquiry.total_hours ? ` + ${enquiry.total_hours}h` : ''}
+                        </span>
+                        {enquiry.pickup_location && (
+                          <span className="flex items-center gap-2 text-muted-foreground sm:col-span-2">
+                            <MapPin className="h-4 w-4 shrink-0" />
+                            <span className="truncate">{enquiry.pickup_location}</span>
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Actions */}
+                      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 pt-2 border-t border-border">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="bg-whatsapp/10 border-whatsapp text-whatsapp hover:bg-whatsapp hover:text-white"
+                          onClick={() => openWhatsApp(enquiry)}
+                        >
+                          <MessageCircle className="h-4 w-4 mr-1" />
+                          WhatsApp
+                        </Button>
+                        <a href={`tel:+91${enquiry.customer_phone}`} className="contents">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="w-full sm:w-auto bg-primary/10 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                          >
+                            <Phone className="h-4 w-4 mr-1" />
+                            Call
+                          </Button>
+                        </a>
+                        <Select
+                          value={enquiry.status}
+                          onValueChange={(value) => updateEnquiryStatus(enquiry.id, value)}
+                        >
+                          <SelectTrigger className="col-span-2 sm:w-36 h-9">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="confirmed">Confirmed</SelectItem>
+                            <SelectItem value="completed">Completed</SelectItem>
+                            <SelectItem value="cancelled">Cancelled</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                     </CardContent>
                   </Card>
                 );
               })}
+              </div>
               </div>
             )}
           </TabsContent>
