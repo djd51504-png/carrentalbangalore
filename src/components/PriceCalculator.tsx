@@ -779,12 +779,13 @@ const PriceCalculator = ({
 
                     {/* Location + KM info — clean rows */}
                     <div className="space-y-1 mb-3 md:mb-4 text-[11px] md:text-xs">
-                      {(pickupLocation || car.locations.length > 0) && (
+                      {car.locations.length > 0 && (
                         <div className="flex items-center gap-1.5 text-muted-foreground">
                           <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                          <span className="truncate">{pickupLocation || car.locations.join(" · ")}</span>
+                          <span className="truncate">{car.locations.join(" · ")}</span>
                         </div>
                       )}
+
                       <div className="flex items-center gap-1.5 text-muted-foreground">
                         <Gauge className="w-3.5 h-3.5 text-primary flex-shrink-0" />
                         <span>{car.kmLimit} km/day · Total {car.fullDays * car.kmLimit} km · Extra ₹{car.extraKmCharge}/km</span>
