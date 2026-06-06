@@ -1738,48 +1738,30 @@ const Admin = () => {
                     required
                   />
                 </div>
+                <p className="text-xs text-muted-foreground -mt-1">Base price applies for 1-6 day bookings</p>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label htmlFor="edit-price3Days">3-7 Days (₹/day)</Label>
-                    <Input
-                      id="edit-price3Days"
-                      type="number"
-                      placeholder="e.g., 2200"
-                      value={editFormData.price3Days}
-                      onChange={(e) => setEditFormData({ ...editFormData, price3Days: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-price7Days">8-15 Days (₹/day)</Label>
+                    <Label htmlFor="edit-price7Days">7-20 Days (₹/day)</Label>
                     <Input
                       id="edit-price7Days"
                       type="number"
-                      placeholder="e.g., 2000"
+                      placeholder="e.g., 2200"
                       value={editFormData.price7Days}
                       onChange={(e) => setEditFormData({ ...editFormData, price7Days: e.target.value })}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="edit-price15Days">16-30 Days (₹/day)</Label>
-                    <Input
-                      id="edit-price15Days"
-                      type="number"
-                      placeholder="e.g., 1800"
-                      value={editFormData.price15Days}
-                      onChange={(e) => setEditFormData({ ...editFormData, price15Days: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-price30Days">30+ Days (₹/day)</Label>
+                    <Label htmlFor="edit-price30Days">20+ Days (₹/day)</Label>
                     <Input
                       id="edit-price30Days"
                       type="number"
-                      placeholder="e.g., 1600"
+                      placeholder="e.g., 1800"
                       value={editFormData.price30Days}
                       onChange={(e) => setEditFormData({ ...editFormData, price30Days: e.target.value })}
                     />
                   </div>
                 </div>
+
                 <div className="grid grid-cols-2 gap-3 mt-3">
                   <div className="space-y-2">
                     <Label htmlFor="edit-kmLimit">KM Limit/Day</Label>
