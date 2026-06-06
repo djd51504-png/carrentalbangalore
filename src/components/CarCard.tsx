@@ -66,32 +66,25 @@ const CarCard = ({
               <Info className="w-4 h-4 text-primary animate-pulse" />
               Package Pricing (per day)
             </h4>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              {price3Days && (
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-2 py-1.5 transition-transform duration-300 hover:scale-105 hover:bg-white/20">
-                  <span className="text-white/70">3-7 Days:</span>
-                  <span className="text-gold font-bold ml-1">₹{price3Days}</span>
-                </div>
-              )}
+            <div className="grid grid-cols-1 gap-2 text-xs">
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg px-2 py-1.5 transition-transform duration-300 hover:scale-105 hover:bg-white/20 flex items-center justify-between">
+                <span className="text-white/70">1-6 Days:</span>
+                <span className="text-gold font-bold">₹{price}/day</span>
+              </div>
               {price7Days && (
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-2 py-1.5 transition-transform duration-300 hover:scale-105 hover:bg-white/20">
-                  <span className="text-white/70">8-15 Days:</span>
-                  <span className="text-gold font-bold ml-1">₹{price7Days}</span>
-                </div>
-              )}
-              {price15Days && (
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-2 py-1.5 transition-transform duration-300 hover:scale-105 hover:bg-white/20">
-                  <span className="text-white/70">16-30 Days:</span>
-                  <span className="text-gold font-bold ml-1">₹{price15Days}</span>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-2 py-1.5 transition-transform duration-300 hover:scale-105 hover:bg-white/20 flex items-center justify-between">
+                  <span className="text-white/70">7-20 Days:</span>
+                  <span className="text-gold font-bold">₹{price7Days}/day</span>
                 </div>
               )}
               {price30Days && (
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-2 py-1.5 transition-transform duration-300 hover:scale-105 hover:bg-white/20">
-                  <span className="text-white/70">30+ Days:</span>
-                  <span className="text-gold font-bold ml-1">₹{price30Days}</span>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-2 py-1.5 transition-transform duration-300 hover:scale-105 hover:bg-white/20 flex items-center justify-between">
+                  <span className="text-white/70">20+ Days:</span>
+                  <span className="text-gold font-bold">₹{price30Days}/day</span>
                 </div>
               )}
             </div>
+
             <div className="mt-3 flex items-center gap-4 text-xs">
               <div className="flex items-center gap-1 text-white/80">
                 <Gauge className="w-3 h-3 text-emerald-400" />
