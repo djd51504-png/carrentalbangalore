@@ -1140,48 +1140,30 @@ const Admin = () => {
                             required
                           />
                         </div>
+                        <p className="text-xs text-muted-foreground -mt-1">Base price applies for 1-6 day bookings</p>
                         <div className="grid grid-cols-2 gap-3">
                           <div className="space-y-2">
-                            <Label htmlFor="price3Days">3-7 Days (₹/day)</Label>
-                            <Input
-                              id="price3Days"
-                              type="number"
-                              placeholder="e.g., 2200"
-                              value={formData.price3Days}
-                              onChange={(e) => setFormData({ ...formData, price3Days: e.target.value })}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="price7Days">8-15 Days (₹/day)</Label>
+                            <Label htmlFor="price7Days">7-20 Days (₹/day)</Label>
                             <Input
                               id="price7Days"
                               type="number"
-                              placeholder="e.g., 2000"
+                              placeholder="e.g., 2200"
                               value={formData.price7Days}
                               onChange={(e) => setFormData({ ...formData, price7Days: e.target.value })}
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="price15Days">16-30 Days (₹/day)</Label>
-                            <Input
-                              id="price15Days"
-                              type="number"
-                              placeholder="e.g., 1800"
-                              value={formData.price15Days}
-                              onChange={(e) => setFormData({ ...formData, price15Days: e.target.value })}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="price30Days">30+ Days (₹/day)</Label>
+                            <Label htmlFor="price30Days">20+ Days (₹/day)</Label>
                             <Input
                               id="price30Days"
                               type="number"
-                              placeholder="e.g., 1600"
+                              placeholder="e.g., 1800"
                               value={formData.price30Days}
                               onChange={(e) => setFormData({ ...formData, price30Days: e.target.value })}
                             />
                           </div>
                         </div>
+
                         <div className="grid grid-cols-2 gap-3 mt-3">
                           <div className="space-y-2">
                             <Label htmlFor="kmLimit">KM Limit/Day</Label>
