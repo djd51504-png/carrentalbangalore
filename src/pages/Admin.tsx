@@ -1635,8 +1635,8 @@ const Admin = () => {
                         )}
                       </div>
 
-                      {/* Actions */}
-                      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 pt-2 border-t border-border">
+                      {/* Quick contact actions */}
+                      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border">
                         <Button
                           size="sm"
                           variant="outline"
@@ -1646,31 +1646,57 @@ const Admin = () => {
                           <MessageCircle className="h-4 w-4 mr-1" />
                           WhatsApp
                         </Button>
-                        <a href={`tel:+91${enquiry.customer_phone}`} className="contents">
+                        <a href={`tel:+91${enquiry.customer_phone}`}>
                           <Button
                             size="sm"
                             variant="outline"
-                            className="w-full sm:w-auto bg-primary/10 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                            className="w-full bg-primary/10 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                           >
                             <Phone className="h-4 w-4 mr-1" />
                             Call
                           </Button>
                         </a>
-                        <Select
-                          value={enquiry.status}
-                          onValueChange={(value) => updateEnquiryStatus(enquiry.id, value)}
-                        >
-                          <SelectTrigger className="col-span-2 sm:w-36 h-9">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="confirmed">Confirmed</SelectItem>
-                            <SelectItem value="completed">Completed</SelectItem>
-                            <SelectItem value="cancelled">Cancelled</SelectItem>
-                          </SelectContent>
-                        </Select>
                       </div>
+
+                      {/* One-tap status update + WhatsApp send */}
+                      <div className="space-y-1.5">
+                        <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Update status & notify</p>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                          <Button
+                            size="sm"
+                            variant={enquiry.status === 'pending' ? 'default' : 'outline'}
+                            className="h-9 text-xs"
+                            onClick={() => updateStatusAndSendWA(enquiry, 'pending')}
+                          >
+                            Pending
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant={enquiry.status === 'confirmed' ? 'default' : 'outline'}
+                            className={`h-9 text-xs ${enquiry.status === 'confirmed' ? '' : 'bg-green-500/10 border-green-600 text-green-700 hover:bg-green-600 hover:text-white'}`}
+                            onClick={() => updateStatusAndSendWA(enquiry, 'confirmed')}
+                          >
+                            Confirm
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant={enquiry.status === 'completed' ? 'default' : 'outline'}
+                            className={`h-9 text-xs ${enquiry.status === 'completed' ? '' : 'bg-blue-500/10 border-blue-600 text-blue-700 hover:bg-blue-600 hover:text-white'}`}
+                            onClick={() => updateStatusAndSendWA(enquiry, 'completed')}
+                          >
+                            Complete
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant={enquiry.status === 'cancelled' ? 'destructive' : 'outline'}
+                            className={`h-9 text-xs ${enquiry.status === 'cancelled' ? '' : 'bg-destructive/10 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground'}`}
+                            onClick={() => updateStatusAndSendWA(enquiry, 'cancelled')}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+
                     </CardContent>
                   </Card>
                 );
