@@ -812,20 +812,35 @@ const Admin = () => {
   const [whatsappMenuOpen, setWhatsappMenuOpen] = useState<string | null>(null);
 
   // Single consolidated WhatsApp message
-  const buildWhatsAppMessage = useCallback((enquiry: BookingEnquiry) => {
+  const buildWhatsAppMessage = useCallback((enquiry: BookingEnquiry, statusOverride?: string) => {
     const pickupDate = formatDate(enquiry.pickup_date);
     const dropDate = formatDate(enquiry.drop_date);
     const carDisplay = enquiry.car_name === 'Checking availability' ? 'a self-drive car' : enquiry.car_name;
     const locationText = enquiry.pickup_location && enquiry.pickup_location !== 'Not selected' ? enquiry.pickup_location : 'Bommanahalli';
-    return `Hi ${enquiry.customer_name}, this is from Car Rental Bengaluru regarding your enquiry for ${carDisplay}.\n\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n📍 Location: ${locationText}\n\nIf you want to confirm the booking, let me know. Any queries, let me know or call 9448277091.`;
+    const status = (statusOverride || enquiry.status || '').toLowerCase();
+    let statusLine = '';
+    if (status === 'confirmed') {
+      statusLine = `\n\n✅ Your booking is CONFIRMED. We look forward to serving you!`;
+    } else if (status === 'cancelled') {
+      statusLine = `\n\n❌ Your booking has been cancelled. Please reach out if this was unexpected.`;
+    } else if (status === 'completed') {
+      statusLine = `\n\n🎉 Thank you for choosing us! Your booking is now completed. We'd love your feedback.`;
+    }
+    return `Hi ${enquiry.customer_name}, this is from Car Rental Bengaluru regarding your enquiry for ${carDisplay}.\n\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n📍 Location: ${locationText}${statusLine}\n\nIf you want to confirm the booking, let me know. Any queries, let me know or call 9448277091.`;
   }, [formatDate]);
 
-  const openWhatsApp = useCallback((enquiry: BookingEnquiry) => {
-    const message = buildWhatsAppMessage(enquiry);
+  const openWhatsApp = useCallback((enquiry: BookingEnquiry, statusOverride?: string) => {
+    const message = buildWhatsAppMessage(enquiry, statusOverride);
     const url = `https://api.whatsapp.com/send?phone=91${enquiry.customer_phone}&text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
     setWhatsappMenuOpen(null);
   }, [buildWhatsAppMessage]);
+
+  const updateStatusAndSendWA = useCallback(async (enquiry: BookingEnquiry, newStatus: string) => {
+    await updateEnquiryStatus(enquiry.id, newStatus);
+    openWhatsApp({ ...enquiry, status: newStatus }, newStatus);
+  }, [updateEnquiryStatus, openWhatsApp]);
+
 
   const callCustomer = useCallback((phone: string) => {
     window.open(`tel:+91${phone}`, '_self');
@@ -1140,48 +1155,30 @@ const Admin = () => {
                             required
                           />
                         </div>
+                        <p className="text-xs text-muted-foreground -mt-1">Base price applies for 1-6 day bookings</p>
                         <div className="grid grid-cols-2 gap-3">
                           <div className="space-y-2">
-                            <Label htmlFor="price3Days">3-7 Days (₹/day)</Label>
-                            <Input
-                              id="price3Days"
-                              type="number"
-                              placeholder="e.g., 2200"
-                              value={formData.price3Days}
-                              onChange={(e) => setFormData({ ...formData, price3Days: e.target.value })}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="price7Days">8-15 Days (₹/day)</Label>
+                            <Label htmlFor="price7Days">7-20 Days (₹/day)</Label>
                             <Input
                               id="price7Days"
                               type="number"
-                              placeholder="e.g., 2000"
+                              placeholder="e.g., 2200"
                               value={formData.price7Days}
                               onChange={(e) => setFormData({ ...formData, price7Days: e.target.value })}
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="price15Days">16-30 Days (₹/day)</Label>
-                            <Input
-                              id="price15Days"
-                              type="number"
-                              placeholder="e.g., 1800"
-                              value={formData.price15Days}
-                              onChange={(e) => setFormData({ ...formData, price15Days: e.target.value })}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="price30Days">30+ Days (₹/day)</Label>
+                            <Label htmlFor="price30Days">20+ Days (₹/day)</Label>
                             <Input
                               id="price30Days"
                               type="number"
-                              placeholder="e.g., 1600"
+                              placeholder="e.g., 1800"
                               value={formData.price30Days}
                               onChange={(e) => setFormData({ ...formData, price30Days: e.target.value })}
                             />
                           </div>
                         </div>
+
                         <div className="grid grid-cols-2 gap-3 mt-3">
                           <div className="space-y-2">
                             <Label htmlFor="kmLimit">KM Limit/Day</Label>
@@ -1638,8 +1635,8 @@ const Admin = () => {
                         )}
                       </div>
 
-                      {/* Actions */}
-                      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 pt-2 border-t border-border">
+                      {/* Quick contact actions */}
+                      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border">
                         <Button
                           size="sm"
                           variant="outline"
@@ -1649,31 +1646,57 @@ const Admin = () => {
                           <MessageCircle className="h-4 w-4 mr-1" />
                           WhatsApp
                         </Button>
-                        <a href={`tel:+91${enquiry.customer_phone}`} className="contents">
+                        <a href={`tel:+91${enquiry.customer_phone}`}>
                           <Button
                             size="sm"
                             variant="outline"
-                            className="w-full sm:w-auto bg-primary/10 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                            className="w-full bg-primary/10 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                           >
                             <Phone className="h-4 w-4 mr-1" />
                             Call
                           </Button>
                         </a>
-                        <Select
-                          value={enquiry.status}
-                          onValueChange={(value) => updateEnquiryStatus(enquiry.id, value)}
-                        >
-                          <SelectTrigger className="col-span-2 sm:w-36 h-9">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="confirmed">Confirmed</SelectItem>
-                            <SelectItem value="completed">Completed</SelectItem>
-                            <SelectItem value="cancelled">Cancelled</SelectItem>
-                          </SelectContent>
-                        </Select>
                       </div>
+
+                      {/* One-tap status update + WhatsApp send */}
+                      <div className="space-y-1.5">
+                        <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">Update status & notify</p>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                          <Button
+                            size="sm"
+                            variant={enquiry.status === 'pending' ? 'default' : 'outline'}
+                            className="h-9 text-xs"
+                            onClick={() => updateStatusAndSendWA(enquiry, 'pending')}
+                          >
+                            Pending
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant={enquiry.status === 'confirmed' ? 'default' : 'outline'}
+                            className={`h-9 text-xs ${enquiry.status === 'confirmed' ? '' : 'bg-green-500/10 border-green-600 text-green-700 hover:bg-green-600 hover:text-white'}`}
+                            onClick={() => updateStatusAndSendWA(enquiry, 'confirmed')}
+                          >
+                            Confirm
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant={enquiry.status === 'completed' ? 'default' : 'outline'}
+                            className={`h-9 text-xs ${enquiry.status === 'completed' ? '' : 'bg-blue-500/10 border-blue-600 text-blue-700 hover:bg-blue-600 hover:text-white'}`}
+                            onClick={() => updateStatusAndSendWA(enquiry, 'completed')}
+                          >
+                            Complete
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant={enquiry.status === 'cancelled' ? 'destructive' : 'outline'}
+                            className={`h-9 text-xs ${enquiry.status === 'cancelled' ? '' : 'bg-destructive/10 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground'}`}
+                            onClick={() => updateStatusAndSendWA(enquiry, 'cancelled')}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+
                     </CardContent>
                   </Card>
                 );
@@ -1756,48 +1779,30 @@ const Admin = () => {
                     required
                   />
                 </div>
+                <p className="text-xs text-muted-foreground -mt-1">Base price applies for 1-6 day bookings</p>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label htmlFor="edit-price3Days">3-7 Days (₹/day)</Label>
-                    <Input
-                      id="edit-price3Days"
-                      type="number"
-                      placeholder="e.g., 2200"
-                      value={editFormData.price3Days}
-                      onChange={(e) => setEditFormData({ ...editFormData, price3Days: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-price7Days">8-15 Days (₹/day)</Label>
+                    <Label htmlFor="edit-price7Days">7-20 Days (₹/day)</Label>
                     <Input
                       id="edit-price7Days"
                       type="number"
-                      placeholder="e.g., 2000"
+                      placeholder="e.g., 2200"
                       value={editFormData.price7Days}
                       onChange={(e) => setEditFormData({ ...editFormData, price7Days: e.target.value })}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="edit-price15Days">16-30 Days (₹/day)</Label>
-                    <Input
-                      id="edit-price15Days"
-                      type="number"
-                      placeholder="e.g., 1800"
-                      value={editFormData.price15Days}
-                      onChange={(e) => setEditFormData({ ...editFormData, price15Days: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-price30Days">30+ Days (₹/day)</Label>
+                    <Label htmlFor="edit-price30Days">20+ Days (₹/day)</Label>
                     <Input
                       id="edit-price30Days"
                       type="number"
-                      placeholder="e.g., 1600"
+                      placeholder="e.g., 1800"
                       value={editFormData.price30Days}
                       onChange={(e) => setEditFormData({ ...editFormData, price30Days: e.target.value })}
                     />
                   </div>
                 </div>
+
                 <div className="grid grid-cols-2 gap-3 mt-3">
                   <div className="space-y-2">
                     <Label htmlFor="edit-kmLimit">KM Limit/Day</Label>
