@@ -812,20 +812,35 @@ const Admin = () => {
   const [whatsappMenuOpen, setWhatsappMenuOpen] = useState<string | null>(null);
 
   // Single consolidated WhatsApp message
-  const buildWhatsAppMessage = useCallback((enquiry: BookingEnquiry) => {
+  const buildWhatsAppMessage = useCallback((enquiry: BookingEnquiry, statusOverride?: string) => {
     const pickupDate = formatDate(enquiry.pickup_date);
     const dropDate = formatDate(enquiry.drop_date);
     const carDisplay = enquiry.car_name === 'Checking availability' ? 'a self-drive car' : enquiry.car_name;
     const locationText = enquiry.pickup_location && enquiry.pickup_location !== 'Not selected' ? enquiry.pickup_location : 'Bommanahalli';
-    return `Hi ${enquiry.customer_name}, this is from Car Rental Bengaluru regarding your enquiry for ${carDisplay}.\n\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n📍 Location: ${locationText}\n\nIf you want to confirm the booking, let me know. Any queries, let me know or call 9448277091.`;
+    const status = (statusOverride || enquiry.status || '').toLowerCase();
+    let statusLine = '';
+    if (status === 'confirmed') {
+      statusLine = `\n\n✅ Your booking is CONFIRMED. We look forward to serving you!`;
+    } else if (status === 'cancelled') {
+      statusLine = `\n\n❌ Your booking has been cancelled. Please reach out if this was unexpected.`;
+    } else if (status === 'completed') {
+      statusLine = `\n\n🎉 Thank you for choosing us! Your booking is now completed. We'd love your feedback.`;
+    }
+    return `Hi ${enquiry.customer_name}, this is from Car Rental Bengaluru regarding your enquiry for ${carDisplay}.\n\n📅 Pickup: ${pickupDate}\n📅 Drop: ${dropDate}\n📍 Location: ${locationText}${statusLine}\n\nIf you want to confirm the booking, let me know. Any queries, let me know or call 9448277091.`;
   }, [formatDate]);
 
-  const openWhatsApp = useCallback((enquiry: BookingEnquiry) => {
-    const message = buildWhatsAppMessage(enquiry);
+  const openWhatsApp = useCallback((enquiry: BookingEnquiry, statusOverride?: string) => {
+    const message = buildWhatsAppMessage(enquiry, statusOverride);
     const url = `https://api.whatsapp.com/send?phone=91${enquiry.customer_phone}&text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
     setWhatsappMenuOpen(null);
   }, [buildWhatsAppMessage]);
+
+  const updateStatusAndSendWA = useCallback(async (enquiry: BookingEnquiry, newStatus: string) => {
+    await updateEnquiryStatus(enquiry.id, newStatus);
+    openWhatsApp({ ...enquiry, status: newStatus }, newStatus);
+  }, [updateEnquiryStatus, openWhatsApp]);
+
 
   const callCustomer = useCallback((phone: string) => {
     window.open(`tel:+91${phone}`, '_self');
