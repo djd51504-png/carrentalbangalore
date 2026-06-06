@@ -304,16 +304,15 @@ const PriceCalculator = ({
       const days = calculation.fullDays;
       let perDayRate: number;
       
-      // Tiered per-day pricing: 1-2 days, 3-7 days, 8-15 days, 16+ days
-      if (days >= 16 && car.price15Days) {
-        perDayRate = car.price15Days;
-      } else if (days >= 8 && car.price7Days) {
+      // Tiered per-day pricing: 1-6 days (base), 7-20 days, 21+ days
+      if (days >= 21 && car.price30Days) {
+        perDayRate = car.price30Days;
+      } else if (days >= 7 && car.price7Days) {
         perDayRate = car.price7Days;
-      } else if (days >= 3 && car.price3Days) {
-        perDayRate = car.price3Days;
       } else {
         perDayRate = car.price;
       }
+
       
       // Calculate total: (days * per day rate) + (extra hours * hourly rate)
       const hourlyRate = perDayRate / 24;
