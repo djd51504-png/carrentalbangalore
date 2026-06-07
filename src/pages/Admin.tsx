@@ -1214,7 +1214,7 @@ const Admin = () => {
 
                         <div className="grid grid-cols-2 gap-3 mt-3">
                           <div className="space-y-2">
-                            <Label htmlFor="kmLimit">KM Limit/Day</Label>
+                            <Label htmlFor="kmLimit">KM/Day (1-6 days)</Label>
                             <Input
                               id="kmLimit"
                               type="number"
@@ -1234,7 +1234,43 @@ const Admin = () => {
                             />
                           </div>
                         </div>
+
+                        <div className="grid grid-cols-2 gap-3 mt-3">
+                          <div className="space-y-2">
+                            <Label htmlFor="km7_20">KM/Day (7-20 days)</Label>
+                            <Input
+                              id="km7_20"
+                              type="number"
+                              placeholder="e.g., 300"
+                              value={formData.km7_20}
+                              onChange={(e) => setFormData({ ...formData, km7_20: e.target.value })}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="km20Plus">KM/Day (20+ days)</Label>
+                            <Input
+                              id="km20Plus"
+                              type="number"
+                              placeholder="e.g., 250"
+                              value={formData.km20Plus}
+                              onChange={(e) => setFormData({ ...formData, km20Plus: e.target.value })}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2 mt-3">
+                          <Label htmlFor="customLocation">Custom Pickup Location (optional)</Label>
+                          <Input
+                            id="customLocation"
+                            type="text"
+                            placeholder="e.g., HSR Layout Sector 2"
+                            value={formData.customLocation}
+                            onChange={(e) => setFormData({ ...formData, customLocation: e.target.value })}
+                          />
+                          <p className="text-xs text-muted-foreground">Adds an extra location for this car only (shown alongside the multi-select locations).</p>
+                        </div>
                       </div>
+
 
                       {/* Specifications */}
                       <div className="space-y-3 pt-2 border-t border-border">
