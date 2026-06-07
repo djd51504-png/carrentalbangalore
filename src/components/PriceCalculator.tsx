@@ -311,28 +311,33 @@ const PriceCalculator = ({
     return filteredCars.map(car => {
       const days = calculation.fullDays;
       let perDayRate: number;
-      
-      // Tiered per-day pricing: 1-6 days (base), 7-20 days, 21+ days
+      let effectiveKmLimit = car.kmLimit;
+      const contactForPrice = days > 35;
+
+      // Tiered per-day pricing & km limit: 1-6 (base), 7-20, 21+ days
       if (days >= 21 && car.price30Days) {
         perDayRate = car.price30Days;
+        effectiveKmLimit = car.km20Plus || car.kmLimit;
       } else if (days >= 7 && car.price7Days) {
         perDayRate = car.price7Days;
+        effectiveKmLimit = car.km7_20 || car.kmLimit;
       } else {
         perDayRate = car.price;
       }
 
-      
       // Calculate total: (days * per day rate) + (extra hours * hourly rate)
       const hourlyRate = perDayRate / 24;
       const daysPrice = days * perDayRate;
       const hoursPrice = Math.round(calculation.extraHours * hourlyRate);
       const totalPrice = daysPrice + hoursPrice;
-      
+
       return {
         ...car,
         totalPrice,
         fullDays: calculation.fullDays,
         extraHours: calculation.extraHours,
+        effectiveKmLimit,
+        contactForPrice,
       };
     });
   }, [calculation, transmissionFilter, pickupLocation, cars]);
