@@ -72,6 +72,9 @@ interface Car {
   transmission: string;
   fuel: string;
   kmLimit: number;
+  km7_20: number | null;
+  km20Plus: number | null;
+  customLocation: string | null;
   extraKmCharge: number;
   price3Days: number | null;
   price7Days: number | null;
