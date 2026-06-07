@@ -765,12 +765,20 @@ const PriceCalculator = ({
                         {car.brand} {car.name}
                       </h3>
                       <div className="text-right flex-shrink-0">
-                        <p className="font-heading font-bold text-base md:text-lg text-primary leading-none whitespace-nowrap">
-                          ₹{car.totalPrice.toLocaleString()}
-                        </p>
-                        <p className="text-[10px] md:text-xs text-muted-foreground mt-0.5">
-                          {car.fullDays}d{car.extraHours > 0 ? ` + ${car.extraHours}h` : ""}
-                        </p>
+                        {car.contactForPrice ? (
+                          <p className="font-heading font-bold text-xs md:text-sm text-primary leading-tight whitespace-nowrap">
+                            Contact on<br/>WhatsApp
+                          </p>
+                        ) : (
+                          <>
+                            <p className="font-heading font-bold text-base md:text-lg text-primary leading-none whitespace-nowrap">
+                              ₹{car.totalPrice.toLocaleString()}
+                            </p>
+                            <p className="text-[10px] md:text-xs text-muted-foreground mt-0.5">
+                              {car.fullDays}d{car.extraHours > 0 ? ` + ${car.extraHours}h` : ""}
+                            </p>
+                          </>
+                        )}
                       </div>
                     </div>
 
