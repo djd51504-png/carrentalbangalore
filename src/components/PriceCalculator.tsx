@@ -95,6 +95,8 @@ interface CarWithCalculatedPrice extends Car {
   totalPrice: number;
   fullDays: number;
   extraHours: number;
+  effectiveKmLimit: number;
+  contactForPrice: boolean;
 }
 
 interface PriceCalculatorProps {
