@@ -800,16 +800,18 @@ const PriceCalculator = ({
 
                     {/* Location + KM info — clean rows */}
                     <div className="space-y-1 mb-3 md:mb-4 text-[11px] md:text-xs">
-                      {car.locations.length > 0 && (
+                      {(car.locations.length > 0 || car.customLocation) && (
                         <div className="flex items-center gap-1.5 text-muted-foreground">
                           <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                          <span className="truncate">{car.locations.join(" · ")}</span>
+                          <span className="truncate">
+                            {[...car.locations, car.customLocation].filter(Boolean).join(" · ")}
+                          </span>
                         </div>
                       )}
 
                       <div className="flex items-center gap-1.5 text-muted-foreground">
                         <Gauge className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                        <span>{car.kmLimit} km/day · Total {car.fullDays * car.kmLimit} km · Extra ₹{car.extraKmCharge}/km</span>
+                        <span>{car.effectiveKmLimit} km/day · Total {car.fullDays * car.effectiveKmLimit} km · Extra ₹{car.extraKmCharge}/km</span>
                       </div>
                     </div>
 
@@ -820,16 +822,19 @@ const PriceCalculator = ({
                       const pickupStr = format(pickupDT, "EEE, dd MMM yyyy hh:mm a");
                       const dropStr = format(dropDT, "EEE, dd MMM yyyy hh:mm a");
                       const durationStr = `${car.fullDays} day${car.fullDays !== 1 ? 's' : ''}${car.extraHours > 0 ? ` ${car.extraHours} hour${car.extraHours !== 1 ? 's' : ''}` : ''}`;
+                      const priceLine = car.contactForPrice
+                        ? `💰 Price: Contact on WhatsApp (booking > 35 days)\n`
+                        : `💰 Price: ₹${car.totalPrice.toLocaleString()}\n`;
                       const waMsg =
-                        `Hi Vikas, I want to book the ${car.brand} ${car.name}.\n\n` +
+                        `Hi Vikas, I want to book the ${car.brand} ${car.name} from Car Rental Bengaluru.\n\n` +
                         `📅 Pickup: ${pickupStr}\n` +
                         `📅 Drop: ${dropStr}\n` +
                         `⏱️ Duration: ${durationStr}\n` +
                         `📍 Location: ${pickupLocation || "To be decided"}\n\n` +
                         `👤 Name: ${customerName}\n` +
                         `📞 Phone: ${customerPhone}\n\n` +
-                        `💰 Price: ₹${car.totalPrice.toLocaleString()}\n` +
-                        `🛣️ KM Limit: ${car.fullDays * car.kmLimit}km (₹${car.extraKmCharge}/extra km)\n\n` +
+                        priceLine +
+                        `🛣️ KM Limit: ${car.fullDays * car.effectiveKmLimit}km (₹${car.extraKmCharge}/extra km)\n\n` +
                         `Please confirm availability.`;
                       return (
                         <a
@@ -839,7 +844,7 @@ const PriceCalculator = ({
                           className="flex items-center justify-center gap-2 w-full bg-whatsapp hover:bg-whatsapp/90 text-white py-3 md:py-3.5 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] text-sm md:text-base"
                         >
                           <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
-                          Book on WhatsApp
+                          {car.contactForPrice ? "Contact on WhatsApp" : "Book on WhatsApp"}
                         </a>
                       );
                     })()}
