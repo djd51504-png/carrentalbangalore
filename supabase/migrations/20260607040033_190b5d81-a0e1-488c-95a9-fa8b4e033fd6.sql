@@ -1,0 +1,1 @@
+CREATE POLICY "Only admins can subscribe to realtime" ON realtime.messages FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'admin'));
