@@ -1,7 +1,22 @@
-import { Instagram } from "lucide-react";
+import { Instagram, CheckCircle2, Heart } from "lucide-react";
 
 const INSTAGRAM_URL = "https://www.instagram.com/car._.rental._.bengaluru?igsh=MTFpZXBjdGE0am5tbg==";
 const FACEBOOK_URL = "https://www.facebook.com/share/17suAiWW35/";
+
+const HIGHLIGHTS = [
+  {
+    label: "Bookings Confirmed",
+    href: "https://www.instagram.com/s/aGlnaGxpZ2h0OjE4MTEyNjIyMzkyODU4MDg1?story_media_id=3906325008647227959_50484247995&igsh=MTg4bm8ya2pmdWxuZw==",
+    icon: CheckCircle2,
+    gradient: "from-emerald-500 to-teal-500",
+  },
+  {
+    label: "Happy Customers",
+    href: "https://www.instagram.com/s/aGlnaGxpZ2h0OjE3ODg1ODg2ODUyNTA3NTI2?story_media_id=3888207354055486118_50484247995&igsh=MXdxZzg4czBodWU1Zg==",
+    icon: Heart,
+    gradient: "from-pink-500 to-rose-500",
+  },
+];
 
 const InstagramHighlights = () => {
   return (
@@ -16,10 +31,42 @@ const InstagramHighlights = () => {
             Stay Connected With Car Rental Bengaluru
           </h2>
           <p className="text-muted-foreground text-xs mt-1">
-            Follow us for latest cars, offers & happy customers
+            Real bookings & happy customers — straight from our Instagram
           </p>
         </div>
 
+        {/* Instagram Highlights Tiles */}
+        <div className="grid grid-cols-2 gap-3 md:gap-4 max-w-2xl mx-auto mb-6" data-aos="fade-up">
+          {HIGHLIGHTS.map((h) => {
+            const Icon = h.icon;
+            return (
+              <a
+                key={h.label}
+                href={h.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative aspect-square rounded-2xl overflow-hidden shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+              >
+                <div className={`absolute inset-0 bg-gradient-to-br ${h.gradient}`} />
+                <div className="absolute inset-0 bg-black/20" />
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-3 text-center">
+                  <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-2 ring-2 ring-white/40 group-hover:ring-white/80 transition-all">
+                    <Icon className="w-6 h-6 md:w-7 md:h-7" />
+                  </div>
+                  <div className="font-heading font-bold text-sm md:text-base leading-tight">
+                    {h.label}
+                  </div>
+                  <div className="inline-flex items-center gap-1 mt-2 text-[10px] md:text-xs opacity-90">
+                    <Instagram className="w-3 h-3" />
+                    View Highlight
+                  </div>
+                </div>
+              </a>
+            );
+          })}
+        </div>
+
+        {/* Follow Buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4" data-aos="fade-up">
           <a
             href={INSTAGRAM_URL}

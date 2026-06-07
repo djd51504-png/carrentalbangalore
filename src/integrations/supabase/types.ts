@@ -90,12 +90,15 @@ export type Database = {
           category: string
           category_label: string | null
           created_at: string
+          custom_location: string | null
           extra_km_charge: number
           fuel: string
           id: string
           image: string | null
           images: string[] | null
           is_available: boolean
+          km_20_plus: number | null
+          km_7_20: number | null
           km_limit: number
           locations: string[] | null
           name: string
@@ -114,12 +117,15 @@ export type Database = {
           category?: string
           category_label?: string | null
           created_at?: string
+          custom_location?: string | null
           extra_km_charge?: number
           fuel?: string
           id?: string
           image?: string | null
           images?: string[] | null
           is_available?: boolean
+          km_20_plus?: number | null
+          km_7_20?: number | null
           km_limit?: number
           locations?: string[] | null
           name: string
@@ -138,12 +144,15 @@ export type Database = {
           category?: string
           category_label?: string | null
           created_at?: string
+          custom_location?: string | null
           extra_km_charge?: number
           fuel?: string
           id?: string
           image?: string | null
           images?: string[] | null
           is_available?: boolean
+          km_20_plus?: number | null
+          km_7_20?: number | null
           km_limit?: number
           locations?: string[] | null
           name?: string

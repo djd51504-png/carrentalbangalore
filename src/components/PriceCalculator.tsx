@@ -72,6 +72,9 @@ interface Car {
   transmission: string;
   fuel: string;
   kmLimit: number;
+  km7_20: number | null;
+  km20Plus: number | null;
+  customLocation: string | null;
   extraKmCharge: number;
   price3Days: number | null;
   price7Days: number | null;
@@ -92,6 +95,8 @@ interface CarWithCalculatedPrice extends Car {
   totalPrice: number;
   fullDays: number;
   extraHours: number;
+  effectiveKmLimit: number;
+  contactForPrice: boolean;
 }
 
 interface PriceCalculatorProps {
@@ -229,6 +234,9 @@ const PriceCalculator = ({
           transmission: car.transmission,
           fuel: car.fuel,
           kmLimit: car.km_limit,
+          km7_20: (car as any).km_7_20 ?? null,
+          km20Plus: (car as any).km_20_plus ?? null,
+          customLocation: (car as any).custom_location ?? null,
           extraKmCharge: car.extra_km_charge,
           price3Days: car.price_3_days,
           price7Days: car.price_7_days,
@@ -303,28 +311,33 @@ const PriceCalculator = ({
     return filteredCars.map(car => {
       const days = calculation.fullDays;
       let perDayRate: number;
-      
-      // Tiered per-day pricing: 1-6 days (base), 7-20 days, 21+ days
+      let effectiveKmLimit = car.kmLimit;
+      const contactForPrice = days > 35;
+
+      // Tiered per-day pricing & km limit: 1-6 (base), 7-20, 21+ days
       if (days >= 21 && car.price30Days) {
         perDayRate = car.price30Days;
+        effectiveKmLimit = car.km20Plus || car.kmLimit;
       } else if (days >= 7 && car.price7Days) {
         perDayRate = car.price7Days;
+        effectiveKmLimit = car.km7_20 || car.kmLimit;
       } else {
         perDayRate = car.price;
       }
 
-      
       // Calculate total: (days * per day rate) + (extra hours * hourly rate)
       const hourlyRate = perDayRate / 24;
       const daysPrice = days * perDayRate;
       const hoursPrice = Math.round(calculation.extraHours * hourlyRate);
       const totalPrice = daysPrice + hoursPrice;
-      
+
       return {
         ...car,
         totalPrice,
         fullDays: calculation.fullDays,
         extraHours: calculation.extraHours,
+        effectiveKmLimit,
+        contactForPrice,
       };
     });
   }, [calculation, transmissionFilter, pickupLocation, cars]);
@@ -752,12 +765,20 @@ const PriceCalculator = ({
                         {car.brand} {car.name}
                       </h3>
                       <div className="text-right flex-shrink-0">
-                        <p className="font-heading font-bold text-base md:text-lg text-primary leading-none whitespace-nowrap">
-                          ₹{car.totalPrice.toLocaleString()}
-                        </p>
-                        <p className="text-[10px] md:text-xs text-muted-foreground mt-0.5">
-                          {car.fullDays}d{car.extraHours > 0 ? ` + ${car.extraHours}h` : ""}
-                        </p>
+                        {car.contactForPrice ? (
+                          <p className="font-heading font-bold text-xs md:text-sm text-primary leading-tight whitespace-nowrap">
+                            Contact on<br/>WhatsApp
+                          </p>
+                        ) : (
+                          <>
+                            <p className="font-heading font-bold text-base md:text-lg text-primary leading-none whitespace-nowrap">
+                              ₹{car.totalPrice.toLocaleString()}
+                            </p>
+                            <p className="text-[10px] md:text-xs text-muted-foreground mt-0.5">
+                              {car.fullDays}d{car.extraHours > 0 ? ` + ${car.extraHours}h` : ""}
+                            </p>
+                          </>
+                        )}
                       </div>
                     </div>
 
@@ -779,16 +800,18 @@ const PriceCalculator = ({
 
                     {/* Location + KM info — clean rows */}
                     <div className="space-y-1 mb-3 md:mb-4 text-[11px] md:text-xs">
-                      {car.locations.length > 0 && (
+                      {(car.locations.length > 0 || car.customLocation) && (
                         <div className="flex items-center gap-1.5 text-muted-foreground">
                           <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                          <span className="truncate">{car.locations.join(" · ")}</span>
+                          <span className="truncate">
+                            {[...car.locations, car.customLocation].filter(Boolean).join(" · ")}
+                          </span>
                         </div>
                       )}
 
                       <div className="flex items-center gap-1.5 text-muted-foreground">
                         <Gauge className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                        <span>{car.kmLimit} km/day · Total {car.fullDays * car.kmLimit} km · Extra ₹{car.extraKmCharge}/km</span>
+                        <span>{car.effectiveKmLimit} km/day · Total {car.fullDays * car.effectiveKmLimit} km · Extra ₹{car.extraKmCharge}/km</span>
                       </div>
                     </div>
 
@@ -799,16 +822,19 @@ const PriceCalculator = ({
                       const pickupStr = format(pickupDT, "EEE, dd MMM yyyy hh:mm a");
                       const dropStr = format(dropDT, "EEE, dd MMM yyyy hh:mm a");
                       const durationStr = `${car.fullDays} day${car.fullDays !== 1 ? 's' : ''}${car.extraHours > 0 ? ` ${car.extraHours} hour${car.extraHours !== 1 ? 's' : ''}` : ''}`;
+                      const priceLine = car.contactForPrice
+                        ? `💰 Price: Contact on WhatsApp (booking > 35 days)\n`
+                        : `💰 Price: ₹${car.totalPrice.toLocaleString()}\n`;
                       const waMsg =
-                        `Hi Vikas, I want to book the ${car.brand} ${car.name}.\n\n` +
+                        `Hi Vikas, I want to book the ${car.brand} ${car.name} from Car Rental Bengaluru.\n\n` +
                         `📅 Pickup: ${pickupStr}\n` +
                         `📅 Drop: ${dropStr}\n` +
                         `⏱️ Duration: ${durationStr}\n` +
                         `📍 Location: ${pickupLocation || "To be decided"}\n\n` +
                         `👤 Name: ${customerName}\n` +
                         `📞 Phone: ${customerPhone}\n\n` +
-                        `💰 Price: ₹${car.totalPrice.toLocaleString()}\n` +
-                        `🛣️ KM Limit: ${car.fullDays * car.kmLimit}km (₹${car.extraKmCharge}/extra km)\n\n` +
+                        priceLine +
+                        `🛣️ KM Limit: ${car.fullDays * car.effectiveKmLimit}km (₹${car.extraKmCharge}/extra km)\n\n` +
                         `Please confirm availability.`;
                       return (
                         <a
@@ -818,7 +844,7 @@ const PriceCalculator = ({
                           className="flex items-center justify-center gap-2 w-full bg-whatsapp hover:bg-whatsapp/90 text-white py-3 md:py-3.5 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] text-sm md:text-base"
                         >
                           <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
-                          Book on WhatsApp
+                          {car.contactForPrice ? "Contact on WhatsApp" : "Book on WhatsApp"}
                         </a>
                       );
                     })()}

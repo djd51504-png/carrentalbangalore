@@ -49,6 +49,9 @@ interface CarData {
   brand: string;
   price: number;
   kmLimit: number;
+  km7_20?: number | null;
+  km20Plus?: number | null;
+  customLocation?: string | null;
   extraKmCharge: number;
   fuel: string;
   transmission: string;
@@ -304,6 +307,9 @@ const Admin = () => {
         brand: car.brand,
         price: car.price,
         kmLimit: car.km_limit,
+        km7_20: (car as any).km_7_20 ?? null,
+        km20Plus: (car as any).km_20_plus ?? null,
+        customLocation: (car as any).custom_location ?? null,
         extraKmCharge: car.extra_km_charge,
         fuel: car.fuel,
         transmission: car.transmission,
@@ -462,6 +468,9 @@ const Admin = () => {
     brand: "",
     price: "",
     kmLimit: "300",
+    km7_20: "300",
+    km20Plus: "300",
+    customLocation: "",
     extraKmCharge: "10",
     fuel: "Petrol",
     transmission: "Manual",
@@ -487,6 +496,9 @@ const Admin = () => {
     brand: "",
     price: "",
     kmLimit: "",
+    km7_20: "",
+    km20Plus: "",
+    customLocation: "",
     extraKmCharge: "",
     fuel: "Petrol",
     transmission: "Manual",
@@ -583,6 +595,9 @@ const Admin = () => {
           brand: formData.brand,
           price: Number(formData.price),
           km_limit: Number(formData.kmLimit),
+          km_7_20: formData.km7_20 ? Number(formData.km7_20) : null,
+          km_20_plus: formData.km20Plus ? Number(formData.km20Plus) : null,
+          custom_location: formData.customLocation || null,
           extra_km_charge: Number(formData.extraKmCharge),
           fuel: formData.fuel,
           transmission: formData.transmission,
@@ -609,6 +624,9 @@ const Admin = () => {
         brand: data.brand,
         price: data.price,
         kmLimit: data.km_limit,
+        km7_20: (data as any).km_7_20 ?? null,
+        km20Plus: (data as any).km_20_plus ?? null,
+        customLocation: (data as any).custom_location ?? null,
         extraKmCharge: data.extra_km_charge,
         fuel: data.fuel,
         transmission: data.transmission,
@@ -632,6 +650,9 @@ const Admin = () => {
         brand: "",
         price: "",
         kmLimit: "300",
+        km7_20: "300",
+        km20Plus: "300",
+        customLocation: "",
         extraKmCharge: "10",
         fuel: "Petrol",
         transmission: "Manual",
@@ -670,6 +691,9 @@ const Admin = () => {
       brand: car.brand,
       price: car.price.toString(),
       kmLimit: car.kmLimit.toString(),
+      km7_20: car.km7_20?.toString() || car.kmLimit.toString(),
+      km20Plus: car.km20Plus?.toString() || car.kmLimit.toString(),
+      customLocation: car.customLocation || "",
       extraKmCharge: car.extraKmCharge.toString(),
       fuel: car.fuel,
       transmission: car.transmission,
@@ -693,6 +717,9 @@ const Admin = () => {
       brand: "",
       price: "",
       kmLimit: "",
+      km7_20: "",
+      km20Plus: "",
+      customLocation: "",
       extraKmCharge: "",
       fuel: "Petrol",
       transmission: "Manual",
@@ -723,6 +750,9 @@ const Admin = () => {
           brand: editFormData.brand,
           price: Number(editFormData.price),
           km_limit: Number(editFormData.kmLimit),
+          km_7_20: editFormData.km7_20 ? Number(editFormData.km7_20) : null,
+          km_20_plus: editFormData.km20Plus ? Number(editFormData.km20Plus) : null,
+          custom_location: editFormData.customLocation || null,
           extra_km_charge: Number(editFormData.extraKmCharge),
           fuel: editFormData.fuel,
           transmission: editFormData.transmission,
@@ -748,6 +778,9 @@ const Admin = () => {
         brand: editFormData.brand,
         price: Number(editFormData.price),
         kmLimit: Number(editFormData.kmLimit),
+        km7_20: editFormData.km7_20 ? Number(editFormData.km7_20) : null,
+        km20Plus: editFormData.km20Plus ? Number(editFormData.km20Plus) : null,
+        customLocation: editFormData.customLocation || null,
         extraKmCharge: Number(editFormData.extraKmCharge),
         fuel: editFormData.fuel,
         transmission: editFormData.transmission,
@@ -1181,7 +1214,7 @@ const Admin = () => {
 
                         <div className="grid grid-cols-2 gap-3 mt-3">
                           <div className="space-y-2">
-                            <Label htmlFor="kmLimit">KM Limit/Day</Label>
+                            <Label htmlFor="kmLimit">KM/Day (1-6 days)</Label>
                             <Input
                               id="kmLimit"
                               type="number"
@@ -1201,7 +1234,43 @@ const Admin = () => {
                             />
                           </div>
                         </div>
+
+                        <div className="grid grid-cols-2 gap-3 mt-3">
+                          <div className="space-y-2">
+                            <Label htmlFor="km7_20">KM/Day (7-20 days)</Label>
+                            <Input
+                              id="km7_20"
+                              type="number"
+                              placeholder="e.g., 300"
+                              value={formData.km7_20}
+                              onChange={(e) => setFormData({ ...formData, km7_20: e.target.value })}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="km20Plus">KM/Day (20+ days)</Label>
+                            <Input
+                              id="km20Plus"
+                              type="number"
+                              placeholder="e.g., 250"
+                              value={formData.km20Plus}
+                              onChange={(e) => setFormData({ ...formData, km20Plus: e.target.value })}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2 mt-3">
+                          <Label htmlFor="customLocation">Custom Pickup Location (optional)</Label>
+                          <Input
+                            id="customLocation"
+                            type="text"
+                            placeholder="e.g., HSR Layout Sector 2"
+                            value={formData.customLocation}
+                            onChange={(e) => setFormData({ ...formData, customLocation: e.target.value })}
+                          />
+                          <p className="text-xs text-muted-foreground">Adds an extra location for this car only (shown alongside the multi-select locations).</p>
+                        </div>
                       </div>
+
 
                       {/* Specifications */}
                       <div className="space-y-3 pt-2 border-t border-border">
@@ -1805,7 +1874,7 @@ const Admin = () => {
 
                 <div className="grid grid-cols-2 gap-3 mt-3">
                   <div className="space-y-2">
-                    <Label htmlFor="edit-kmLimit">KM Limit/Day</Label>
+                    <Label htmlFor="edit-kmLimit">KM/Day (1-6 days)</Label>
                     <Input
                       id="edit-kmLimit"
                       type="number"
@@ -1825,7 +1894,43 @@ const Admin = () => {
                     />
                   </div>
                 </div>
+
+                <div className="grid grid-cols-2 gap-3 mt-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-km7_20">KM/Day (7-20 days)</Label>
+                    <Input
+                      id="edit-km7_20"
+                      type="number"
+                      placeholder="e.g., 300"
+                      value={editFormData.km7_20}
+                      onChange={(e) => setEditFormData({ ...editFormData, km7_20: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-km20Plus">KM/Day (20+ days)</Label>
+                    <Input
+                      id="edit-km20Plus"
+                      type="number"
+                      placeholder="e.g., 250"
+                      value={editFormData.km20Plus}
+                      onChange={(e) => setEditFormData({ ...editFormData, km20Plus: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2 mt-3">
+                  <Label htmlFor="edit-customLocation">Custom Pickup Location (optional)</Label>
+                  <Input
+                    id="edit-customLocation"
+                    type="text"
+                    placeholder="e.g., HSR Layout Sector 2"
+                    value={editFormData.customLocation}
+                    onChange={(e) => setEditFormData({ ...editFormData, customLocation: e.target.value })}
+                  />
+                  <p className="text-xs text-muted-foreground">Adds an extra location for this car only (shown alongside the multi-select locations).</p>
+                </div>
               </div>
+
 
               {/* Specifications */}
               <div className="space-y-3 pt-2 border-t border-border">
