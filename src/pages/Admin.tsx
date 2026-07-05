@@ -1276,7 +1276,7 @@ const Admin = () => {
                           <div className="space-y-1 text-sm">
                             <p><span className="text-muted-foreground">Pickup location:</span>{" "}
                               <span className="font-medium">
-                                {[...(formData.locations || []), formData.customLocation].filter(Boolean).join(", ") || "—"}
+                                {[...(formLocations || []), formData.customLocation].filter(Boolean).join(", ") || "—"}
                               </span>
                             </p>
                             <p><span className="text-muted-foreground">KM/day (1–6 days):</span> <span className="font-medium">{formData.kmLimit || "—"} km</span></p>
