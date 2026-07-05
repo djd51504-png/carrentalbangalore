@@ -1,18 +1,18 @@
 import { Instagram, CheckCircle2, Heart } from "lucide-react";
 
-const INSTAGRAM_URL = "https://www.instagram.com/car._.rental._.bengaluru?igsh=MTFpZXBjdGE0am5tbg==";
-const FACEBOOK_URL = "https://www.facebook.com/share/17suAiWW35/";
+const INSTAGRAM_URL = "https://www.instagram.com/car_rental_bengaluru?igsh=MWFwbzc4dGE4dnk3eQ==";
+const FACEBOOK_URL = "https://www.facebook.com/share/1Cuc1ZLNbT/";
 
 const HIGHLIGHTS = [
   {
     label: "Bookings Confirmed",
-    href: "https://www.instagram.com/s/aGlnaGxpZ2h0OjE4MTEyNjIyMzkyODU4MDg1?story_media_id=3906325008647227959_50484247995&igsh=MTg4bm8ya2pmdWxuZw==",
+    href: "https://www.instagram.com/s/aGlnaGxpZ2h0OjE4MTEzNjU3NTI0ODU1MTA5?story_media_id=3920865463764870515_14186606284&igsh=MWI3dXhzdG0zNHRzYg==",
     icon: CheckCircle2,
     gradient: "from-emerald-500 to-teal-500",
   },
   {
     label: "Happy Customers",
-    href: "https://www.instagram.com/s/aGlnaGxpZ2h0OjE3ODg1ODg2ODUyNTA3NTI2?story_media_id=3888207354055486118_50484247995&igsh=MXdxZzg4czBodWU1Zg==",
+    href: "https://www.instagram.com/s/aGlnaGxpZ2h0OjE3ODg2MTU4NDQ4NDEwNzcy?story_media_id=3920864845121722045_14186606284&igsh=MXRvZjYxdndxb29udA==",
     icon: Heart,
     gradient: "from-pink-500 to-rose-500",
   },

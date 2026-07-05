@@ -22,7 +22,7 @@ const GoogleReviews = () => {
             <span className="text-muted-foreground">on Google Maps</span>
           </div>
           <a
-            href="https://maps.app.goo.gl/xsq6bDgZ4WmjUDt59"
+            href="https://maps.app.goo.gl/fw68cvMAG3RHGGYR8?g_st=ac"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 text-primary hover:underline font-medium"

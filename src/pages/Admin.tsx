@@ -1269,6 +1269,21 @@ const Admin = () => {
                           />
                           <p className="text-xs text-muted-foreground">Adds an extra location for this car only (shown alongside the multi-select locations).</p>
                         </div>
+
+                        {/* Customer-facing preview */}
+                        <div className="mt-4 p-3 rounded-lg border border-dashed border-primary/40 bg-primary/5">
+                          <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-2">Customer Website Preview</p>
+                          <div className="space-y-1 text-sm">
+                            <p><span className="text-muted-foreground">Pickup location:</span>{" "}
+                              <span className="font-medium">
+                                {[...(formLocations || []), formData.customLocation].filter(Boolean).join(", ") || "—"}
+                              </span>
+                            </p>
+                            <p><span className="text-muted-foreground">KM/day (1–6 days):</span> <span className="font-medium">{formData.kmLimit || "—"} km</span></p>
+                            <p><span className="text-muted-foreground">KM/day (7–20 days):</span> <span className="font-medium">{formData.km7_20 || formData.kmLimit || "—"} km</span></p>
+                            <p><span className="text-muted-foreground">KM/day (21+ days):</span> <span className="font-medium">{formData.km20Plus || formData.kmLimit || "—"} km</span></p>
+                          </div>
+                        </div>
                       </div>
 
 
@@ -1928,6 +1943,21 @@ const Admin = () => {
                     onChange={(e) => setEditFormData({ ...editFormData, customLocation: e.target.value })}
                   />
                   <p className="text-xs text-muted-foreground">Adds an extra location for this car only (shown alongside the multi-select locations).</p>
+                </div>
+
+                {/* Customer-facing preview */}
+                <div className="mt-4 p-3 rounded-lg border border-dashed border-primary/40 bg-primary/5">
+                  <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-2">Customer Website Preview</p>
+                  <div className="space-y-1 text-sm">
+                    <p><span className="text-muted-foreground">Pickup location:</span>{" "}
+                      <span className="font-medium">
+                        {[...(editFormLocations || []), editFormData.customLocation].filter(Boolean).join(", ") || "—"}
+                      </span>
+                    </p>
+                    <p><span className="text-muted-foreground">KM/day (1–6 days):</span> <span className="font-medium">{editFormData.kmLimit || "—"} km</span></p>
+                    <p><span className="text-muted-foreground">KM/day (7–20 days):</span> <span className="font-medium">{editFormData.km7_20 || editFormData.kmLimit || "—"} km</span></p>
+                    <p><span className="text-muted-foreground">KM/day (21+ days):</span> <span className="font-medium">{editFormData.km20Plus || editFormData.kmLimit || "—"} km</span></p>
+                  </div>
                 </div>
               </div>
 
