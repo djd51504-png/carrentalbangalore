@@ -48,7 +48,7 @@ const Footer = () => {
             <h4 className="font-heading font-bold text-lg mb-5">Follow Us</h4>
             <div className="flex flex-col gap-4">
               <a
-                href="https://www.instagram.com/car._.rental._.bengaluru"
+                href="https://www.instagram.com/car_rental_bengaluru?igsh=MWFwbzc4dGE4dnk3eQ=="
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 text-primary-foreground/80 hover:text-pink-400 transition-colors group"
