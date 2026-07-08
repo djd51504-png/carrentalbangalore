@@ -451,6 +451,28 @@ const Admin = () => {
     }
   };
 
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast({
+        title: "Enter your email first",
+        description: "Type your admin email above, then tap Forgot password.",
+        variant: "destructive",
+      });
+      return;
+    }
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/admin`,
+    });
+    if (error) {
+      toast({ title: "Reset failed", description: error.message, variant: "destructive" });
+    } else {
+      toast({
+        title: "Reset email sent",
+        description: `Check ${email} for a password reset link.`,
+      });
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setIsAdmin(false);
@@ -966,11 +988,19 @@ const Admin = () => {
                   "Login to Admin Panel"
                 )}
               </Button>
-              <div className="text-center">
-                <Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <div className="flex items-center justify-between text-sm">
+                <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">
                   ← Back to website
                 </Link>
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className="text-primary hover:underline"
+                >
+                  Forgot password?
+                </button>
               </div>
+
             </form>
           </CardContent>
         </Card>

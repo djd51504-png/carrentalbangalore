@@ -14,7 +14,7 @@ const HIGHLIGHTS = [
     label: "Happy Customers",
     href: "https://www.instagram.com/s/aGlnaGxpZ2h0OjE3ODg2MTU4NDQ4NDEwNzcy?story_media_id=3920864845121722045_14186606284&igsh=MXRvZjYxdndxb29udA==",
     icon: Heart,
-    gradient: "from-pink-500 to-rose-500",
+    gradient: "from-[#EC4899] to-rose-500",
   },
 ];
 
@@ -72,7 +72,7 @@ const InstagramHighlights = () => {
             href={INSTAGRAM_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#833AB4] via-[#E1306C] to-[#F77737] text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all"
           >
             <Instagram className="w-4 h-4" />
             Follow on Instagram

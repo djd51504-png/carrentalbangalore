@@ -28,7 +28,7 @@ const Brand3D = () => {
               </div>
               {/* Back */}
               <div className="brand3d-face brand3d-back">
-                <span className="font-heading text-3xl font-extrabold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                <span className="font-heading text-3xl font-extrabold bg-gradient-to-r from-primary via-[#A855F7] to-[#EC4899] bg-clip-text text-transparent">
                   Self Drive
                 </span>
                 <span className="text-white/80 text-xs mt-2">Premium Cars · Transparent Pricing</span>
