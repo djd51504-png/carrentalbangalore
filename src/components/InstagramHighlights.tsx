@@ -12,7 +12,7 @@ const HIGHLIGHTS = [
   },
   {
     label: "Happy Customers",
-    href: "https://www.instagram.com/s/aGlnaGxpZ2h0OjE3ODg2MTU4NDQ4NDEwNzcy?story_media_id=3920864845121722045_14186606284&igsh=MXRvZjYxdndxb29udA==",
+    href: "https://www.instagram.com/s/aGlnaGxpZ2h0OjE3ODg1ODg2ODUyNTA3NTI2?story_media_id=3888207354055486118_50484247995&igsh=MXdxZzg4czBodWU1Zg==",
     icon: Heart,
     gradient: "from-[#EC4899] to-rose-500",
   },
