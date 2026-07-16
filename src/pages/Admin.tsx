@@ -886,8 +886,28 @@ const Admin = () => {
 
   const openWhatsApp = useCallback((enquiry: BookingEnquiry, statusOverride?: string) => {
     const message = buildWhatsAppMessage(enquiry, statusOverride);
-    const url = `https://api.whatsapp.com/send?phone=91${enquiry.customer_phone}&text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
+    const text = encodeURIComponent(message);
+    const phone = `91${enquiry.customer_phone}`;
+    const businessUrl = `whatsapp-business://send?phone=${phone}&text=${text}`;
+    const webUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${text}`;
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      // Try WhatsApp Business app first; fall back to web if not installed
+      const start = Date.now();
+      const fallbackTimer = window.setTimeout(() => {
+        if (Date.now() - start < 2000 && !document.hidden) {
+          window.open(webUrl, '_blank');
+        }
+      }, 1200);
+      const clearFallback = () => {
+        if (document.hidden) window.clearTimeout(fallbackTimer);
+      };
+      document.addEventListener('visibilitychange', clearFallback, { once: true });
+      window.location.href = businessUrl;
+    } else {
+      window.open(webUrl, '_blank');
+    }
     setWhatsappMenuOpen(null);
   }, [buildWhatsAppMessage]);
 
