@@ -6,13 +6,13 @@ const FACEBOOK_URL = "https://www.facebook.com/share/1BC8ZkNNXz/";
 const HIGHLIGHTS = [
   {
     label: "Bookings Confirmed",
-    href: "https://www.instagram.com/s/aGlnaGxpZ2h0OjE4MTEzNjU3NTI0ODU1MTA5?story_media_id=3920865463764870515_14186606284&igsh=MWI3dXhzdG0zNHRzYg==",
+    href: "https://www.instagram.com/s/aGlnaGxpZ2h0OjE4MTEyNjIyMzkyODU4MDg1?story_media_id=3906325008647227959_50484247995&igsh=MTg4bm8ya2pmdWxuZw==",
     icon: CheckCircle2,
     gradient: "from-emerald-500 to-teal-500",
   },
   {
     label: "Happy Customers",
-    href: "https://www.instagram.com/s/aGlnaGxpZ2h0OjE3ODg2MTU4NDQ4NDEwNzcy?story_media_id=3920864845121722045_14186606284&igsh=MXRvZjYxdndxb29udA==",
+    href: "https://www.instagram.com/s/aGlnaGxpZ2h0OjE3ODg1ODg2ODUyNTA3NTI2?story_media_id=3888207354055486118_50484247995&igsh=MXdxZzg4czBodWU1Zg==",
     icon: Heart,
     gradient: "from-[#EC4899] to-rose-500",
   },
