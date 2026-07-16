@@ -1,7 +1,7 @@
 import { Instagram, CheckCircle2, Heart } from "lucide-react";
 
-const INSTAGRAM_URL = "https://www.instagram.com/car_rental_bengaluru?igsh=MWFwbzc4dGE4dnk3eQ==";
-const FACEBOOK_URL = "https://www.facebook.com/share/1Cuc1ZLNbT/";
+const INSTAGRAM_URL = "https://www.instagram.com/car._.rental._.bengaluru?igsh=MTFpZXBjdGE0am5tbg==";
+const FACEBOOK_URL = "https://www.facebook.com/share/1BC8ZkNNXz/";
 
 const HIGHLIGHTS = [
   {
