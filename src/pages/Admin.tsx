@@ -886,8 +886,28 @@ const Admin = () => {
 
   const openWhatsApp = useCallback((enquiry: BookingEnquiry, statusOverride?: string) => {
     const message = buildWhatsAppMessage(enquiry, statusOverride);
-    const url = `https://api.whatsapp.com/send?phone=91${enquiry.customer_phone}&text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
+    const text = encodeURIComponent(message);
+    const phone = `91${enquiry.customer_phone}`;
+    const businessUrl = `whatsapp-business://send?phone=${phone}&text=${text}`;
+    const webUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${text}`;
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      // Try WhatsApp Business app first; fall back to web if not installed
+      const start = Date.now();
+      const fallbackTimer = window.setTimeout(() => {
+        if (Date.now() - start < 2000 && !document.hidden) {
+          window.open(webUrl, '_blank');
+        }
+      }, 1200);
+      const clearFallback = () => {
+        if (document.hidden) window.clearTimeout(fallbackTimer);
+      };
+      document.addEventListener('visibilitychange', clearFallback, { once: true });
+      window.location.href = businessUrl;
+    } else {
+      window.open(webUrl, '_blank');
+    }
     setWhatsappMenuOpen(null);
   }, [buildWhatsAppMessage]);
 
@@ -901,13 +921,17 @@ const Admin = () => {
     window.open(`tel:+91${phone}`, '_self');
   }, []);
 
-  // Memoize stats
-  const enquiryStats = useMemo(() => ({
-    total: enquiries.length,
-    pending: enquiries.filter(e => e.status.toLowerCase() === 'pending').length,
-    confirmed: enquiries.filter(e => e.status.toLowerCase() === 'confirmed').length,
-    completed: enquiries.filter(e => e.status.toLowerCase() === 'completed').length,
-  }), [enquiries]);
+  // Memoize stats (single pass)
+  const enquiryStats = useMemo(() => {
+    let pending = 0, confirmed = 0, completed = 0;
+    for (const e of enquiries) {
+      const s = e.status.toLowerCase();
+      if (s === 'pending') pending++;
+      else if (s === 'confirmed') confirmed++;
+      else if (s === 'completed') completed++;
+    }
+    return { total: enquiries.length, pending, confirmed, completed };
+  }, [enquiries]);
 
   // Memoize upcoming enquiries
   const upcomingEnquiries = useMemo(() => {
