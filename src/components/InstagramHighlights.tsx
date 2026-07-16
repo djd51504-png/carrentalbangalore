@@ -6,7 +6,7 @@ const FACEBOOK_URL = "https://www.facebook.com/share/1BC8ZkNNXz/";
 const HIGHLIGHTS = [
   {
     label: "Bookings Confirmed",
-    href: "https://www.instagram.com/s/aGlnaGxpZ2h0OjE4MTEzNjU3NTI0ODU1MTA5?story_media_id=3920865463764870515_14186606284&igsh=MWI3dXhzdG0zNHRzYg==",
+    href: "https://www.instagram.com/s/aGlnaGxpZ2h0OjE4MTEyNjIyMzkyODU4MDg1?story_media_id=3906325008647227959_50484247995&igsh=MTg4bm8ya2pmdWxuZw==",
     icon: CheckCircle2,
     gradient: "from-emerald-500 to-teal-500",
   },
