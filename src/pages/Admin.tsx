@@ -888,7 +888,7 @@ const Admin = () => {
     const message = buildWhatsAppMessage(enquiry, statusOverride);
     const text = encodeURIComponent(message);
     const phone = `91${enquiry.customer_phone}`;
-    const businessUrl = `whatsapp-business://send?phone=${phone}&text=${text}`;
+    const businessUrl = `whatsappbusiness://send?phone=${phone}&text=${text}`;
     const webUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${text}`;
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
