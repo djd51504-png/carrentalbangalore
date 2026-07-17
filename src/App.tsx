@@ -10,6 +10,7 @@ import Pricing from "./pages/Pricing";
 import Terms from "./pages/Terms";
 import Contact from "./pages/Contact";
 import Admin from "./pages/Admin";
+import AdminLogin from "./pages/AdminLogin";
 import BookingTerms from "./pages/BookingTerms";
 import BookingCheckout from "./pages/BookingCheckout";
 import NotFound from "./pages/NotFound";
