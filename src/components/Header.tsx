@@ -86,7 +86,7 @@ const Header = () => {
                 {link.label}
               </Link>
             ))}
-            <div className="pt-4 px-4">
+            <div className="pt-4 px-4 space-y-3">
               <a
                 href="https://wa.me/919448277091?text=Hi%20Vikas,%20I%20want%20to%20know%20more%20about%20Car Rental Bengaluru%20car%20rentals."
                 target="_blank"
@@ -95,6 +95,13 @@ const Header = () => {
               >
                 Contact Us on WhatsApp
               </a>
+              <Link
+                to="/admin/login"
+                onClick={() => setIsMenuOpen(false)}
+                className="flex items-center justify-center w-full border border-border text-foreground py-3 rounded-xl text-sm font-medium hover:bg-muted transition-colors"
+              >
+                Admin Login
+              </Link>
             </div>
           </nav>
         </div>

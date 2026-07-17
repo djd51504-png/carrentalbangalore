@@ -10,6 +10,7 @@ import Pricing from "./pages/Pricing";
 import Terms from "./pages/Terms";
 import Contact from "./pages/Contact";
 import Admin from "./pages/Admin";
+import AdminLogin from "./pages/AdminLogin";
 import BookingTerms from "./pages/BookingTerms";
 import BookingCheckout from "./pages/BookingCheckout";
 import NotFound from "./pages/NotFound";
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/booking/terms" element={<BookingTerms />} />
             <Route path="/booking/checkout" element={<BookingCheckout />} />

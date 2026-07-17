@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { Plus, Trash2, Car, AlertTriangle, ArrowLeft, ImageIcon, Loader2, Pencil, Lock, LogOut, Mail, ClipboardList, Phone, Calendar, Clock, CheckCircle, XCircle, MessageCircle, Eye, EyeOff, MapPin, CalendarDays, Settings, CreditCard, Save } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -955,82 +955,11 @@ const Admin = () => {
     );
   }
 
-  // Login Screen
+  // Not logged in → redirect to dedicated login page
   if (!user) {
-    return (
-      <div className="min-h-screen bg-muted/30 flex items-center justify-center px-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <div className="mx-auto h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-              <Lock className="h-8 w-8 text-primary" />
-            </div>
-            <CardTitle className="text-2xl">Admin Panel</CardTitle>
-            <p className="text-muted-foreground text-sm mt-2">
-              Login with your admin credentials
-            </p>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="admin@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="pl-10"
-                    autoFocus
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              <Button type="submit" className="w-full" disabled={isLoggingIn}>
-                {isLoggingIn ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Logging in...
-                  </>
-                ) : (
-                  "Login to Admin Panel"
-                )}
-              </Button>
-              <div className="flex items-center justify-between text-sm">
-                <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">
-                  ← Back to website
-                </Link>
-                <button
-                  type="button"
-                  onClick={handleForgotPassword}
-                  className="text-primary hover:underline"
-                >
-                  Forgot password?
-                </button>
-              </div>
-
-            </form>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <Navigate to="/admin/login" replace />;
   }
+
 
   // Not admin but logged in
   if (!isAdmin) {
