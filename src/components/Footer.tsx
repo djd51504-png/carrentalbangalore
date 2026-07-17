@@ -109,9 +109,14 @@ const Footer = () => {
         <div className="border-t border-primary-foreground/10 pt-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-primary-foreground/60">
             <p>© {new Date().getFullYear()} Car Rental Bengaluru Self Drive Car Rentals. All rights reserved.</p>
-            <p className="flex items-center gap-2">
-              Made with <span className="text-electric-light">❤</span> in Bengaluru
-            </p>
+            <div className="flex items-center gap-4">
+              <a href="/admin" className="hover:text-electric-light transition-colors underline-offset-4 hover:underline">
+                Admin Login
+              </a>
+              <span className="flex items-center gap-2">
+                Made with <span className="text-electric-light">❤</span> in Bengaluru
+              </span>
+            </div>
           </div>
         </div>
       </div>
