@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { Plus, Trash2, Car, AlertTriangle, ArrowLeft, ImageIcon, Loader2, Pencil, Lock, LogOut, Mail, ClipboardList, Phone, Calendar, Clock, CheckCircle, XCircle, MessageCircle, Eye, EyeOff, MapPin, CalendarDays, Settings, CreditCard, Save } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
