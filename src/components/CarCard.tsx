@@ -1,5 +1,4 @@
-import { MessageCircle, Fuel, Cog, Users, Info, Gauge, IndianRupee } from "lucide-react";
-import { useState } from "react";
+import { MessageCircle, Fuel, Cog, Gauge, Shield } from "lucide-react";
 
 interface CarCardProps {
   name: string;
@@ -15,126 +14,92 @@ interface CarCardProps {
   extraKmCharge?: number;
 }
 
-const CarCard = ({ 
-  name, 
-  price, 
-  image, 
-  category, 
-  transmission, 
+const CarCard = ({
+  name,
+  price,
+  image,
+  transmission,
   fuel,
-  price3Days,
-  price7Days,
-  price15Days,
-  price30Days,
-  extraKmCharge = 8
+  extraKmCharge = 10,
 }: CarCardProps) => {
-  const [showDetails, setShowDetails] = useState(false);
   const waMessage = `Hi Vikas, I want to book the ${name} from Car Rental Bengaluru.\n\n🚗 Car: ${name}\n💰 Price: ₹${price}/day\n📍 Location: Bommanahalli\n\nPlease confirm availability.`;
   const whatsappLink = `https://wa.me/919448277091?text=${encodeURIComponent(waMessage)}`;
 
-  const hasPricingDetails = price3Days || price7Days || price15Days || price30Days;
-
   return (
-    <div 
-      className="group relative bg-gradient-to-br from-card to-card/80 rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-500 hover:-translate-y-3 border border-border/50 hover:border-primary/40 animate-fade-in"
-      onMouseEnter={() => setShowDetails(true)}
-      onMouseLeave={() => setShowDetails(false)}
+    <div
+      className="group relative bg-card border border-gold/15 hover:border-gold/50 shadow-card hover:shadow-card-hover transition-all duration-500 hover:-translate-y-1 animate-fade-in overflow-hidden"
+      style={{ borderRadius: "2px" }}
     >
-      {/* Image Container */}
-      <div className="relative aspect-[4/3] bg-gradient-to-br from-secondary/30 to-secondary/60 overflow-hidden">
+      {/* Gold corners */}
+      <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-gold z-10 pointer-events-none" />
+      <div className="absolute top-0 right-0 w-5 h-5 border-t-2 border-r-2 border-gold z-10 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-5 h-5 border-b-2 border-l-2 border-gold z-10 pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-gold z-10 pointer-events-none" />
+
+      {/* Image */}
+      <div className="relative aspect-[4/3] bg-gradient-to-br from-charcoal-light to-background overflow-hidden">
         <img
           src={image}
           alt={name}
           loading="lazy"
           decoding="async"
-          className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-105"
+          className="w-full h-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-110"
         />
-        {/* Category Badge */}
-        <span className="absolute top-3 left-3 inline-flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full bg-primary/90 text-primary-foreground shadow-lg transition-transform duration-300 group-hover:scale-105">
-          <Users className="w-3 h-3" />
-          {category}
-        </span>
-        
-        {/* Hover Details Overlay */}
-        {hasPricingDetails && (
-          <div 
-            className={`absolute inset-0 bg-gradient-to-t from-charcoal/95 via-charcoal/85 to-charcoal/70 flex flex-col justify-end p-4 transition-all duration-400 ${
-              showDetails ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
-            }`}
-          >
-            <h4 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
-              <Info className="w-4 h-4 text-primary animate-pulse" />
-              Package Pricing (per day)
-            </h4>
-            <div className="grid grid-cols-1 gap-2 text-xs">
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg px-2 py-1.5 transition-transform duration-300 hover:scale-105 hover:bg-white/20 flex items-center justify-between">
-                <span className="text-white/70">1-6 Days:</span>
-                <span className="text-gold font-bold">₹{price}/day</span>
-              </div>
-              {price7Days && (
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-2 py-1.5 transition-transform duration-300 hover:scale-105 hover:bg-white/20 flex items-center justify-between">
-                  <span className="text-white/70">7-20 Days:</span>
-                  <span className="text-gold font-bold">₹{price7Days}/day</span>
-                </div>
-              )}
-              {price30Days && (
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-2 py-1.5 transition-transform duration-300 hover:scale-105 hover:bg-white/20 flex items-center justify-between">
-                  <span className="text-white/70">20+ Days:</span>
-                  <span className="text-gold font-bold">₹{price30Days}/day</span>
-                </div>
-              )}
-            </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent pointer-events-none" />
 
-            <div className="mt-3 flex items-center gap-4 text-xs">
-              <div className="flex items-center gap-1 text-white/80">
-                <Gauge className="w-3 h-3 text-emerald-400" />
-                <span>300km/day</span>
-              </div>
-              <div className="flex items-center gap-1 text-white/80">
-                <IndianRupee className="w-3 h-3 text-amber-400" />
-                <span>₹{extraKmCharge}/extra km</span>
-              </div>
-            </div>
+        <div className="absolute top-3 left-3 flex items-center gap-1 bg-background/90 backdrop-blur-md border border-gold/30 px-2 py-1" style={{ borderRadius: "2px" }}>
+          <Shield className="w-3 h-3 text-gold" />
+          <span className="text-[9px] uppercase tracking-widest text-foreground/80 font-semibold">Verified</span>
+        </div>
+
+        <div className="absolute top-3 right-3 bg-background/90 backdrop-blur-md border border-gold/40 px-3 py-1.5" style={{ borderRadius: "2px" }}>
+          <div className="font-heading text-gold text-base leading-none">
+            ₹{price}
+            <span className="text-[10px] text-foreground/60 font-sans font-normal">/day</span>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Content */}
-      <div className="p-3 md:p-6">
-        {/* Title and Price */}
-        <div className="flex flex-col gap-1 mb-2">
-          <h3 className="font-heading font-bold text-base md:text-xl text-foreground leading-tight truncate">{name}</h3>
-          <div className="flex items-baseline gap-1">
-            <p className="font-heading font-bold text-xl md:text-2xl text-primary">₹{price}</p>
-            <p className="text-xs text-muted-foreground font-medium">/day</p>
+      <div className="p-4 md:p-5 space-y-3">
+        <h3 className="font-heading text-lg md:text-xl text-foreground leading-tight truncate">
+          <span className="italic text-gold">{name}</span>
+        </h3>
+        <div className="gold-divider" />
+        <div className="grid grid-cols-2 gap-2">
+          <div className="flex items-center gap-2 bg-background/60 border border-gold/15 px-2.5 py-2" style={{ borderRadius: "2px" }}>
+            <Fuel className="w-3.5 h-3.5 text-gold" />
+            <div>
+              <div className="text-[9px] uppercase tracking-widest text-foreground/50">Fuel</div>
+              <div className="text-xs font-semibold text-foreground">{fuel}</div>
+            </div>
           </div>
-          <p className="text-xs text-muted-foreground">300km per day limit</p>
+          <div className="flex items-center gap-2 bg-background/60 border border-gold/15 px-2.5 py-2" style={{ borderRadius: "2px" }}>
+            <Cog className="w-3.5 h-3.5 text-gold" />
+            <div>
+              <div className="text-[9px] uppercase tracking-widest text-foreground/50">Trans</div>
+              <div className="text-xs font-semibold text-foreground">
+                {transmission.length > 8 ? transmission.split(" ")[0] : transmission}
+              </div>
+            </div>
+          </div>
         </div>
-
-        {/* Badges Grid - 2 columns only */}
-        <div className="grid grid-cols-2 gap-2 mb-4">
-          <span className={`flex flex-col items-center justify-center gap-1 text-xs font-semibold px-2 py-2 rounded-xl ${
-            fuel === "Diesel" 
-              ? "bg-gradient-to-br from-amber-100 to-amber-200 text-amber-900 dark:from-amber-900/40 dark:to-amber-900/20 dark:text-amber-300" 
-              : "bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-900 dark:from-emerald-900/40 dark:to-emerald-900/20 dark:text-emerald-300"
-          }`}>
-            <Fuel className="w-4 h-4" />
-            {fuel}
-          </span>
-          <span className="flex flex-col items-center justify-center gap-1 text-xs font-semibold px-2 py-2 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 text-blue-900 dark:from-blue-900/40 dark:to-blue-900/20 dark:text-blue-300">
-            <Cog className="w-4 h-4" />
-            {transmission.length > 8 ? transmission.split(' ')[0] : transmission}
+        <div className="flex items-center gap-2 text-xs text-foreground/70">
+          <Gauge className="w-3.5 h-3.5 text-gold" />
+          <span>
+            <span className="font-semibold text-foreground">300km</span>/day ·{" "}
+            <span className="font-semibold text-foreground">₹{extraKmCharge}</span>/extra km
           </span>
         </div>
-
         <a
           href={whatsappLink}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-whatsapp to-emerald-500 hover:from-whatsapp/90 hover:to-emerald-500/90 text-white py-3 md:py-4 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] text-sm md:text-base group/btn"
+          className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-gradient-button text-primary-foreground font-semibold text-xs uppercase tracking-widest hover:shadow-button hover:-translate-y-0.5 transition-all duration-300"
+          style={{ borderRadius: "2px" }}
         >
-          <MessageCircle className="w-5 h-5 transition-transform duration-300 group-hover/btn:rotate-12" />
-          Book Now
+          <MessageCircle className="w-4 h-4" />
+          Book on WhatsApp
         </a>
       </div>
     </div>
