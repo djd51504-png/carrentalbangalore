@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import CallButton from "@/components/CallButton";
+import Seo from "@/components/Seo";
 
 const locations = [
   { name: "Hebbal", address: "Near Hebbal Flyover", lat: 13.0358, lng: 77.5970 },
@@ -20,7 +21,13 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Contact Car Rental Bengaluru | Self Drive Car Booking on WhatsApp"
+        description="Call or WhatsApp +91 9448277091 to book a self drive car in Bangalore. Pickup at Hebbal, Bellandur, Bommanahalli, Kengeri, Kadugodi, Thanisandra, KR Puram & Chikabanavara."
+        path="/contact"
+      />
       <Header />
+      
       
       <main className="pt-24 pb-16">
         {/* Hero Section */}

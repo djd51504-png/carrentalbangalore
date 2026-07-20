@@ -1,11 +1,17 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import Seo from "@/components/Seo";
 import { FileText, Shield, User, Car, AlertTriangle, Phone } from "lucide-react";
 
 const Terms = () => {
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Terms & Conditions | Car Rental Bengaluru Self Drive"
+        description="Read the booking, payment, KM limits, security deposit and cancellation terms for self drive car rentals with Car Rental Bengaluru."
+        path="/terms"
+      />
       <Header />
       
       <main className="pt-24 md:pt-28 pb-16 md:pb-24">

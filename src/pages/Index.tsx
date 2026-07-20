@@ -12,6 +12,7 @@ import TermsSection from "@/components/TermsSection";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import CallButton from "@/components/CallButton";
+import Seo from "@/components/Seo";
 
 const Index = () => {
   const location = useLocation();
@@ -28,6 +29,30 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Self Drive Car Rental Bangalore | Car Rental Bengaluru from ₹2500/day"
+        description="Rent self drive cars in Bangalore from ₹2500/day with 300km limit. Swift, Creta, Innova, Fortuner & more. Pickup across Whitefield, HSR, Koramangala, Hebbal, Electronic City & Bangalore Airport."
+        path="/"
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              { "@type": "Question", "name": "How much does self drive car rental cost in Bangalore?", "acceptedAnswer": { "@type": "Answer", "text": "Self drive car rentals in Bangalore start at ₹2500/day with a 300km daily limit and no hidden charges." } },
+              { "@type": "Question", "name": "Do you offer airport pickup for self drive cars in Bengaluru?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, we offer pickup and drop across Bengaluru including Bangalore Airport, Whitefield, HSR Layout, Koramangala, Hebbal and Electronic City." } },
+              { "@type": "Question", "name": "What documents are required to rent a self drive car?", "acceptedAnswer": { "@type": "Answer", "text": "You need a valid driving licence and Aadhaar card. A refundable deposit of ₹10,000 or original RC with a two-wheeler is required." } },
+              { "@type": "Question", "name": "Do you offer monthly and weekly car rentals in Bangalore?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, we offer daily, weekend, weekly and monthly self drive car rentals in Bangalore with discounted rates for longer bookings." } }
+            ]
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://carrentalbangalore.lovable.app/" }
+            ]
+          }
+        ]}
+      />
       <Header />
       <Hero />
       <LocationsSection />
