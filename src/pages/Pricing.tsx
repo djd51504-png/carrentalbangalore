@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import CallButton from "@/components/CallButton";
+import Seo from "@/components/Seo";
 import { CreditCard, Smartphone, Banknote, Phone, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -57,6 +58,11 @@ const Pricing = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Car Rental Pricing Bangalore | Daily, Weekly & Monthly Self Drive Rates"
+        description="Transparent self drive car rental pricing in Bengaluru. Daily, weekend, weekly and monthly rates for hatchbacks, sedans, SUVs & luxury cars. 300km/day limit included."
+        path="/pricing"
+      />
       <Header />
       
       <main className="pt-24 md:pt-28 pb-16 md:pb-24">

@@ -373,6 +373,19 @@ const Cars = () => {
 
   return (
     <div className="min-h-screen bg-muted/30">
+      <Seo
+        title="Self Drive Cars in Bangalore | Hatchback, Sedan, SUV & Luxury Fleet"
+        description="Browse our full self drive car fleet in Bengaluru — hatchbacks, sedans, SUVs, MUVs and luxury cars. Transparent pricing from ₹2500/day with 300km limit and doorstep pickup."
+        path="/cars"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://carrentalbangalore.lovable.app/" },
+            { "@type": "ListItem", "position": 2, "name": "Our Cars", "item": "https://carrentalbangalore.lovable.app/cars" }
+          ]
+        }}
+      />
       <Header />
       
       <main className="pt-20 md:pt-24">
