@@ -18,9 +18,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Fira Sans', 'system-ui', 'sans-serif'],
-        heading: ['"DM Serif Display"', 'Georgia', 'serif'],
-        serif: ['"DM Serif Display"', 'Georgia', 'serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        heading: ['Inter', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
