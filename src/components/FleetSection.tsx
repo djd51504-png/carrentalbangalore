@@ -126,44 +126,35 @@ const FleetSection = () => {
   ];
 
   return (
-    <section id="cars" className="py-16 md:py-24 bg-muted/30">
+    <section id="cars" className="py-14 md:py-20 bg-muted/30">
       <div className="container">
         {/* Section Header */}
-        <div className="text-center mb-10 md:mb-14" data-aos="fade-down">
-          <div className="inline-flex items-center gap-2 mb-4">
-            <div className="h-px w-8 bg-gold" />
-            <span className="text-[11px] font-semibold text-gold uppercase tracking-[0.3em]">
-              The Collection
-            </span>
-            <div className="h-px w-8 bg-gold" />
-          </div>
-          <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl text-foreground mb-4 leading-[1]">
-            Choose your <span className="italic text-gold-gradient">perfect ride</span>
+        <div className="text-center mb-8 md:mb-12" data-aos="fade-down">
+          <span className="inline-block text-xs font-bold text-primary uppercase tracking-widest mb-3 bg-primary/10 rounded-full px-4 py-1.5">
+            Our Fleet
+          </span>
+          <h2 className="font-heading text-2xl md:text-4xl lg:text-5xl font-extrabold text-foreground mb-3 leading-tight">
+            Choose your <span className="text-gradient">perfect ride</span>
           </h2>
-          <div className="gold-divider w-24 mx-auto mb-5" />
-          <p className="text-foreground/70 max-w-2xl mx-auto font-light">
-            From city hatchbacks to weekend SUVs — every car is hand-inspected, fully insured,
-            and ready for the road.
+          <p className="text-muted-foreground max-w-2xl mx-auto text-sm md:text-base">
+            From city hatchbacks to weekend SUVs — every car is hand-inspected, fully insured, and ready for the road.
           </p>
         </div>
 
-
         {/* Category Filters */}
-        <div className="flex flex-wrap justify-center gap-3 mb-10">
+        <div className="flex flex-wrap justify-center gap-2 mb-8">
           {categories.map(({ key, label }) => (
             <button
               key={key}
               onClick={() => setActiveCategory(key)}
-              className={`px-6 py-2.5 text-xs font-semibold uppercase tracking-widest transition-all duration-300 border ${
+              className={`px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${
                 activeCategory === key
-                  ? "bg-gold text-charcoal border-gold shadow-button"
-                  : "bg-transparent text-foreground/70 border-gold/25 hover:border-gold hover:text-gold"
+                  ? "bg-primary text-primary-foreground shadow-button"
+                  : "bg-card text-foreground border border-border hover:border-primary hover:text-primary"
               }`}
-              style={{ borderRadius: "2px" }}
             >
               {label}
             </button>
-
           ))}
         </div>
 
@@ -197,13 +188,12 @@ const FleetSection = () => {
         )}
 
         {/* View All Cars Link */}
-        <div className="text-center mt-12">
+        <div className="text-center mt-10">
           <Link
             to="/cars"
-            className="inline-flex items-center gap-2 px-10 py-4 border border-gold text-gold hover:bg-gold hover:text-charcoal font-semibold text-xs uppercase tracking-widest transition-all duration-300"
-            style={{ borderRadius: "2px" }}
+            className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-button text-primary-foreground rounded-2xl font-bold text-sm shadow-button hover:-translate-y-0.5 transition-all duration-300"
           >
-            View Entire Collection →
+            View All Cars →
           </Link>
         </div>
 
