@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import CallButton from "@/components/CallButton";
 import Seo from "@/components/Seo";
+import { buildWhatsAppLink } from "@/lib/whatsapp";
 
 const locations = [
   { name: "Hebbal", address: "Near Hebbal Flyover", lat: 13.0358, lng: 77.5970 },
@@ -147,7 +148,7 @@ const Contact = () => {
 
             {/* WhatsApp */}
             <a
-              href="https://wa.me/919448277091?text=Hi%2C%20I%20want%20to%20book%20a%20car"
+              href={buildWhatsAppLink("Hi, I want to book a car from Car Rental Bengaluru")}
               target="_blank"
               rel="noopener noreferrer"
               className="group bg-card border border-border rounded-xl p-6 text-center hover:border-green-500/50 hover:bg-green-500/5 transition-all duration-300"
@@ -183,7 +184,7 @@ const Contact = () => {
               Prices are negotiable for long-term bookings!
             </p>
             <a
-              href="https://wa.me/919448277091?text=Hi%2C%20I%20want%20to%20book%20a%20car"
+              href={buildWhatsAppLink("Hi, I want to book a car from Car Rental Bengaluru")}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold px-8 py-3 rounded-lg transition-colors"

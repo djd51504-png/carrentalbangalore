@@ -1,5 +1,6 @@
 import { Phone, Mail, MapPin, MessageCircle } from "lucide-react";
 import logo from "@/assets/logo.png";
+import { buildWhatsAppLink } from "@/lib/whatsapp";
 
 const Footer = () => {
   return (
@@ -94,7 +95,7 @@ const Footer = () => {
               Ready to hit the road? Book your car instantly on WhatsApp!
             </p>
             <a
-              href="https://wa.me/919448277091?text=Hi%20Vikas,%20I%20want%20to%20book%20a%20car%20from%20Car Rental Bengaluru."
+              href={buildWhatsAppLink("Hi Vikas, I want to book a car from Car Rental Bengaluru.")}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-whatsapp hover:bg-whatsapp/90 text-primary-foreground px-6 py-3 rounded-xl font-semibold transition-colors"

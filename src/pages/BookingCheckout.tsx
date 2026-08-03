@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { buildWhatsAppLink } from "@/lib/whatsapp";
 
 const BookingCheckout = () => {
   const navigate = useNavigate();
@@ -192,7 +193,7 @@ const BookingCheckout = () => {
 
 Please confirm availability and exact pickup location. I have my original Aadhaar and DL ready.`;
 
-    const whatsappLink = `https://wa.me/919448277091?text=${encodeURIComponent(whatsappMessage)}`;
+    const whatsappLink = buildWhatsAppLink(whatsappMessage);
     
     setIsProcessing(false);
     resetBooking();

@@ -1,4 +1,5 @@
 import { Star, ExternalLink } from "lucide-react";
+import { buildWhatsAppLink } from "@/lib/whatsapp";
 
 const GoogleReviews = () => {
   return (
@@ -35,7 +36,7 @@ const GoogleReviews = () => {
         {/* CTA */}
         <div className="text-center mt-6" data-aos="fade-up">
           <a
-            href="https://wa.me/919448277091?text=Hi%2C%20I%20want%20to%20book%20a%20car%20from%20Car%20Rental%20Bengaluru"
+            href={buildWhatsAppLink("Hi, I want to book a car from Car Rental Bengaluru")}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-gradient-to-r from-whatsapp to-emerald-500 text-white px-8 py-4 rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all"

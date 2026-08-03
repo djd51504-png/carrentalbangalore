@@ -1,4 +1,5 @@
 import { MessageCircle, Fuel, Cog, Gauge } from "lucide-react";
+import { buildWhatsAppLink } from "@/lib/whatsapp";
 
 interface CarCardProps {
   name: string;
@@ -23,7 +24,7 @@ const CarCard = ({
   extraKmCharge = 10,
 }: CarCardProps) => {
   const waMessage = `Hi, I want to book the ${name} from Car Rental Bengaluru.\n\n🚗 Car: ${name}\n💰 Price: ₹${price}/day\n\nPlease confirm availability.`;
-  const whatsappLink = `https://wa.me/919448277091?text=${encodeURIComponent(waMessage)}`;
+  const whatsappLink = buildWhatsAppLink(waMessage);
 
   return (
     <div className="group bg-card rounded-3xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-500 hover:-translate-y-1 border border-border">

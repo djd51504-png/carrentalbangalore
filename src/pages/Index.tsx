@@ -13,6 +13,7 @@ import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import CallButton from "@/components/CallButton";
 import Seo from "@/components/Seo";
+import { buildWhatsAppLink } from "@/lib/whatsapp";
 
 const Index = () => {
   const location = useLocation();
@@ -70,7 +71,7 @@ const Index = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
               <a
-                href="https://wa.me/919448277091"
+                href={buildWhatsAppLink("Hi, I want to book a car from Car Rental Bengaluru")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 bg-whatsapp text-white py-3 px-4 rounded-xl font-semibold text-sm shadow hover:shadow-lg transition-all"

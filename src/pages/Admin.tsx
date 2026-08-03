@@ -29,6 +29,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import MultiImageUpload from "@/components/MultiImageUpload";
+import { buildWhatsAppLink, isAndroid } from "@/lib/whatsapp";
 import type { User, Session } from "@supabase/supabase-js";
 
 // Available locations
@@ -886,27 +887,14 @@ const Admin = () => {
 
   const openWhatsApp = useCallback((enquiry: BookingEnquiry, statusOverride?: string) => {
     const message = buildWhatsAppMessage(enquiry, statusOverride);
-    const text = encodeURIComponent(message);
     const phone = `91${enquiry.customer_phone}`;
-    const businessUrl = `whatsappbusiness://send?phone=${phone}&text=${text}`;
-    const webUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${text}`;
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const link = buildWhatsAppLink(message, phone);
 
-    if (isMobile) {
-      // Try WhatsApp Business app first; fall back to web if not installed
-      const start = Date.now();
-      const fallbackTimer = window.setTimeout(() => {
-        if (Date.now() - start < 2000 && !document.hidden) {
-          window.open(webUrl, '_blank');
-        }
-      }, 1200);
-      const clearFallback = () => {
-        if (document.hidden) window.clearTimeout(fallbackTimer);
-      };
-      document.addEventListener('visibilitychange', clearFallback, { once: true });
-      window.location.href = businessUrl;
+    if (isAndroid()) {
+      // intent:// URL opens WhatsApp Business directly (with wa.me fallback)
+      window.location.href = link;
     } else {
-      window.open(webUrl, '_blank');
+      window.open(link, '_blank');
     }
     setWhatsappMenuOpen(null);
   }, [buildWhatsAppMessage]);
@@ -1050,7 +1038,7 @@ const Admin = () => {
             )}
           </button>
           <a
-            href="https://wa.me/919448277091"
+            href={buildWhatsAppLink("Hi, I want to book a car from Car Rental Bengaluru")}
             target="_blank"
             rel="noopener noreferrer"
             className="text-left bg-background border border-border rounded-xl p-4 hover:border-primary hover:shadow-md transition-all"

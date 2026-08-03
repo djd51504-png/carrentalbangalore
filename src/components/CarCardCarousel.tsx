@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { MessageCircle, Fuel, Cog, ChevronLeft, ChevronRight, Gauge, MapPin } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
+import { buildWhatsAppLink } from "@/lib/whatsapp";
 
 interface CarCardCarouselProps {
   name: string;
@@ -33,7 +34,7 @@ const CarCardCarousel = ({
   const carFullName = brand ? `${brand} ${name}` : name;
   const locationText = locations.length > 0 ? locations.join(", ") : "Bommanahalli";
   const waMessage = `Hi, I want to book the ${carFullName} from Car Rental Bengaluru.\n\n🚗 Car: ${carFullName}\n💰 Price: ₹${price}/day\n🛣️ KM Limit: ${kmLimit}km/day (₹${extraKmCharge}/extra km)\n📍 Location: ${locationText}\n\nPlease confirm availability.`;
-  const whatsappLink = `https://wa.me/919448277091?text=${encodeURIComponent(waMessage)}`;
+  const whatsappLink = buildWhatsAppLink(waMessage);
 
   const allImages = images.length > 0 ? images : image ? [image] : [];
   const hasMultipleImages = allImages.length > 1;

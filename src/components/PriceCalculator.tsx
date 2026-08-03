@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useBooking } from "@/contexts/BookingContext";
+import { buildWhatsAppLink } from "@/lib/whatsapp";
 // Import fallback car images
 import swiftImg from "@/assets/cars/swift.png";
 import balenoImg from "@/assets/cars/baleno.png";
@@ -838,7 +839,7 @@ const PriceCalculator = ({
                         `Please confirm availability.`;
                       return (
                         <a
-                          href={`https://wa.me/919448277091?text=${encodeURIComponent(waMsg)}`}
+                          href={buildWhatsAppLink(waMsg)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center justify-center gap-2 w-full bg-whatsapp hover:bg-whatsapp/90 text-white py-3 md:py-3.5 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] text-sm md:text-base"
