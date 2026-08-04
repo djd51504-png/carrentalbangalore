@@ -124,17 +124,29 @@ const Admin = () => {
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [isLoadingSettings, setIsLoadingSettings] = useState(false);
 
-  // Check auth status and admin role
+  // Check auth status and admin role (with retry + failsafe so the panel
+  // never gets stuck on the loading spinner or falsely denies access)
+  const [authError, setAuthError] = useState(false);
+  const authResolvedRef = useRef(false);
+
   useEffect(() => {
+    const failsafe = setTimeout(() => {
+      if (!authResolvedRef.current) {
+        setAuthError(true);
+        setIsCheckingAuth(false);
+      }
+    }, 12000);
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
+
       if (session?.user) {
         setTimeout(() => {
           checkAdminRole(session.user.id);
         }, 0);
       } else {
+        authResolvedRef.current = true;
         setIsAdmin(false);
         setIsCheckingAuth(false);
       }
@@ -143,18 +155,25 @@ const Admin = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
+
       if (session?.user) {
         checkAdminRole(session.user.id);
       } else {
+        authResolvedRef.current = true;
         setIsCheckingAuth(false);
       }
+    }).catch(() => {
+      setAuthError(true);
+      setIsCheckingAuth(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      clearTimeout(failsafe);
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const checkAdminRole = async (userId: string) => {
+  const checkAdminRole = async (userId: string, attempt = 1) => {
     try {
       const { data, error } = await supabase
         .from('user_roles')
@@ -162,19 +181,44 @@ const Admin = () => {
         .eq('user_id', userId)
         .eq('role', 'admin')
         .maybeSingle();
-      
-      if (error) {
-        console.error('Error checking admin role:', error);
-        setIsAdmin(false);
-      } else {
-        setIsAdmin(!!data);
-      }
+
+      if (error) throw error;
+
+      setIsAdmin(!!data);
+      setAuthError(false);
+      authResolvedRef.current = true;
+      setIsCheckingAuth(false);
     } catch (err) {
-      console.error('Error:', err);
+      console.error('Error checking admin role:', err);
+      if (attempt < 3) {
+        // Transient network hiccup — retry instead of locking the admin out
+        setTimeout(() => checkAdminRole(userId, attempt + 1), 1500);
+        return;
+      }
+      authResolvedRef.current = true;
       setIsAdmin(false);
-    } finally {
+      setAuthError(true);
       setIsCheckingAuth(false);
     }
+  };
+
+  const retryAuthCheck = () => {
+    setAuthError(false);
+    setIsCheckingAuth(true);
+    authResolvedRef.current = false;
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        checkAdminRole(session.user.id);
+      } else {
+        authResolvedRef.current = true;
+        setIsCheckingAuth(false);
+      }
+    }).catch(() => {
+      setAuthError(true);
+      setIsCheckingAuth(false);
+    });
   };
 
   // Realtime subscription for new enquiries
@@ -252,9 +296,9 @@ const Admin = () => {
         .from('settings')
         .select('*')
         .eq('key', 'razorpay_key_id')
-        .single();
-      
-      if (error && error.code !== 'PGRST116') throw error;
+        .maybeSingle();
+
+      if (error) throw error;
       
       if (data) {
         setRazorpayKeyId(data.value || '');
@@ -939,6 +983,34 @@ const Admin = () => {
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
           <p className="text-muted-foreground">Checking authentication...</p>
         </div>
+      </div>
+    );
+  }
+
+  // Auth check failed (network/server hiccup) — offer retry instead of a dead end
+  if (authError) {
+    return (
+      <div className="min-h-screen bg-muted/30 flex items-center justify-center px-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mx-auto h-16 w-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+              <AlertTriangle className="h-8 w-8 text-destructive" />
+            </div>
+            <CardTitle className="text-2xl">Connection Problem</CardTitle>
+            <p className="text-muted-foreground text-sm mt-2">
+              Couldn't verify your admin access. Check your internet connection and try again.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button className="w-full" onClick={retryAuthCheck}>
+              Retry
+            </Button>
+            <Button variant="outline" className="w-full" onClick={handleLogout}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
