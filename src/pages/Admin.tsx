@@ -296,9 +296,9 @@ const Admin = () => {
         .from('settings')
         .select('*')
         .eq('key', 'razorpay_key_id')
-        .single();
-      
-      if (error && error.code !== 'PGRST116') throw error;
+        .maybeSingle();
+
+      if (error) throw error;
       
       if (data) {
         setRazorpayKeyId(data.value || '');
