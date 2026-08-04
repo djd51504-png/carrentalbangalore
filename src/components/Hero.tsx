@@ -1,25 +1,37 @@
+import { useState } from "react";
 import { ChevronDown, Star, ArrowRight, Shield, Clock, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Hero = () => {
   const navigate = useNavigate();
+  const [videoFailed, setVideoFailed] = useState(false);
   const scrollToCalculator = () =>
     document.getElementById("calculator")?.scrollIntoView({ behavior: "smooth" });
   const goToCars = () => navigate("/cars");
 
   return (
     <section className="relative min-h-[92vh] flex items-center pt-20 overflow-hidden bg-charcoal">
-      {/* Video Background */}
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        poster="/placeholder.svg"
-        className="absolute inset-0 w-full h-full object-cover"
-      >
-        <source src="/hero-video.mp4" type="video/mp4" />
-      </video>
+      {/* Video Background (with poster + image fallback) */}
+      {videoFailed ? (
+        <img
+          src="/hero-poster.jpg"
+          alt="Self drive rental car on a Bengaluru street at sunset"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      ) : (
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster="/hero-poster.jpg"
+          onError={() => setVideoFailed(true)}
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/hero-video.mp4" type="video/mp4" onError={() => setVideoFailed(true)} />
+        </video>
+      )}
 
       {/* Overlays for readability */}
       <div className="absolute inset-0 bg-charcoal/60" />
