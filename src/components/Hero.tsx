@@ -10,7 +10,7 @@ const Hero = () => {
   const goToCars = () => navigate("/cars");
 
   return (
-    <section className="relative min-h-[92vh] flex items-center pt-20 overflow-hidden bg-charcoal">
+    <section className="relative min-h-[86vh] flex items-center pt-20 overflow-hidden bg-charcoal">
       {/* Video Background (with poster + image fallback) */}
       {videoFailed ? (
         <img
@@ -36,6 +36,8 @@ const Hero = () => {
       {/* Overlays for readability */}
       <div className="absolute inset-0 bg-charcoal/60" />
       <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/50 to-charcoal/30" />
+      <div className="absolute -top-24 -left-24 w-[420px] h-[420px] rounded-full bg-primary/25 blur-[120px] pointer-events-none" />
+      <div className="absolute -bottom-32 -right-20 w-[380px] h-[380px] rounded-full bg-gold/20 blur-[130px] pointer-events-none" />
 
       <div className="container relative z-10 py-10 md:py-16">
         <div className="max-w-4xl mx-auto text-center">
@@ -55,9 +57,7 @@ const Hero = () => {
             className="font-heading text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-5 leading-[1.05] tracking-tight"
           >
             Self Drive Cars in{" "}
-            <span className="bg-gradient-to-r from-primary-glow to-primary bg-clip-text text-transparent">
-              Bengaluru
-            </span>
+            <span className="text-primary-glow">Bengaluru</span>
             <br />
             <span className="text-white/90 text-2xl sm:text-3xl md:text-4xl font-bold">
               from ₹2,500/day
@@ -69,7 +69,7 @@ const Hero = () => {
             data-aos-delay="200"
             className="text-sm md:text-lg text-white/80 mb-8 max-w-2xl mx-auto leading-relaxed"
           >
-            Hand-picked fleet · 300km/day free · Zero hidden charges · Doorstep delivery across 8 locations
+            Hand-picked fleet · 300km/day free · Zero hidden charges · Doorstep delivery all over Bengaluru
           </p>
 
           <div
@@ -79,7 +79,7 @@ const Hero = () => {
           >
             <button
               onClick={scrollToCalculator}
-              className="group w-full sm:w-auto bg-gradient-button text-primary-foreground px-8 py-4 rounded-2xl text-sm font-bold shadow-button hover:shadow-card-hover transition-all duration-300 hover:-translate-y-0.5"
+              className="group w-full sm:w-auto bg-gradient-button text-primary-foreground px-9 py-4 rounded-2xl text-sm font-bold shadow-button ring-1 ring-white/20 hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1"
             >
               <span className="flex items-center justify-center gap-2">
                 Check Availability
@@ -103,12 +103,12 @@ const Hero = () => {
             {[
               { icon: Shield, label: "Fully Insured", sub: "Every Trip" },
               { icon: Clock, label: "24/7 Support", sub: "Always On" },
-              { icon: MapPin, label: "8 Locations", sub: "Bengaluru" },
+              { icon: MapPin, label: "All Bengaluru", sub: "Pickup & Drop" },
               { icon: Star, label: "4.9 / 5", sub: "5000+ Drivers" },
             ].map((item, i) => (
               <div
                 key={i}
-                className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-3 py-3 text-center hover:bg-white/15 transition"
+                className="glass-panel rounded-2xl px-3 py-3.5 text-center hover:bg-white/20 hover:-translate-y-0.5 transition-all duration-300"
               >
                 <item.icon className="w-5 h-5 mx-auto mb-1 text-primary-glow" />
                 <div className="text-sm font-bold text-white">{item.label}</div>

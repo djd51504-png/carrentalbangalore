@@ -69,7 +69,7 @@ const CarCardCarousel = ({
 
   return (
     <div
-      className={`group relative overflow-hidden bg-card rounded-3xl border border-border shadow-card hover:shadow-card-hover transition-all duration-500 hover:-translate-y-1 animate-fade-in ${
+      className={`group relative overflow-hidden bg-card rounded-3xl border border-border shadow-card hover:shadow-card-hover hover:border-primary/40 transition-all duration-500 hover:-translate-y-1.5 animate-fade-in ${
         !isAvailable ? "opacity-60 grayscale" : ""
       }`}
     >
