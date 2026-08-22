@@ -294,11 +294,8 @@ const PriceCalculator = ({
     if (!calculation || calculation.error) return [];
     
     let filteredCars = cars;
-    
-      filteredCars = filteredCars.filter(car => 
-        car.locations.length === 0 || car.locations.includes(pickupLocation)
-      );
-    }
+
+
     
     // Filter by transmission
     if (transmissionFilter !== "all") {
@@ -339,7 +336,7 @@ const PriceCalculator = ({
         contactForPrice,
       };
     });
-  }, [calculation, transmissionFilter, pickupLocation, cars]);
+  }, [calculation, transmissionFilter, cars]);
 
   const handleCheckAvailability = async () => {
     if (!calculation || calculation.error) return;
