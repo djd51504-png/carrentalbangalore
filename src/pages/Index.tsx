@@ -3,7 +3,6 @@ import { useLocation, Link } from "react-router-dom";
 import { MessageCircle, Phone, Mail, FileText } from "lucide-react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
-import LocationsSection from "@/components/LocationsSection";
 import PriceCalculator from "@/components/PriceCalculator";
 import FleetSection from "@/components/FleetSection";
 import GoogleReviews from "@/components/GoogleReviews";
@@ -56,7 +55,6 @@ const Index = () => {
       />
       <Header />
       <Hero />
-      <LocationsSection />
       <PriceCalculator onResultsToggle={setResultsShowing} />
       {resultsShowing ? (
         <section className="py-10 md:py-14 bg-muted/30">
