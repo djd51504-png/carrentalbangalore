@@ -10,7 +10,7 @@ const Hero = () => {
   const goToCars = () => navigate("/cars");
 
   return (
-    <section className="relative min-h-[92vh] flex items-center pt-20 overflow-hidden bg-charcoal">
+    <section className="relative min-h-[86vh] flex items-center pt-20 overflow-hidden bg-charcoal">
       {/* Video Background (with poster + image fallback) */}
       {videoFailed ? (
         <img
@@ -57,9 +57,7 @@ const Hero = () => {
             className="font-heading text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-5 leading-[1.05] tracking-tight"
           >
             Self Drive Cars in{" "}
-            <span className="bg-gradient-to-r from-primary-glow to-primary bg-clip-text text-transparent">
-              Bengaluru
-            </span>
+            <span className="text-primary-glow">Bengaluru</span>
             <br />
             <span className="text-white/90 text-2xl sm:text-3xl md:text-4xl font-bold">
               from ₹2,500/day
