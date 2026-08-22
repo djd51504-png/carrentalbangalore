@@ -130,7 +130,7 @@ const FleetSection = () => {
       <div className="container">
         {/* Section Header */}
         <div className="text-center mb-8 md:mb-12" data-aos="fade-down">
-          <span className="inline-block text-xs font-bold text-primary uppercase tracking-widest mb-3 bg-primary/10 rounded-full px-4 py-1.5">
+          <span className="eyebrow mb-3">
             Our Fleet
           </span>
           <h2 className="font-heading text-2xl md:text-4xl lg:text-5xl font-extrabold text-foreground mb-3 leading-tight">

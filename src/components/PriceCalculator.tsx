@@ -455,10 +455,10 @@ const PriceCalculator = ({
       <div className="container px-4 md:px-6 relative z-10">
         {/* Section Header */}
         <div className="text-center mb-5 md:mb-8" data-aos="fade-down">
-          <span className="inline-block text-[10px] md:text-xs font-semibold text-electric-light uppercase tracking-wider mb-1.5">
+          <span className="inline-flex items-center gap-2 text-[10px] md:text-xs font-bold text-electric-light uppercase tracking-[0.16em] mb-2 bg-primary/15 border border-primary/25 rounded-full px-3.5 py-1.5">
             Transparent Pricing
           </span>
-          <h2 className="font-heading text-lg md:text-2xl font-bold text-primary-foreground mb-1.5">
+          <h2 className="font-heading text-xl md:text-3xl font-extrabold text-primary-foreground mb-1.5 tracking-tight">
             Check Availability & Price
           </h2>
           <p className="text-primary-foreground/70 text-xs max-w-xl mx-auto">
@@ -468,7 +468,7 @@ const PriceCalculator = ({
 
         {/* Calculator Card */}
         <div className="max-w-4xl mx-auto" data-aos="fade-up" data-aos-delay="100">
-          <div className="bg-primary-foreground/5 backdrop-blur-xl border border-primary-foreground/10 rounded-2xl p-4 md:p-8">
+          <div className="bg-primary-foreground/[0.07] backdrop-blur-xl border border-primary-foreground/15 rounded-3xl p-4 md:p-8 shadow-[0_24px_70px_-20px_rgba(0,0,0,0.6)]">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {/* Pickup Date & Time */}
               <div className="space-y-2">
@@ -733,7 +733,7 @@ const PriceCalculator = ({
               {carsWithPrices.map((car, index) => (
                 <div 
                   key={car.id} 
-                  className="group bg-gradient-to-br from-card to-card/80 rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 hover:-translate-y-2 border border-border/50 hover:border-primary/30"
+                  className="group bg-card rounded-3xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-500 hover:-translate-y-1.5 border border-border hover:border-primary/40"
                   data-aos="fade-up"
                   data-aos-delay={index * 50}
                 >
