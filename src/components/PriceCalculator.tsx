@@ -295,8 +295,6 @@ const PriceCalculator = ({
     
     let filteredCars = cars;
     
-    // Filter by location if selected
-    if (pickupLocation) {
       filteredCars = filteredCars.filter(car => 
         car.locations.length === 0 || car.locations.includes(pickupLocation)
       );
@@ -570,25 +568,12 @@ const PriceCalculator = ({
                 </div>
               </div>
 
-              {/* Pickup Location */}
-              <div className="space-y-2">
-                <Label className="text-primary-foreground font-medium flex items-center gap-2 text-sm">
-                  <MapPin className="w-4 h-4 text-electric-light" />
-                  Pickup Location
-                </Label>
-                <Select value={pickupLocation} onValueChange={(val) => { setPickupLocation(val); setShowCars(false); }}>
-                  <SelectTrigger className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground text-sm">
-                    <SelectValue placeholder="Select location" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {locations.map((loc) => (
-                      <SelectItem key={loc} value={loc}>
-                        {loc}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              {/* Availability note */}
+              <div className="flex items-center gap-2 text-sm text-primary-foreground/80">
+                <MapPin className="w-4 h-4 text-electric-light" />
+                Cars available all over Bangalore
               </div>
+
 
               {/* Transmission Preference */}
               <div className="space-y-2">
@@ -799,16 +784,13 @@ const PriceCalculator = ({
                       </span>
                     </div>
 
-                    {/* Location + KM info — clean rows */}
+                    {/* KM info — clean rows */}
                     <div className="space-y-1 mb-3 md:mb-4 text-[11px] md:text-xs">
-                      {(car.locations.length > 0 || car.customLocation) && (
-                        <div className="flex items-center gap-1.5 text-muted-foreground">
-                          <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                          <span className="truncate">
-                            {[...car.locations, car.customLocation].filter(Boolean).join(" · ")}
-                          </span>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-1.5 text-muted-foreground">
+                        <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                        <span className="truncate">Available all over Bangalore</span>
+                      </div>
+
 
                       <div className="flex items-center gap-1.5 text-muted-foreground">
                         <Gauge className="w-3.5 h-3.5 text-primary flex-shrink-0" />
@@ -831,7 +813,7 @@ const PriceCalculator = ({
                         `📅 Pickup: ${pickupStr}\n` +
                         `📅 Drop: ${dropStr}\n` +
                         `⏱️ Duration: ${durationStr}\n` +
-                        `📍 Location: ${pickupLocation || "To be decided"}\n\n` +
+                        `📍 Location: All over Bangalore\n\n` +
                         `👤 Name: ${customerName}\n` +
                         `📞 Phone: ${customerPhone}\n\n` +
                         priceLine +
