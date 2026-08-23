@@ -103,7 +103,11 @@ const Index = () => {
           <TermsSection />
         </section>
       ) : (
-        <FleetSection />
+        <>
+          <StatsStrip />
+          <FleetSection />
+          <HomeFeatures />
+        </>
       )}
       <InstagramHighlights />
       <GoogleReviews />
