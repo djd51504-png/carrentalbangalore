@@ -5,6 +5,8 @@ import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import PriceCalculator from "@/components/PriceCalculator";
 import FleetSection from "@/components/FleetSection";
+import StatsStrip from "@/components/StatsStrip";
+import HomeFeatures from "@/components/HomeFeatures";
 import GoogleReviews from "@/components/GoogleReviews";
 import InstagramHighlights from "@/components/InstagramHighlights";
 import TermsSection from "@/components/TermsSection";
@@ -101,7 +103,11 @@ const Index = () => {
           <TermsSection />
         </section>
       ) : (
-        <FleetSection />
+        <>
+          <StatsStrip />
+          <FleetSection />
+          <HomeFeatures />
+        </>
       )}
       <InstagramHighlights />
       <GoogleReviews />
