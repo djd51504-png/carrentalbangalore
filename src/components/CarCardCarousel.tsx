@@ -32,7 +32,7 @@ const CarCardCarousel = ({
 }: CarCardCarouselProps) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const carFullName = brand ? `${brand} ${name}` : name;
-  const locationText = "All over Bangalore";
+  const locationText = locations.length > 0 ? locations.join(", ") : "All over Bangalore";
   const waMessage = `Hi, I want to book the ${carFullName} from Car Rental Bengaluru.\n\n🚗 Car: ${carFullName}\n💰 Price: ₹${price}/day\n🛣️ KM Limit: ${kmLimit}km/day (₹${extraKmCharge}/extra km)\n📍 Location: ${locationText}\n\nPlease confirm availability.`;
   const whatsappLink = buildWhatsAppLink(waMessage);
 
@@ -159,7 +159,7 @@ const CarCardCarousel = ({
           </h3>
           <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
             <MapPin className="w-3 h-3 text-primary flex-shrink-0" />
-            <span className="truncate">Available all over Bangalore</span>
+            <span className="truncate">{locationText}</span>
           </div>
 
         </div>

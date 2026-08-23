@@ -785,7 +785,7 @@ const PriceCalculator = ({
                     <div className="space-y-1 mb-3 md:mb-4 text-[11px] md:text-xs">
                       <div className="flex items-center gap-1.5 text-muted-foreground">
                         <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                        <span className="truncate">Available all over Bangalore</span>
+                        <span className="truncate">{car.locations?.length ? car.locations.join(", ") : "All over Bangalore"}</span>
                       </div>
 
 
@@ -810,7 +810,7 @@ const PriceCalculator = ({
                         `📅 Pickup: ${pickupStr}\n` +
                         `📅 Drop: ${dropStr}\n` +
                         `⏱️ Duration: ${durationStr}\n` +
-                        `📍 Location: All over Bangalore\n\n` +
+                        `📍 Location: ${car.locations?.length ? car.locations.join(", ") : "All over Bangalore"}\n\n` +
                         `👤 Name: ${customerName}\n` +
                         `📞 Phone: ${customerPhone}\n\n` +
                         priceLine +
