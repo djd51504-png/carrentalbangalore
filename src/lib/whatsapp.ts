@@ -16,18 +16,26 @@ export const isAndroid = (): boolean =>
  * - Android: opens WhatsApp Business directly (falls back to wa.me).
  * - iOS / Desktop: opens wa.me (system picks the available app).
  */
+export type WhatsAppApp = "auto" | "business" | "messenger";
+
+const WHATSAPP_CONSUMER_PACKAGE = "com.whatsapp";
+
 export function buildWhatsAppLink(
   message: string,
   phone: string = WHATSAPP_NUMBER,
+  app: WhatsAppApp = "auto",
 ): string {
   const encoded = encodeURIComponent(message);
   const waMe = `https://wa.me/${phone}?text=${encoded}`;
   if (isAndroid()) {
+    const pkg =
+      app === "messenger" ? WHATSAPP_CONSUMER_PACKAGE : WHATSAPP_BUSINESS_PACKAGE;
     return (
       `intent://send?phone=${phone}&text=${encoded}` +
-      `#Intent;scheme=whatsapp;package=${WHATSAPP_BUSINESS_PACKAGE};` +
+      `#Intent;scheme=whatsapp;package=${pkg};` +
       `S.browser_fallback_url=${encodeURIComponent(waMe)};end`
     );
   }
   return waMe;
 }
+
