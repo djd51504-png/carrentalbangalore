@@ -23,9 +23,9 @@ const Header = () => {
         <Link to="/" className="flex items-center gap-2 md:gap-3">
           <img src={logo} alt="Car Rental Bengaluru Logo" className="h-10 md:h-14 w-auto" />
           <div>
-            <h1 className="font-heading font-bold text-sm md:text-xl text-foreground leading-tight">
+            <span className="block font-heading font-bold text-sm md:text-xl text-foreground leading-tight">
               Car Rental Bengaluru
-            </h1>
+            </span>
             <p className="text-[10px] md:text-xs text-gold font-medium">Nimma Trip Namma Car</p>
           </div>
         </Link>
