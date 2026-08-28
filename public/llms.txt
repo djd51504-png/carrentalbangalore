@@ -1,0 +1,13 @@
+# Car Rental Bengaluru
+
+> Self drive car rental in Bangalore from ₹2,500/day with a 300km daily limit, doorstep pickup across the city and instant WhatsApp booking.
+
+Car Rental Bengaluru (Nimma Trip Namma Car) rents hatchbacks, sedans, SUVs and MPVs for self drive use across Bengaluru, including Chikabanavara, Kengeri, Whitefield, HSR Layout, Koramangala, Hebbal, Electronic City and Bangalore Airport. A valid driving licence and Aadhaar are required, plus a refundable deposit.
+
+## Pages
+
+- [Home](/): Overview, availability check and instant price calculator.
+- [Cars](/cars): Full self drive fleet with photos, fuel type, transmission, KM limits and daily prices.
+- [Pricing](/pricing): Daily, weekly and monthly rental rates, extra KM charges and advance payment details.
+- [Contact](/contact): Phone, WhatsApp, email and both branch locations on Google Maps.
+- [Terms](/terms): Rental terms, documents required, deposit and usage rules.

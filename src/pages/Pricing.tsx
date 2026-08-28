@@ -83,9 +83,9 @@ const Pricing = () => {
           {/* Advance Payment Badge */}
           <div className="max-w-2xl mx-auto mb-10">
             <div className="bg-gradient-to-r from-gold/20 via-gold/10 to-gold/20 border-2 border-gold rounded-xl p-6 text-center">
-              <h3 className="font-heading font-bold text-xl text-foreground mb-2">
+              <h2 className="font-heading font-bold text-xl text-foreground mb-2">
                 Confirm Your Booking
-              </h3>
+              </h2>
               <p className="text-2xl font-bold text-gold mb-2">
                 Just ₹1000 Advance Payment
               </p>
@@ -193,9 +193,9 @@ const Pricing = () => {
 
           {/* Payment Methods */}
           <div className="bg-card rounded-2xl border border-border p-8 text-center">
-            <h3 className="font-heading font-bold text-xl text-foreground mb-6">
+            <h2 className="font-heading font-bold text-xl text-foreground mb-6">
               Accepted Payment Methods
-            </h3>
+            </h2>
             <div className="flex flex-wrap justify-center gap-8">
               <div className="flex flex-col items-center gap-2">
                 <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center">

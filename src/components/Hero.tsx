@@ -26,6 +26,7 @@ const Hero = () => {
           playsInline
           preload="metadata"
           poster="/hero-poster.jpg"
+          aria-label="Background video of a self drive rental car driving through Bengaluru"
           onError={() => setVideoFailed(true)}
           className="absolute inset-0 w-full h-full object-cover"
         >

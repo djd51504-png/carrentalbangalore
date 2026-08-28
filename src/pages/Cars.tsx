@@ -266,7 +266,7 @@ const Cars = () => {
     <div className="space-y-6">
       {/* Location Filter */}
       <div>
-        <h4 className="text-sm font-semibold text-foreground mb-3">Pickup Location</h4>
+        <h2 className="text-sm font-semibold text-foreground mb-3">Pickup Location</h2>
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setLocationFilter("all")}
@@ -298,7 +298,7 @@ const Cars = () => {
 
       {/* Category */}
       <div>
-        <h4 className="text-sm font-semibold text-foreground mb-3">Seating Capacity</h4>
+        <h2 className="text-sm font-semibold text-foreground mb-3">Seating Capacity</h2>
         <div className="flex flex-wrap gap-2">
           {categories.map(({ key, label, icon }) => (
             <button
@@ -319,7 +319,7 @@ const Cars = () => {
 
       {/* Fuel Type */}
       <div>
-        <h4 className="text-sm font-semibold text-foreground mb-3">Fuel Type</h4>
+        <h2 className="text-sm font-semibold text-foreground mb-3">Fuel Type</h2>
         <div className="flex flex-wrap gap-2">
           {(["all", "Petrol", "Diesel"] as FuelType[]).map((fuel) => (
             <button
@@ -340,7 +340,7 @@ const Cars = () => {
 
       {/* Transmission */}
       <div>
-        <h4 className="text-sm font-semibold text-foreground mb-3">Transmission</h4>
+        <h2 className="text-sm font-semibold text-foreground mb-3">Transmission</h2>
         <div className="flex flex-wrap gap-2">
           {(["all", "Manual", "Automatic"] as TransmissionType[]).map((trans) => (
             <button
