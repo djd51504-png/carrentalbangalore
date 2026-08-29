@@ -13,6 +13,7 @@ import Admin from "./pages/Admin";
 import AdminLogin from "./pages/AdminLogin";
 import BookingTerms from "./pages/BookingTerms";
 import BookingCheckout from "./pages/BookingCheckout";
+import BlogBangaloreToCoorg from "./pages/BlogBangaloreToCoorg";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
