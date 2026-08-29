@@ -94,6 +94,12 @@ const Footer = () => {
             <p className="text-primary-foreground/70 text-sm mb-4">
               Ready to hit the road? Book your car instantly on WhatsApp!
             </p>
+            <p className="text-primary-foreground/70 text-sm mb-4">
+              Planning a getaway? Read our{" "}
+              <a href="/blog/bangalore-to-coorg-road-trip" className="text-electric-light underline-offset-4 hover:underline">
+                Bangalore to Coorg road trip guide
+              </a>.
+            </p>
             <a
               href={buildWhatsAppLink("Hi Vikas, I want to book a car from Car Rental Bengaluru.")}
               target="_blank"
