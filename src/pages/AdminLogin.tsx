@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Seo } from "@/components/Seo";
 
 const AdminLogin = () => {
   const { toast } = useToast();
@@ -94,6 +95,12 @@ const AdminLogin = () => {
 
   return (
     <div className="min-h-screen bg-muted/30 flex items-center justify-center px-4">
+      <Seo
+        title="Admin Login | Car Rental Bengaluru"
+        description="Restricted admin login for Car Rental Bengaluru."
+        path="/admin/login"
+        noindex
+      />
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">

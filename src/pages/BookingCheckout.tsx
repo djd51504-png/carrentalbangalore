@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
+import { Seo } from "@/components/Seo";
 
 const BookingCheckout = () => {
   const navigate = useNavigate();
@@ -214,6 +215,12 @@ Please confirm availability and exact pickup location. I have my original Aadhaa
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Confirm Your Booking | Car Rental Bengaluru"
+        description="Review your self drive car booking details and confirm instantly on WhatsApp with Car Rental Bengaluru."
+        path="/booking/checkout"
+        noindex
+      />
       <Header />
       
       <main className="pt-24 pb-16">
