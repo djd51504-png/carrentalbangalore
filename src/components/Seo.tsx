@@ -6,17 +6,19 @@ interface SeoProps {
   path: string;
   type?: "website" | "article";
   jsonLd?: object | object[];
+  noindex?: boolean;
 }
 
 const SITE = "https://carrentalbangalore.lovable.app";
 
-export const Seo = ({ title, description, path, type = "website", jsonLd }: SeoProps) => {
+export const Seo = ({ title, description, path, type = "website", jsonLd, noindex = false }: SeoProps) => {
   const url = `${SITE}${path}`;
   const blocks = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
   return (
     <Helmet>
       <title>{title}</title>
       <meta name="description" content={description} />
+      {noindex && <meta name="robots" content="noindex, nofollow" />}
       <link rel="canonical" href={url} />
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
