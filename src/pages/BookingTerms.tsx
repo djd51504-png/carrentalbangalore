@@ -73,6 +73,12 @@ const BookingTerms = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Rental Terms & Conditions | Car Rental Bengaluru"
+        description="Review the rental terms for your self drive car booking in Bengaluru — documents required, fuel policy, speed limits and security deposit."
+        path="/booking/terms"
+        noindex
+      />
       <Header />
       
       <main className="pt-24 pb-16">
