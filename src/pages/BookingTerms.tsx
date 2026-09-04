@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useBooking } from "@/contexts/BookingContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { Seo } from "@/components/Seo";
 
 const termsItems = [
   {
