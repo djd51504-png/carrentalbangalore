@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useBooking } from "@/contexts/BookingContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { Seo } from "@/components/Seo";
 
 const termsItems = [
   {
@@ -73,6 +74,12 @@ const BookingTerms = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Rental Terms & Conditions | Car Rental Bengaluru"
+        description="Review the rental terms for your self drive car booking in Bengaluru — documents required, fuel policy, speed limits and security deposit."
+        path="/booking/terms"
+        noindex
+      />
       <Header />
       
       <main className="pt-24 pb-16">

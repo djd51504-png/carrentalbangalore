@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Seo } from "@/components/Seo";
 import MultiImageUpload from "@/components/MultiImageUpload";
 import { buildWhatsAppLink, isAndroid } from "@/lib/whatsapp";
 import type { User, Session } from "@supabase/supabase-js";
@@ -1058,6 +1059,12 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen bg-muted/30">
+      <Seo
+        title="Admin Dashboard | Car Rental Bengaluru"
+        description="Restricted admin panel for managing fleet, pricing and customer enquiries."
+        path="/admin"
+        noindex
+      />
       {/* Header */}
       <header className="bg-background border-b border-border sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
