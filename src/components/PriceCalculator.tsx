@@ -363,19 +363,23 @@ const PriceCalculator = ({
     setIsLoading(true);
     
     try {
-      // Save enquiry to database
-      await supabase.from('booking_enquiries').insert({
+      // Save enquiry to database (location is optional — default for all-Bangalore delivery)
+      const { error: insertError } = await supabase.from('booking_enquiries').insert({
         customer_name: customerName.trim(),
         customer_phone: customerPhone.trim(),
         pickup_date: `${pickupDate}T${pickupTime}:00`,
         drop_date: `${dropDate}T${dropTime}:00`,
-        pickup_location: pickupLocation || null,
+        pickup_location: pickupLocation || "All over Bangalore",
         car_name: 'Checking availability',
         total_days: calculation.fullDays,
         total_hours: calculation.extraHours,
         estimated_price: 0,
         status: 'pending',
       } as any);
+      if (insertError) {
+        console.error('Failed to save availability enquiry:', insertError);
+        throw insertError;
+      }
 
       // Send email notification to admin about availability check
       await supabase.functions.invoke('send-availability-notification', {
@@ -384,14 +388,14 @@ const PriceCalculator = ({
           customerPhone,
           pickupDate: `${pickupDate}T${pickupTime}`,
           dropDate: `${dropDate}T${dropTime}`,
-          pickupLocation: pickupLocation || "Not selected",
+          pickupLocation: pickupLocation || "All over Bangalore",
           totalDays: calculation.fullDays,
           totalHours: calculation.extraHours,
           transmission: transmissionFilter === "all" ? "Any" : transmissionFilter,
         },
       });
     } catch (error) {
-      console.error('Notification error:', error);
+      console.error('Availability check error:', error);
     }
     
     setTimeout(() => {
