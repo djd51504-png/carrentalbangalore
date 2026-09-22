@@ -1,0 +1,1 @@
+ALTER TABLE public.booking_enquiries DROP CONSTRAINT IF EXISTS positive_days;

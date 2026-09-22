@@ -15,6 +15,13 @@
       "when": 1790082816908,
       "tag": "0001_relax_enquiry_location_check_v2",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790082834810,
+      "tag": "0002_drop_positive_days_constraint",
+      "breakpoints": true
     }
   ]
 }
